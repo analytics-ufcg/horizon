@@ -12,16 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.utils.translation import ugettext_lazy as _
-
-import horizon
-
-from openstack_dashboard.dashboards.admin import dashboard
+from django.views.generic import TemplateView  # noqa
 
 
-class ProjectsPanel(horizon.Panel):
-    name = _("Projects Metric")
-    slug = 'projects_metric'
-
-
-dashboard.Admin.register(ProjectsPanel)
+class IndexView(TemplateView):
+    template_name = 'admin/projectsmetric/index.html'

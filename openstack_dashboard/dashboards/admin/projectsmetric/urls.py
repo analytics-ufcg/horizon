@@ -12,8 +12,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.views.generic import TemplateView  # noqa
+from django.conf.urls import patterns  # noqa
+from django.conf.urls import url  # noqa
 
+from openstack_dashboard.dashboards.admin.projectsmetric import views
 
-class IndexView(TemplateView):
-    template_name = 'admin/projects_metric/index.html'
+urlpatterns = patterns('',
+    url(r'^$', views.IndexView.as_view(), name='index'),
+)

@@ -34,7 +34,7 @@ class IdentityPanels(horizon.PanelGroup):
 class MetricPanels(horizon.PanelGroup):
     slug = "metric"
     name = _("Metric Panel")
-    panels = ('hosts', 'projects_metric')
+    panels = ('hosts', 'projectsmetric')
 
 class Admin(horizon.Dashboard):
     name = _("Admin")
