@@ -14,6 +14,9 @@
 
 from django.views.generic import TemplateView  # noqa
 
+from django.utils.translation import ugettext_lazy as _
+
+from openstack_dashboard.api import keystone
 
 class IndexView(TemplateView):
-    template_name = 'admin/projectsmetric/index.html'
+    template_name = 'admin/projectsmeter/index.html'

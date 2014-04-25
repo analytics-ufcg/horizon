@@ -6,21 +6,20 @@
           id="linechart_general_form">
 
       <div class="control-group">
-        <label for="meter" class="control-label">{% trans "Metric" %}:&nbsp;</label>
+        <label for="project" class="control-label">{% trans "Projects" %}:&nbsp;</label>
         <div class="controls line_chart_time_picker">
           <select data-line-chart-command="select_box_change"
-                  name="meter" id="meter" class="span2 example">
+                  name="project" id="project" class="span2 example">
           </select>
         </div>
       </div>
 
       <div class="control-group">
-        <label for="hosts" class="control-label">{% trans "Hosts" %}:&nbsp;</label>
+        <label for="instances" class="control-label">{% trans "Instances" %}:&nbsp;</label>
         <div class="controls">
           <select data-line-chart-command="select_box_change"
-                  id="hosts" name="hosts" class="span2">
+                  id="instances" name="instances" class="span2">
             <option value="" selected="selected">{% trans "--" %}</option>
-            <option selected="selected" value="150.165.15.4" selected>{% trans "150.165.15.4" %}</option>
           </select>
         </div>
       </div>
@@ -56,6 +55,7 @@
                  type="text" name="date_to" class="span2 example"/>
         </div>
       </div>
+        <button type="submit" class="btn btn-small">{% trans 'Apply' %}</button>
     </form>
   </div>
 </div>

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Projects" %}{% endblock %}
+
+{% block page_header %}
+  {% include "horizon/common/_page_header.html" with title=_("Projects") %}
+{% endblock page_header %}
+
+{% block main %}
+<div class="row-fluid">
+  <div class="span12">
+    {% include "admin/projectsmeter/teste.html" %}
+  </div>
+</div>
+<!--    {% include "horizon/common/_meter_project.html" %} -->
+{% endblock %}
