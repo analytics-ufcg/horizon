@@ -10,7 +10,10 @@
         <div class="controls line_chart_time_picker">
           <select data-line-chart-command="select_box_change"
                   name="meter" id="meter" class="span2 example">
-            <option value="" selected="selected">{% trans "--" %}</option>
+            <option selected="selected">{% trans "--" %}</option>
+            <option value="cpu" >CPU</option>
+            <option value="memory">Memory</option>
+            <option value="disk">Disk</option>
           </select>
         </div>
       </div>
@@ -20,7 +23,10 @@
         <div class="controls">
           <select data-line-chart-command="select_box_change"
                   id="hosts" name="hosts" class="span2">
-            <option value="" selected="selected">{% trans "--" %}</option>
+            <option selected="selected">{% trans "--" %}</option>
+            {% for host in hosts_list %}
+              <option value="{{host.ip}}" >{{host.ip}}</option>
+            {% endfor %}
           </select>
         </div>
       </div>
@@ -30,12 +36,10 @@
         <div class="controls">
           <select data-line-chart-command="select_box_change"
                   id="date_options" name="date_options" class="span2">
-            <option value="1">{% trans "Last day" %}</option>
-            <option value="7" selected="selected">{% trans "Last week" %}</option>
-            <option value="{% now 'j' %}">{% trans "Month to date" %}</option>
-            <option value="15">{% trans "Last 15 days" %}</option>
-            <option value="30">{% trans "Last 30 days" %}</option>
-            <option value="365">{% trans "Last year" %}</option>
+            <option value="hour">{% trans "Last Hour" %}</option>
+            <option value="day">{% trans "Last Day" %}</option>
+            <option value="week">{% trans "Last Week" %}</option>
+            <option value="month">{% trans "Last Month" %}</option>
             <option value="other">{% trans "Other" %}</option>
           </select>
         </div>

@@ -13,7 +13,18 @@
 #    under the License.
 
 from django.views.generic import TemplateView  # noqa
+from django.shortcuts import render
 
+import requests
 
 class IndexView(TemplateView):
     template_name = 'admin/hosts/index.html'
+
+    def get(self, request, *args, **kwargs):
+        r = requests.get('http://localhost:9090/hosts')
+        hosts_list = []
+        if r.status_code == 200:
+            hosts_list = r.json()['children']
+        else:
+            print "=== Cloud not get hosts list ==="
+        return render(request, self.template_name, {"hosts_list":hosts_list})
