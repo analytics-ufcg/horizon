@@ -11,13 +11,16 @@
         <label for="project" class="control-label">{% trans "Projects" %}:&nbsp;</label>
         <div class="controls line_chart_time_picker">
           <select data-line-chart-command="select_box_change"
-                  name="project" id="project" class="span2 example">
-            <option value="" selected="selected">{% trans "--" %}</option>
+                  name="project" id="project" class="span2 example" onchange="show_instances();">
+            <option value="--" selected="selected">{% trans "--" %}</option>
+            {% for key in projects %}
+              <option value="{{key}}">{{ key }}</option>
+            {% endfor %}
           </select>
         </div>
       </div>
 
-      <div class="control-group">
+      <div id="instances_select" class="control-group" style="display:none;">
         <label for="instances" class="control-label">{% trans "Instances" %}:&nbsp;</label>
         <div class="controls">
           <select data-line-chart-command="select_box_change"
@@ -32,14 +35,12 @@
         <div class="controls">
           <select data-line-chart-command="select_box_change"
                   id="date_options" name="date_options" class="span2">
-            <option value="1">{% trans "Last day" %}</option>
-            <option value="7" selected="selected">{% trans "Last week" %}</option>
-            <option value="{% now 'j' %}">{% trans "Month to date" %}</option>
-            <option value="15">{% trans "Last 15 days" %}</option>
-            <option value="30">{% trans "Last 30 days" %}</option>
-            <option value="365">{% trans "Last year" %}</option>
+            <option value="hour">{% trans "Last Hour" %}</option>
+            <option value="day">{% trans "Last Day" %}</option>
+            <option value="week">{% trans "Last Week" %}</option>
+            <option value="month">{% trans "Last Month" %}</option>
             <option value="other">{% trans "Other" %}</option>
-          </select>
+         </select>
         </div>
       </div>
 
@@ -66,9 +67,11 @@
 <script type="text/javascript">
   if (typeof $ !== 'undefined') {
     show_hide_datepickers();
+    show_instances();
   } else {
     addHorizonLoadEvent(function() {
       show_hide_datepickers();
+      show_instances();
     });
   }
 
@@ -89,6 +92,36 @@
     } else {
       $("#date_from, #date_to").hide();
     }
+  }
+
+  function show_instances() {
+    var projects = $.parseJSON("{{ projects_json | escapejs | safe }}");
+    $("#project").change(function(evt) {
+      var selectedOption = $(this).find("option:selected").val();
+      if (selectedOption == "--") {
+        $("#instances_select").hide();
+      } else {
+        var select = document.getElementById("instances");
+        select.length = 0;
+        var el = document.createElement("option");
+        el.textContent = "--";
+        el.value = null;
+        el.selected = "selected";
+        select.appendChild(el);
+
+        var instancesFromProject = projects[selectedOption];
+        var index;
+        for (index = 0; index < instancesFromProject.length; ++index) { 
+            console.log(instancesFromProject[index].instance_name);
+            var opt = instancesFromProject[index].instance_name;
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+        }
+        $("#instances_select").show();
+      }
+    });
   }
 </script>
 

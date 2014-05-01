@@ -25,6 +25,4 @@ class IndexView(TemplateView):
         hosts_list = []
         if r.status_code == 200:
             hosts_list = r.json()['children']
-        else:
-            print "=== Cloud not get hosts list ==="
         return render(request, self.template_name, {"hosts_list":hosts_list})
