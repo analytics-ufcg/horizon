@@ -246,14 +246,14 @@
 			}).fail(function(data) {
 				show_plot = false;
 			$('#chart').empty().queue(function(exec) {
-				$('#chart').html('<p><h3>Não foi possível gerar o gráfico.</h3><p>');
+				$('#chart').html('<p><h3>Could not generate the graph.</h3><p>');
 				exec();
 			});                                
 			}).done(function(data) {
 				var dados = data;
                                 if (dados === null || dados.length === 0 ) {
 					$('#chart').empty().queue(function(exec) {
-						$('#chart').html('<p><h3>Período de tempo não consta nos dados, selecione outro período.</h3><p>');
+						$('#chart').html('<p><h3>Time period is not reported in the data, select another period.</h3><p>');
 						exec();
 					});
 				} else {
@@ -261,7 +261,7 @@
                         	        $.each(dados,function(k,v){ if(dados[k]["host_address"]==host){ console.log("achou");return false; }else{index+=1;}  });
 					var dt = dados[index].data;
 					if (dt == null) {
-						$('#chart').html('<p><h3>Período de tempo não consta nos dados, selecione outro período.</h3><p>');
+						$('#chart').html('<p><h3>Time period is not reported in the data, select another period.</h3><p>');
 					} else {
 						var valores = selectMetric(metric, dt);
 						var json = {
