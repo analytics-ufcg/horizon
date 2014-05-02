@@ -48,7 +48,7 @@
         <label for="date_from" class="control-label">{% trans "From" %}:&nbsp;</label>
         <div class="controls">
           <input data-line-chart-command="date_picker_change"
-                 type="text" id="date_from" name="date_from" class="span2 example"/>
+                 type="text" id="date_from_input" name="date_from" class="span2 example"/>
         </div>
       </div>
 
@@ -56,22 +56,25 @@
         <label for="date_to" class="control-label">{% trans "To" %}:&nbsp;</label>
         <div class="controls">
           <input data-line-chart-command="date_picker_change"
-                 type="text" name="date_to" class="span2 example"/>
+                 type="text" id="date_to_input" name="date_to" class="span2 example"/>
         </div>
       </div>
-        <button type="submit" class="btn btn-small">{% trans 'Apply' %}</button>
+        <button type="submit" class="btn btn-small" onclick="verifica_parametros();">{% trans 'Apply' %}</button>
     </form>
   </div>
 </div>
-
+<div id="chart" style="width: 400; height: 400"></div>
 <script type="text/javascript">
+
   if (typeof $ !== 'undefined') {
     show_hide_datepickers();
     show_instances();
+
   } else {
     addHorizonLoadEvent(function() {
       show_hide_datepickers();
       show_instances();
+      verifica_parametros();
     });
   }
 
@@ -85,13 +88,150 @@
           $("#date_from, #date_to").show();
         } else {
           $("#date_from, #date_to").hide();
-        }
+        } 
     });
     if ($("#date_options").find("option:selected").val() == "other"){
       $("#date_from, #date_to").show();
     } else {
       $("#date_from, #date_to").hide();
     }
+  }
+
+  function verifica_parametros(){
+    var url_requisicao_vm = "http://150.165.15.4:9090/cpu_util";
+    var projeto = $("#project").find("option:selected").val();
+    var instancia = $("#instances").find("option:selected").val();
+    var tempo = $("#date_options").find("option:selected").val();
+    var dh1 = $('#date_from_input').val().replace("-", " ").replace("-", " ").split(" ");
+    var dt1 = new Date(dh1[0], dh1[1], dh1[2], 00, 00);
+    var dh2 = $('#date_to_input').val().replace("-", " ").replace("-", " ").split(" ");
+    var dt2 = new Date(dh2[0], dh2[1], dh2[2], 00, 00);
+
+    var complemento = "";
+    var now = new Date();
+    now.setTime(now.getTime() + now.getTimezoneOffset());
+
+    if(tempo !== 'undefined'){
+       if (tempo == "hour") {
+		var ontem = new Date(now - (1000 * 60 * 60 * 1));
+		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+		complemento += "?timestamp_begin=" + formattedDate(ontem, 0);
+		complemento += "&timestamp_end=" + formattedDate(now, 0);
+	} else if (tempo == "day") {
+		var ontem = new Date(now - (1000 * 60 * 60 * 24 * 1));
+		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+		complemento += "?timestamp_begin=" + formattedDate(ontem, 0);
+		complemento += "&timestamp_end=" + formattedDate(now, 0);
+	} else if (tempo == "week") {
+		var ontem = new Date(now - (1000 * 60 * 60 * 24 * 7));
+		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+		complemento += "?timestamp_begin=" + formattedDate(ontem, 0);
+		complemento += "&timestamp_end=" + formattedDate(now, 0);
+	} else if (tempo == "month") {
+		var ontem = new Date(now - (1000 * 60 * 60 * 24 * 30));
+		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+		complemento += "?timestamp_begin=" + formattedDate(ontem, 0);
+		complemento += "&timestamp_end=" + formattedDate(now, 0);
+	} else { 
+
+                complemento += "?timestamp_begin=" + formattedDate(dt1, 1);
+                complemento += "&timestamp_end=" + formattedDate(dt2, 1);
+        }
+    var resource_vm = $("input[name='defaultVM']:checked").val();
+    url_requisicao_vm += (complemento + "&resource_id=" + instancia);
+    console.log(url_requisicao_vm);
+
+		$.ajax({
+			url : url_requisicao_vm,
+			dataType : 'json'
+		}).fail(function(data) {
+			show_plot = false;
+			$('#chart').empty().queue(function(exec) {
+				$('#chart').html('<p><h3>Não foi possível gerar o gráfico.</h3><p>');
+				exec();
+			});
+		}).done(function(data) {
+                        dados = data;
+			if (data.length === 0) {
+				if (resource_vm == undefined) {
+					$('#chart').empty().queue(function(exec) {
+						$('#chart').html('<p><h3>Não foi possível gerar o gráfico.</h3><p>');
+						exec();
+					});
+				} else {
+					$('#chart').empty().queue(function(exec) {
+						$('#chart').html('<p><h3>Não foi possível gerar o gráfico.</h3><p>');
+						exec();
+					});
+				}
+			} else {
+                        console.log("passou");
+			var dados = data;
+                        console.log(dados);
+			var t1 = [];
+			var cpu = [];
+			t1.push("x");
+			cpu.push("CPU usage");
+			$.each(dados, function(d) {
+				t1.push(dados[d].timestamp.replace("T", " "));
+				cpu.push((dados[d].cpu_util_percent).toFixed(2));
+			});
+
+			var json = {
+				data : {
+					x : 'x',
+					x_format : '%Y-%m-%d %H:%M:%S',
+					columns : [t1, cpu]
+				},
+				subchart : {
+					show : true
+				},
+				axis : {
+					x : {
+						label : 'Tempo',
+						type : 'timeseries'
+					},
+					y : {
+						label : '(%) '
+					}
+				},
+				tooltip : {
+					format : {
+						title : function(d) {
+							return formattedDate(new Date(d.getTime())).replace("T", " - ");
+						},
+                                                 value : d3.format(',')
+					}
+				}
+			};
+
+			$('#chart').empty().queue(function(exec) {
+				var chart = c3.generate(json);
+                                console.log(chart);
+				exec();
+			});
+		    }
+		});
+	
+     }
+  }
+
+  function formattedDate(date, verificador) {
+	var d = new Date(date || Date.now()), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = '' + d.getFullYear(), hour = '' + (d.getHours()), minuto = '' + (d.getMinutes());
+	if (verificador == 1) {
+		month = '' + d.getMonth();
+	}
+	if (month.length < 2)
+		month = '0' + month;
+	if (day.length < 2)
+		day = '0' + day;
+	if (hour.length < 2)
+		hour = '0' + hour;
+	if (minuto.length < 2)
+		minuto = '0' + minuto;
+
+	return [year, month, day].join('-') + "T" + hour + ":" + minuto + ":00";
+
   }
 
   function show_instances() {
@@ -116,12 +256,14 @@
             var opt = instancesFromProject[index].instance_name;
             var el = document.createElement("option");
             el.textContent = opt;
-            el.value = opt;
+            el.value = instancesFromProject[index].resource_id;
             select.appendChild(el);
         }
         $("#instances_select").show();
       }
     });
+   
   }
+
 </script>
 
