@@ -146,8 +146,9 @@
 			dataType : 'json'
 		}).fail(function(data) {
 			show_plot = false;
+                        var inst = $("#instances").find("option:selected").text();
 			$('#chart').empty().queue(function(exec) {
-				$('#chart').html('<p><h3>Could not generate the graph.</h3><p>');
+				$('#chart').html('<p><h3>' + 'Could not generate the graph for the instance ' + inst + '</h3><p>');
 				exec();
 			});
 		}).done(function(data) {
@@ -156,12 +157,13 @@
 				if (resource_vm == undefined) {
                                         var inst = $("#instances").find("option:selected").text();
 					$('#chart').empty().queue(function(exec) {
-						$('#chart').html('<p><h3>' + 'Could not generate the graph for instance ' + inst + '</h3><p>');
+						$('#chart').html('<p><h3>' + 'Could not generate the graph for the instance ' + inst + '</h3><p>');
 						exec();
 					});
 				} else {
+                                        var inst = $("#instances").find("option:selected").text();
 					$('#chart').empty().queue(function(exec) {
-						$('#chart').html('<p><h3>Could not generate the graph.</h3><p>');
+						$('#chart').html('<p><h3>' + 'Could not generate the graph for the instance ' + inst + '</h3><p>');
 						exec();
 					});
 				}
@@ -189,7 +191,7 @@
 				},
 				axis : {
 					x : {
-						label : 'Tempo',
+						label : 'Time',
 						type : 'timeseries'
 					},
 					y : {
