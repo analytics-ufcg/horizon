@@ -12,14 +12,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.utils.translation import ugettext_lazy as _
+from django.conf.urls import patterns  # noqa
+from django.conf.urls import url  # noqa
 
-import horizon
+from openstack_dashboard.dashboards.admin.alarms import views
 
-from openstack_dashboard.dashboards.admin import dashboard
+urlpatterns = patterns('',
+    url(r'^$', views.IndexView.as_view(), name='index'),
+)
 
-class HostsPanel(horizon.Panel):
-    name = _("Hosts")
-    slug = 'hosts'
-
-dashboard.Admin.register(HostsPanel)

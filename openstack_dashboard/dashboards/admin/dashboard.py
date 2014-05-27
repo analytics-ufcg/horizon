@@ -31,15 +31,15 @@ class IdentityPanels(horizon.PanelGroup):
     name = _("Identity Panel")
     panels = ('domains', 'projects', 'users', 'groups', 'roles')
 
-class MeterPanels(horizon.PanelGroup):
-    slug = "meter"
+class TelemetryPanels(horizon.PanelGroup):
+    slug = "telemetry"
     name = _("Telemetry Panel")
-    panels = ('hosts', 'projectsmeter')
+    panels = ('graphs', 'recommendations', 'alarms')
 
 class Admin(horizon.Dashboard):
     name = _("Admin")
     slug = "admin"
-    panels = (SystemPanels, IdentityPanels, MeterPanels)
+    panels = (SystemPanels, IdentityPanels, TelemetryPanels)
     default_panel = 'overview'
     permissions = ('openstack.roles.admin',)
 

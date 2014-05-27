@@ -12,17 +12,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.views.generic import TemplateView  # noqa
-from django.shortcuts import render
+from django.utils.translation import ugettext_lazy as _
 
-import requests
+import horizon
 
-class IndexView(TemplateView):
-    template_name = 'admin/hosts/index.html'
+from openstack_dashboard.dashboards.admin import dashboard
 
-    def get(self, request, *args, **kwargs):
-        r = requests.get('http://localhost:9090/hosts')
-        hosts_list = []
-        if r.status_code == 200:
-            hosts_list = r.json()['children']
-        return render(request, self.template_name, {"hosts_list":hosts_list})
+class AlarmsPanel(horizon.Panel):
+    name = _("Alarms")
+    slug = 'alarms'
+
+dashboard.Admin.register(AlarmsPanel)
+
