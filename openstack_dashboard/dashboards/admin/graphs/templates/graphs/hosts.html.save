@@ -1,4 +1,7 @@
 {% load i18n %}
+{% load url from future %}
+
+
 <div id="ceilometer-stats">
   <form class="form-horizontal"
         id="linechart_general_form">
@@ -60,9 +63,9 @@
     </div>
       <button type="submit" class="btn btn-small" onclick="verifica_parametros();">{% trans 'Apply' %}</button>
   </form>
-
- <div id="chart"></div>
 </div>
+
+<div id="chart"></div>
 
 <script type="text/javascript">
 
@@ -239,22 +242,23 @@
       if(host != "--"){
          url_requisicao_host += complemento;
          console.log(url_requisicao_host);
+         alert(url_requisicao_host);
 			$.ajax({
 				url : url_requisicao_host,
 				dataType : 'json'
-			}).fail(function( xhr, textStatus, errorThrown) {
-				if(xhr.status == 0){
-                                        alert(xhr.data);
-					var dados = xhr.data;
-				}else{
-					$('#chart').empty().queue(function(exec) {
-                                		var ht = $('#hosts').find("option:selected").val();
-						$('#chart').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
-						exec();
-					});
-				}
-                                
+			}).fail(function(data) {
+                                console.log("erro fail");
+                                console.log(data..responseText);
+				
+show_plot = false;
+				$('#chart').empty().queue(function(exec) {
+                                	var ht = $('#hosts').find("option:selected").val();
+					$('#chart').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
+					exec();
+				});                                
 			}).done(function(data) {
+                                alert("done");
+                                alert(data.responseText);
 				var dados = data;
                                 if (dados === null || dados.length === 0 ) {
                                         var ht = $('#hosts').find("option:selected").val();

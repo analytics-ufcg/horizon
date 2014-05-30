@@ -1,8 +1,6 @@
 {% load i18n %}
 {% load url from future %}
 
-<div class="quota-dynamic">
-  <h3 class="quota-heading">{% trans "Projects" %}</h3>
   <div id="ceilometer-stats">
     <form class="form-horizontal"
           id="linechart_general_form">
@@ -62,7 +60,6 @@
         <button type="submit" class="btn btn-small" onclick="verifica_parametros();">{% trans 'Apply' %}</button>
     </form>
   </div>
-</div>
 <div id="chart" style="width: 400; height: 400"></div>
 <script type="text/javascript">
 

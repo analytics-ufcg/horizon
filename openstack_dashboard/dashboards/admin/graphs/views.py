@@ -27,13 +27,4 @@ class IndexView(tabs.TabView):
     template_name = 'admin/graphs/index.html'
 
 
-class HostView(TemplateView):
-    template_name = 'admin/graphs/hosts.html'
-
-    def get(self, request, *args, **kwargs):
-        r = requests.get('http://localhost:9090/hosts')
-        context = {}
-        if r.status_code == 200:
-            context['hosts_list'] = r.json()['children']
-        return context
 

@@ -26,11 +26,14 @@ class HostsTab(tabs.Tab):
     template_name = ("admin/graphs/hosts.html")
     preload = False
    
-    def get_context_data(self, request):
+    def get_context_data(self, request, *args, **kwargs):
         r = requests.get('http://localhost:9090/hosts')
-        context = {}
+        hosts_list = []
+
         if r.status_code == 200:
-            context['hosts_list'] = r.json()['children']
+            hosts_list = r.json()['children']
+        
+        context = { 'hosts_list': hosts_list }
         return context
 
 class AggregatesTab(tabs.Tab):
@@ -39,7 +42,7 @@ class AggregatesTab(tabs.Tab):
     template_name = ("admin/graphs/aggregates.html")
 
     def get_context_data(self, request):
-        context = template.RequestContext(request)
+        context = None
         return context
 
 class ProjectsTab(tabs.Tab):
@@ -49,16 +52,21 @@ class ProjectsTab(tabs.Tab):
     preload = False
 
     def get_context_data(self, request):
+
         r = requests.get('http://localhost:9090/projects/instances')
         if r.status_code == 200:
-            print r.json()
             projs = r.json()['children']
             projects = {}
             for p in projs:
                 if len(p['children']) > 0:
                     projects[p['name']] = p['children']
+ 
+        context = {
+           'projects': projects,
+           'projects_json': json.dumps(projects),
+        }
 
-        return render(request, self.template_name, {'projects' : projects, 'projects_json' : json.dumps(projects)})
+        return context
 
 class GraphsTabs(tabs.TabGroup):
     slug = "graphs_overview"

@@ -12,10 +12,18 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView  # noqa
 from django.shortcuts import render
 
+from horizon import tables
+from horizon import tabs
+
+from openstack_dashboard.dashboards.admin.alarms import tabs as \
+    alarms_tabs
+
 import requests
 
-class IndexView(TemplateView):
+class IndexView(tabs.TabbedTableView):
+    tab_group_class = alarms_tabs.AlarmsOverviewTabs
     template_name = 'admin/alarms/index.html'
