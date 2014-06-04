@@ -17,13 +17,26 @@ from django.utils.translation import ugettext_lazy as _
 
 from horizon import tabs
 
-class UpgradesTab(tabs.Tab):
+from openstack_dashboard.dashboards.admin.recommendations import tables
+from openstack_dashboard.api import telemetry 
+import requests
+
+class UpgradesTab(tabs.TableTab):
+    table_classes = (tables.UpgradeTable,)
     name = _("Upgrades")
     slug = "upgrades"
-    template_name = ("admin/recommendations/upgrades.html")
+    template_name = ("horizon/common/_detail_table.html")
+    #recommendations/upgrades.html")
 
-    def get_context_data(self, request):
-        return None
+    def get_upgrades_data(self):
+        req = requests.get("http://150.165.15.4:2700/host_metrics?project=demo")
+        upgrade_list = []
+        if req.status_code == 200:
+            data = req.json()
+            for h in data.keys():
+                host = telemetry.RecommendationsUpgrade(h,data[h]['Total'][0],data[h]['Em uso'][0],data[h]['Percentual'][0],data[h]['Total'][1],data[h]['Em uso'][1],data[h]['Percentual'][1],data[h]['Total'][2],data[h]['Em uso'][2],data[h]['Percentual'][2])
+                upgrade_list.append(host)
+        return  upgrade_list
 
 class FlavorsTab(tabs.Tab):
     name = _("Flavors")

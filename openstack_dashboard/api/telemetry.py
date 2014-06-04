@@ -1,0 +1,24 @@
+class RecommendationsUpgrade:
+
+    def __init__(self,host,cpu_total,cpu_usage,cpu_p, mem_total, mem_usage, mem_p, disk_total, disk_usage, disk_p):
+        self.host = host
+        self.cpu_total = cpu_total
+        self.cpu_usage = cpu_usage
+        self.cpu_percentage = cpu_p
+        self.memory_total = mem_total
+        self.memory_usage = mem_usage
+        self.memory_percentage = mem_p
+        self.disk_total = disk_total
+        self.disk_usage = disk_usage
+        self.disk_percentage = disk_p
+
+class AlarmsList:
+
+    def __init__(self, alarm_id, alarm_name, enabled, description):
+        self.alarm_id = alarm_id
+        self.alarm_name = alarm_name
+        self.enabled = enabled
+        self.description = description
+    
+    
+    

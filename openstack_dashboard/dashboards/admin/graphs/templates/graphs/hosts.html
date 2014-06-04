@@ -238,14 +238,66 @@
       var host = $("#hosts").find("option:selected").val();
       if(host != "--"){
          url_requisicao_host += complemento;
-         console.log(url_requisicao_host);
+         alert(url_requisicao_host);
 			$.ajax({
 				url : url_requisicao_host,
 				dataType : 'json'
 			}).fail(function( xhr, textStatus, errorThrown) {
+                                console.log(xhr.status);
+                                console.log(xhr);
 				if(xhr.status == 0){
-                                        alert(xhr.data);
-					var dados = xhr.data;
+					var dados = xhr.responseText;
+                                        if (dados === null || dados.length === 0 ) {
+                                        	var ht = $('#hosts').find("option:selected").val();
+                                        	$('#chart').empty().queue(function(exec) {
+                                                	$('#chart').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
+                                                	exec();
+                                        	});
+                                	}else{
+						var index = 0;
+                                        	$.each(dados,function(k,v){ if(dados[k]["host_address"]==host){ console.log("achou");return false; }else{index+=1;}  });
+                                        	var dt = dados[index].data;
+                                        	if (dt == null) {
+                                                	var ht = $('#hosts').find("option:selected").val();
+                                                	$('#chart').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
+                                        	} else {
+                                                	var valores = selectMetric(metric, dt);
+                                                	var json = {
+                                                        	        data : {
+                                                                	        x : 'x',
+                                                                        	x_format : '%Y-%m-%d %H:%M:%S',
+                                                                        	columns : valores
+                                                                	},
+                                                                	subchart : {
+                                                                        	show : true
+                                                                	},
+                                                                	axis : {
+                                                                        	x : {
+                                                                                	label : 'Time',
+                                                                                	type : 'timeseries'
+                                                                        	},
+                                                                        	y : {
+                                                                                	label : '(%) '
+                                                                        	}
+                                                                	},
+                                                                	tooltip : {
+                                                                        	format : {
+                                                                                	title : function(d) {
+                                                                                        	return formattedDate(new Date(d.getTime())).replace("T", " - ");
+                                                                                	},
+                                                                                	value : d3.format(',')
+                                                                        	}
+                                                                	}
+                                                        };
+
+                                                        $('#chart').empty().queue(function(exec) {
+                                                                var chart = c3.generate(json);
+                                                                exec();
+                                                        });
+
+	                                        }
+					}
+			 
 				}else{
 					$('#chart').empty().queue(function(exec) {
                                 		var ht = $('#hosts').find("option:selected").val();

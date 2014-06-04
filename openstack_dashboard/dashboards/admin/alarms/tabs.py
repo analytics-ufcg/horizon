@@ -12,19 +12,26 @@
 from django import template
 from django.utils.translation import ugettext_lazy as _
 
-from openstack_dashboard.api import keystone
+from openstack_dashboard import api
+from openstack_dashboard.api.telemetry import AlarmsList as alarms
 
 from horizon import tabs
+from horizon import exceptions
 
 from openstack_dashboard.dashboards.admin.alarms import tables
+import requests
 
-class AlarmHistoryTab(tabs.Tab):
-    name = _("Alarm History")
-    slug = "alarm_history"
+
+class AlarmsHistoryTab(tabs.TableTab):
+    table_classes = (tables.AlarmsHistoryTable,)
+    name = _("Alarms History")
+    slug = "alarms_history"
     template_name = ("horizon/common/_detail_table.html")
 
-    def get_context_data(self, request):
-        return None
+    def get_alarms_history_data(self):
+        request = self.tab_group.request
+        services = []
+        return services
 
 class AlarmsListTab(tabs.TableTab):
     table_classes = (tables.AlarmsListTable,)
@@ -33,11 +40,21 @@ class AlarmsListTab(tabs.TableTab):
     template_name = ("horizon/common/_detail_table.html")
 
     def get_alarms_list_data(self):
-        request = self.tab_group.request
-        services = []
-        return services
+        r = requests.get('http://localhost:9090/alarm_description')
+        alarms_obj = []
+        if r.status_code == 200:
+            alarms_dict = r.json()
+            for ids in alarms_dict.keys():
+                alarm_id = ids
+                alarm_name = alarms_dict[ids][0]
+                enabled = alarms_dict[ids][1]
+                description = alarms_dict[ids][2]
+                alarm = alarms(ids, alarm_name, enabled, description)
+                alarms_obj.append(alarm)
+            
+        return alarms_obj        
 
 class AlarmsOverviewTabs(tabs.TabGroup):
     slug = "alarms_overview"
-    tabs = (AlarmHistoryTab, AlarmsListTab, )
+    tabs = (AlarmsHistoryTab, AlarmsListTab, )
     sticky = True
