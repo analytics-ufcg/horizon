@@ -1,5 +1,74 @@
 {% load i18n %}
-<div id="flavors_overview">
+<div id="ceilometer-stats">
   {% trans "Flavors Recommendations"%}
+
+   <form class="form-horizontal" id="linechart_general_form">
+   
+      <div class="control-group">
+        <label for="date_options" class="control-label">{% trans "Period" %}:&nbsp;</label>
+        <div class="controls">
+          <select data-line-chart-command="select_box_change"
+                  id="date_options" name="date_options" class="span2">
+            <option value="hour">{% trans "Last Hour" %}</option>
+            <option value="day">{% trans "Last Day" %}</option>
+            <option value="week">{% trans "Last Week" %}</option>
+            <option value="month">{% trans "Last Month" %}</option>
+            <option value="other">{% trans "Other" %}</option>
+         </select>
+        </div>
+      </div>
+
+
+    <div class="control-group" id="date_from">
+      <label for="date_from" class="control-label">{% trans "From" %}:&nbsp;</label>
+      <div class="controls">
+        <input data-line-chart-command="date_picker_change"
+               type="text" id="date_from_input" name="date_from" class="span2 example"/>
+      </div>
+    </div>
+
+    <div class="control-group" id="date_to">
+      <label for="date_to" class="control-label">{% trans "To" %}:&nbsp;</label>
+      <div class="controls">
+        <input data-line-chart-command="date_picker_change"
+               type="text" id="date_to_input" name="date_to" class="span2 example"/>
+      </div>
+    </div>
+      <button type="submit" class="btn btn-small" >{% trans 'Apply' %}</button>
+
+
+   </form>
+
+
 </div>
 
+<script type="text/javascript">
+
+  if (typeof $ !== 'undefined') {
+      show_hide_datepickers();
+  } else {
+    addHorizonLoadEvent(function() {
+      show_hide_datepickers();
+    });
+  }
+
+  function show_hide_datepickers() {
+    $("#date_options").change(function(evt) {
+        // Enhancing behaviour of selectbox, on 'other' value selected, I don't
+        // want to refresh, but show hide the date fields
+        if ($(this).find("option:selected").val() == "other"){
+          evt.stopPropagation();
+          $("#date_from .controls input, #date_to .controls input").val('');
+          $("#date_from, #date_to").show();
+        } else {
+          $("#date_from, #date_to").hide();
+        }
+    });
+    if ($("#date_options").find("option:selected").val() == "other"){
+      $("#date_from, #date_to").show();
+    } else {
+      $("#date_from, #date_to").hide();
+    }
+  }
+
+</script>

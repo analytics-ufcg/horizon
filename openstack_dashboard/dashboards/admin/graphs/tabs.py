@@ -24,7 +24,6 @@ class HostsTab(tabs.Tab):
     name = _("Hosts")
     slug = "hosts"
     template_name = ("admin/graphs/hosts.html")
-    preload = False
    
     def get_context_data(self, request, *args, **kwargs):
         r = requests.get('http://localhost:9090/hosts')
@@ -49,7 +48,6 @@ class ProjectsTab(tabs.Tab):
     name = ("Projects")
     slug = "projects_meter"
     template_name = ("admin/graphs/projects.html")
-    preload = False
 
     def get_context_data(self, request):
 
@@ -70,6 +68,6 @@ class ProjectsTab(tabs.Tab):
 
 class GraphsTabs(tabs.TabGroup):
     slug = "graphs_overview"
-    tabs = (AggregatesTab, HostsTab, ProjectsTab, )
+    tabs =  (HostsTab, ProjectsTab, AggregatesTab, )
     sticky = True
 

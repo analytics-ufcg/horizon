@@ -58,12 +58,11 @@
                type="text" id="date_to_input" name="date_to" class="span2 example"/>
       </div>
     </div>
-      <button type="submit" class="btn btn-small" onclick="verifica_parametros();">{% trans 'Apply' %}</button>
+      <button type="submit" class="btn btn-small" onclick="verifica_parametros2();">{% trans 'Apply' %}</button>
   </form>
 
- <div id="chart"></div>
 </div>
-
+<br><br><br><br><div id="chart2" style="width: 400; height: 400"></div>
 <script type="text/javascript">
 
   if (typeof $ !== 'undefined') {
@@ -71,7 +70,7 @@
   } else {
     addHorizonLoadEvent(function() {
       show_hide_datepickers();
-      verifica_parametros();
+      verifica_parametros2();
     });
   }
 
@@ -178,8 +177,7 @@
 	return (str);
   };
 
-  function verifica_parametros(){
-
+  function verifica_parametros2(){
     var tempo = $("#date_options").find("option:selected").val();
     var dh1 = $('#date_from_input').val().replace("-", " ").replace("-", " ").split(" ");
     var dt1 = new Date(dh1[0], dh1[1], dh1[2], 00, 00);
@@ -221,15 +219,15 @@
 
       var url_requisicao_host = "http://150.165.15.4:9090";
       var metric = $("#meter").find("option:selected").val();
-      
+      alert("Metric "+metric);
       if(metric == "cpu"){
-           url_requisicao_host += "/hosts_cpu_util";	
+           url_requisicao_host += "/hosts_cpu_util_otimization";	
       }
       else if( metric == "disk"){	
-	url_requisicao_host += "/hosts_disk";
+	url_requisicao_host += "/hosts_disk_otimization";
       }
       else if( metric == "memory") {
-	url_requisicao_host += "/hosts_memory";
+	url_requisicao_host += "/hosts_memory_otimization";
       }
       else { 
         console.log("erro");
@@ -238,75 +236,20 @@
       var host = $("#hosts").find("option:selected").val();
       if(host != "--"){
          url_requisicao_host += complemento;
-         alert(url_requisicao_host);
 			$.ajax({
 				url : url_requisicao_host,
 				dataType : 'json'
 			}).fail(function( xhr, textStatus, errorThrown) {
                                 console.log(xhr.status);
                                 console.log(xhr);
-				if(xhr.status == 0){
-					var dados = xhr.responseText;
-                                        if (dados === null || dados.length === 0 ) {
-                                        	var ht = $('#hosts').find("option:selected").val();
-                                        	$('#chart').empty().queue(function(exec) {
-                                                	$('#chart').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
-                                                	exec();
-                                        	});
-                                	}else{
-						var index = 0;
-                                        	$.each(dados,function(k,v){ if(dados[k]["host_address"]==host){ console.log("achou");return false; }else{index+=1;}  });
-                                        	var dt = dados[index].data;
-                                        	if (dt == null) {
-                                                	var ht = $('#hosts').find("option:selected").val();
-                                                	$('#chart').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
-                                        	} else {
-                                                	var valores = selectMetric(metric, dt);
-                                                	var json = {
-                                                        	        data : {
-                                                                	        x : 'x',
-                                                                        	x_format : '%Y-%m-%d %H:%M:%S',
-                                                                        	columns : valores
-                                                                	},
-                                                                	subchart : {
-                                                                        	show : true
-                                                                	},
-                                                                	axis : {
-                                                                        	x : {
-                                                                                	label : 'Time',
-                                                                                	type : 'timeseries'
-                                                                        	},
-                                                                        	y : {
-                                                                                	label : '(%) '
-                                                                        	}
-                                                                	},
-                                                                	tooltip : {
-                                                                        	format : {
-                                                                                	title : function(d) {
-                                                                                        	return formattedDate(new Date(d.getTime())).replace("T", " - ");
-                                                                                	},
-                                                                                	value : d3.format(',')
-                                                                        	}
-                                                                	}
-                                                        };
-
-                                                        $('#chart').empty().queue(function(exec) {
-                                                                var chart = c3.generate(json);
-                                                                exec();
-                                                        });
-
-	                                        }
-					}
-			 
-				}else{
 					$('#chart').empty().queue(function(exec) {
                                 		var ht = $('#hosts').find("option:selected").val();
 						$('#chart').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
 						exec();
 					});
-				}
                                 
 			}).done(function(data) {
+                                alert("DONE AJAX");
 				var dados = data;
                                 if (dados === null || dados.length === 0 ) {
                                         var ht = $('#hosts').find("option:selected").val();
@@ -323,11 +266,13 @@
 						$('#chart').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
 					} else {
 						var valores = selectMetric(metric, dt);
-						var json = {
+						console.log(valores);
+						var json = { bindto: '#chart2',
 								data : {
 									x : 'x',
 									x_format : '%Y-%m-%d %H:%M:%S',
 									columns : valores
+
 								},
 								subchart : {
 									show : true
@@ -335,7 +280,12 @@
 								axis : {
 									x : {
 										label : 'Time',
-										type : 'timeseries'
+										type : 'timeseries',
+										tick : {
+											fit: true,
+											count: 5,
+											format: '%e %b %H:%M',
+											}
 									},
 									y : {
 										label : '(%) '
