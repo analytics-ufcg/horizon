@@ -29,7 +29,7 @@ class UpgradesTab(tabs.TableTab):
     #recommendations/upgrades.html")
 
     def get_upgrades_data(self):
-        req = requests.get("http://150.165.15.4:2700/host_metrics?project=demo")
+        req = requests.get("http://150.165.15.4:9090/host_metrics?project=demo")
         upgrade_list = []
         if req.status_code == 200:
             data = req.json()
@@ -39,19 +39,26 @@ class UpgradesTab(tabs.TableTab):
         return  upgrade_list
 
 class FlavorsTab(tabs.Tab):
+    #tabs.TableTab
+    #table_classes = (tables.FlavorTable,)
     name = _("Flavors")
     slug = "flavors_rec"
+    #template_name = ("horizon/common/_detail_table.html")
     template_name = ("admin/recommendations/flavors.html")
-    preload = False
-
-    def get_context_data(self, request):
+    #def get_flavors_data(self):
+    def get_context_data(self,request):
+        #req = requests.get("http://150.165.15.4:9090/o")
+        #flavor_list = []
+        #if req.status_code == 200:
+        #    data = req.json()
+             
+        #return flavor_list
         return None
 
 class PowerTab(tabs.Tab):
     name = _("Power Saving")
     slug = "power"
     template_name = ("admin/recommendations/power.html")
-    preload = False
 
     def get_context_data(self, request):
         return None 

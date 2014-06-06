@@ -135,13 +135,11 @@
         }
     var resource_vm = $("input[name='defaultVM']:checked").val();
     url_requisicao_vm += (complemento + "&resource_id=" + instancia);
-    alert(url_requisicao_vm);
 
 		$.ajax({
 			url : url_requisicao_vm,
 			dataType : 'json'
 		}).fail(function(data) {
-			alert(data.status);
 			show_plot = false;
                         var inst = $("#instances").find("option:selected").text();
 			$('#chart').empty().queue(function(exec) {

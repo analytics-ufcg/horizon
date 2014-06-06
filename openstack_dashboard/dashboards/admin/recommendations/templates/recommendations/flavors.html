@@ -1,4 +1,5 @@
 {% load i18n %}
+<div class="row-fluid">
 <div id="ceilometer-stats">
   {% trans "Flavors Recommendations"%}
 
@@ -34,14 +35,20 @@
                type="text" id="date_to_input" name="date_to" class="span2 example"/>
       </div>
     </div>
-      <button type="submit" class="btn btn-small" >{% trans 'Apply' %}</button>
-
-
+      <button type="submit" class="btn btn-small" onclick="gera_recomendacao();">{% trans 'Apply' %}</button>
    </form>
 
 
 </div>
-
+<br><br><br>
+<div class="span4 chart_container" id="recomendacoes_geradas_grafico"></div>
+<div class="span4 chart_container" id="recomendacoes_grafico_violacoes"></div>
+<div class="usage_info_wrapper">
+<h4> <b>Sugestion</b>:  Describe the ideal number of cores that instances should have according to the recommendation.</h4>
+<h4> <b>Lose</b>: Describe the mean of the amount of CPU not used in every instance in relation to the number of cores for each data available.</h4>
+<h4> <b>Violations</b>: Describe the percentage number of times that overloaded the machines considering the use of instances of suggestion indicated.</h4>
+</div>
+</div>
 <script type="text/javascript">
 
   if (typeof $ !== 'undefined') {
@@ -56,6 +63,7 @@
     $("#date_options").change(function(evt) {
         // Enhancing behaviour of selectbox, on 'other' value selected, I don't
         // want to refresh, but show hide the date fields
+        console.log($(this).find("option:selected").val());
         if ($(this).find("option:selected").val() == "other"){
           evt.stopPropagation();
           $("#date_from .controls input, #date_to .controls input").val('');
@@ -70,5 +78,211 @@
       $("#date_from, #date_to").hide();
     }
   }
+
+
+var recomendacoes;
+
+function formattedDate(date, verificador) {
+	var d = new Date(date || Date.now()), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = '' + d.getFullYear(), hour = '' + (d.getHours()), minuto = '' + (d.getMinutes());
+	if (verificador == 1) {
+		month = '' + d.getMonth();
+	}
+	if (month.length < 2)
+		month = '0' + month;
+	if (day.length < 2)
+		day = '0' + day;
+	if (hour.length < 2)
+		hour = '0' + hour;
+	if (minuto.length < 2)
+		minuto = '0' + minuto;
+
+	return [year, month, day].join('-') + "T" + hour + ":" + minuto + ":00";
+
+}
+
+
+
+
+function gera_recomendacao() {
+    var out = $("#date_options").find("option:selected").val();
+    var dh1 = $('#date_from_input').val().replace("-", " ").replace("-", " ").split(" ");
+    var dt1 = new Date(dh1[0], dh1[1], dh1[2], 00, 00);
+    var dh2 = $('#date_to_input').val().replace("-", " ").replace("-", " ").split(" ");
+    var dt2 = new Date(dh2[0], dh2[1], dh2[2], 00, 00);
+
+    var now = new Date();
+    now.setTime(now.getTime() + now.getTimezoneOffset());
+    var url_recomenda = "http://150.165.15.4:9090/cpu_util_flavors";
+	if (out == "hour") {
+		var ontem = new Date(now - (1000 * 60 * 60 * 1));
+		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+		url_recomenda += "?timestamp_begin=" + formattedDate(ontem, 0);
+		url_recomenda += "&timestamp_end=" + formattedDate(now, 0);
+	} else if (out == "day") {
+		var ontem = new Date(now - (1000 * 60 * 60 * 24 * 1));
+		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+		url_recomenda += "?timestamp_begin=" + formattedDate(ontem, 0);
+		url_recomenda += "&timestamp_end=" + formattedDate(now, 0);
+	} else if (out == "week") {
+		var ontem = new Date(now - (1000 * 60 * 60 * 24 * 7));
+		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+		url_recomenda += "?timestamp_begin=" + formattedDate(ontem, 0);
+		url_recomenda += "&timestamp_end=" + formattedDate(now, 0);
+	} else if (out == "month") {
+		var ontem = new Date(now - (1000 * 60 * 60 * 24 * 30));
+		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+		url_recomenda += "?timestamp_begin=" + formattedDate(ontem, 0);
+		url_recomenda += "&timestamp_end=" + formattedDate(now, 0);
+	} else {
+		url_recomenda += "?timestamp_begin=" + formattedDate(dt1, 1);
+		url_recomenda += "&timestamp_end=" + formattedDate(dt2, 1);
+	}
+
+	var lista_rec = [];
+	var lista_valores = [];
+	var lista_ic = [];
+	var lista_violacoes = [];
+	$.ajax({
+		url : url_recomenda,
+		dataType : 'json'
+	}).fail(function(data) {
+		console.log("erro");
+	}).done(function(data) {
+		recomendacoes = data;
+
+		if (jQuery.isEmptyObject(data)) {
+			console.log("vazio");
+		} else {
+
+			var tabela_rec = '<table class="table table-bordered"><thead><tr><th>Recommendation</th><th>Sugestion</th><th>Lose</th><th>Violations</th> </tr></thead><tbody>';
+			var rows;
+			var numero_da_rec = 1;
+
+			$.each(recomendacoes, function(k, v) {
+				var rec = "Recommendation " + numero_da_rec;
+				lista_rec.push(rec);
+				var lista = JSON.parse(recomendacoes[k][0]).split(":");
+				lista_valores.push(parseFloat(lista[0]));
+				var valores_ic = lista[1].replace("{", "").replace("}", "").split("-");
+				var ic = [parseFloat(valores_ic[0]), parseFloat(valores_ic[1])];
+				lista_ic.push(ic);
+				lista_violacoes.push(parseFloat(recomendacoes[k][1]));
+				var core = "";
+				if(k == "1"){
+					core = k + " core";
+				}else{
+					core = k + " cores";
+				}
+				rows = '<tr><th>' + 'Recommendation  ' + numero_da_rec + '</th><th>' + core.replace(':',', ') +  '</th><th>' + JSON.parse(recomendacoes[k][0]).split(':')[0]+' %' + '</th><th>' + recomendacoes[k][1] + ' %' + '</th></tr>';
+				tabela_rec += rows;
+				numero_da_rec += 1;
+			});
+			tabela_rec += '</tbdody></table>';
+			{# $(tabela_rec).appendTo('#recomendacoes_geradas'); #}
+			grafico_rec(lista_rec, lista_valores, lista_ic); 
+			grafico_violacoes(lista_rec, lista_violacoes); 
+		}
+	});
+
+}
+
+function grafico_rec(nomes, valores, ic) {
+	var chart;
+	console.log(ic);
+	$('#recomendacoes_geradas_grafico').highcharts({
+		chart : {
+			zoomType : 'x',
+		},
+		title : {
+			text : 'Average of Lose (%) per Recommendation'
+		},
+		xAxis : [{
+			categories : nomes
+		}],
+		yAxis : {
+			labels : {
+				formatter : function() {
+					return this.value + '%';
+				}
+			},
+			title : {
+				text : 'Lose'
+			}
+		},
+
+		tooltip : {
+			shared : true
+		},
+		plotOptions : {
+			column : {
+				pointPadding : 0.2,
+				borderWidth : 0
+			}
+		},
+		series : [{
+			name : 'Lose (%)',
+			type : 'column',
+			data : valores,
+			tooltip : {
+				pointFormat : '<span style="font-weight: bold; color: {series.color}">{series.name}</span>: <b>{point.y:.2f}%</b><br/>'
+			}
+		}, {
+			color : '#FF0000',
+			name : 'Confidence Interval',
+			type : 'errorbar',
+			data : ic,
+			tooltip : {
+				pointFormat : 'Confidence Interval: {point.low}-{point.high}'
+			}
+		}]
+	});
+
+}
+
+function grafico_violacoes(nomes, valores) {
+	var chart;
+	$('#recomendacoes_grafico_violacoes').highcharts({
+		chart : {
+			type : 'column',
+			zoomType : 'x',
+
+		},
+		title : {
+			text : 'Violations (%) per Recommendation'
+		},
+		xAxis : [{
+			categories : nomes
+		}],
+		yAxis : {
+			min : 0,
+			labels : {
+				formatter : function() {
+					return this.value + '%';
+				}
+			},
+			title : {
+				text : 'Violations (%)'
+			}
+		},
+
+		tooltip : {
+			shared : true
+		},
+		plotOptions : {
+			column : {
+				pointPadding : 0.2,
+				borderWidth : 0
+			}
+		},
+		series : [{
+			name : 'Violations (%)',
+			type : 'column',
+			data : valores,
+			tooltip : {
+				pointFormat : '<span style="font-weight: bold; color: {series.color}">{series.name}</span>: <b>{point.y:.1f}%</b><br/>'
+			}
+		}]
+	});
+}
 
 </script>

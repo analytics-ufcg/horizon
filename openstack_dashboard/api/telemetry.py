@@ -20,5 +20,11 @@ class AlarmsList:
         self.enabled = enabled
         self.description = description
     
+class RecommendationFlavors:
     
+    def __init__(self, name, sugestion, lose, violations):
+        self.name = name
+        self.sugestion = sugestion
+        self.lose = lose
+        self.violations = violations    
     

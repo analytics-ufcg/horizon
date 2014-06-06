@@ -38,3 +38,17 @@ class UpgradeTable(tables.DataTable):
         name="upgrades"
         verbose_name = _("Upgrade")
         multi_select = False
+
+
+class FlavorTable(tables.DataTable):
+    rec = tables.Column('name', verbose_name=_('Recommendation'))
+    sugest = tables.Column('sugestion', verbose_name=_('Sugestion'))
+    lose = tables.Column('lose', verbose_name=_('Lose (%)'))
+    violation = tables.Column('violations', verbose_name=_('Violations (%)'))
+
+    def get_object_id(self,obj):
+        return "%s" %(obj.name)
+    
+    class Meta:
+        name="flavors"
+        verbose_name = _('Flavors')
