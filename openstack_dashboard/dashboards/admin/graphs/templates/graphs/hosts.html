@@ -231,10 +231,10 @@
       else { 
         console.log("erro");
       }
-
       var host = $("#hosts").find("option:selected").val();
       if(host != "--"){
          url_requisicao_host += complemento;
+         console.log(url_requisicao_host)
 			$.ajax({
 				url : url_requisicao_host,
 				dataType : 'json'
