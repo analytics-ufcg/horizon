@@ -9,16 +9,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from django import template
 from django.utils.translation import ugettext_lazy as _
 
-from openstack_dashboard import api
 from openstack_dashboard.api.telemetry import AlarmsList as alarms_list
 from openstack_dashboard.api.telemetry import AlarmsHistory as alarms_hist
 from openstack_dashboard.dashboards.admin.alarms import tables
 
 from horizon import tabs
-from horizon import exceptions
 
 import requests
 import json
@@ -52,7 +49,7 @@ class AlarmsListTab(tabs.TableTab):
     template_name = ("horizon/common/_detail_table.html")
 
     def get_alarms_list_data(self):
-        r = requests.get('http://localhost:9090/alarm_description')
+        r = requests.get('http://150.165.15.4:9090/alarm_description')
         alarms_obj = []
 
         if r.status_code == 200:

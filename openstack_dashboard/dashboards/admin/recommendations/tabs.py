@@ -18,7 +18,8 @@ from django.utils.translation import ugettext_lazy as _
 from horizon import tabs
 
 from openstack_dashboard.dashboards.admin.recommendations import tables
-from openstack_dashboard.api import telemetry 
+from openstack_dashboard.api.telemetry import RecommendationsUpgrade as dataUpgrade
+ 
 import requests
 
 class UpgradesTab(tabs.TableTab):
@@ -34,7 +35,7 @@ class UpgradesTab(tabs.TableTab):
         if req.status_code == 200:
             data = req.json()
             for h in data.keys():
-                host = telemetry.RecommendationsUpgrade(h,data[h]['Total'][0],data[h]['Em uso'][0],data[h]['Percentual'][0],data[h]['Total'][1],data[h]['Em uso'][1],data[h]['Percentual'][1],data[h]['Total'][2],data[h]['Em uso'][2],data[h]['Percentual'][2])
+                host = dataUpgrade(h,data[h]['Total'][0],data[h]['Em uso'][0],data[h]['Percentual'][0],data[h]['Total'][1],data[h]['Em uso'][1],data[h]['Percentual'][1],data[h]['Total'][2],data[h]['Em uso'][2],data[h]['Percentual'][2])
                 upgrade_list.append(host)
         return  upgrade_list
 
