@@ -17,20 +17,40 @@ from horizon import tables
 
 from horizon.templatetags import sizeformat
 
+class AlarmsHistoryFilterAction(tables.FilterAction):
+    def filter(self, alarms_history, filter_string):
+        q = filter_string.lower()
+
+        def comp(alarms_history):
+            if q in alarms_history.type.lower():
+                return True
+            return False
+        return filter(comp, alarms_history)
+
 class AlarmsHistoryTable(tables.DataTable):
     timestamp = tables.Column("timestamp", verbose_name=_('TimeStamp'))
     alarm_name = tables.Column('alarm_name', verbose_name=_('Alarm Name'))
     alarm_type = tables.Column('alarm_type', verbose_name=_('Type'))
     detail = tables.Column('detail', verbose_name=_('Detail'))
-    
+
     def get_object_id(self, obj):
-        return "%s" % (obj.alarm_name)
-    
+        return "%s-%s" % (obj.timestamp, obj.alarm_name)
+
     class Meta:
         name = "alarms_history"
         verbose_name = _("Alarm History")
+        table_actions = (AlarmsHistoryFilterAction,)
         multi_select = False
 
+class AlarmsListFilterAction(tables.FilterAction):
+    def filter(self, alarms_list, filter_string):
+        q = filter_string.lower()
+
+        def comp(alarms_list):
+            if q in alarms_list.type.lower():
+                return True
+            return False
+        return filter(comp, alarms_list)
 
 class AlarmsListTable(tables.DataTable):
     alarm_name = tables.Column("alarm_name", verbose_name=_('Alarm Name'))
@@ -44,6 +64,7 @@ class AlarmsListTable(tables.DataTable):
     class Meta:
         name = "alarms_list"
         verbose_name = _("Alarms List")
+        table_actions = (AlarmsListFilterAction,)
         multi_select = False
 
 

@@ -19,6 +19,14 @@ class AlarmsList:
         self.alarm_name = alarm_name
         self.enabled = enabled
         self.description = description
+
+class AlarmsHistory:
+
+    def __init__(self, timestamp, alarm_name, alarm_type, detail):
+        self.timestamp = timestamp
+        self.alarm_name = alarm_name
+        self.alarm_type = alarm_type
+        self.detail = detail
     
 class RecommendationFlavors:
     

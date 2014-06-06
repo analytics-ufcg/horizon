@@ -37,6 +37,7 @@ class UpgradeTable(tables.DataTable):
     class Meta:
         name="upgrades"
         verbose_name = _("Upgrade")
+        table_actions = (UpgradeFilterAction,)
         multi_select = False
 
 

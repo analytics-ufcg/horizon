@@ -13,14 +13,15 @@ from django import template
 from django.utils.translation import ugettext_lazy as _
 
 from openstack_dashboard import api
-from openstack_dashboard.api.telemetry import AlarmsList as alarms
+from openstack_dashboard.api.telemetry import AlarmsList as alarms_list
+from openstack_dashboard.api.telemetry import AlarmsHistory as alarms_hist
+from openstack_dashboard.dashboards.admin.alarms import tables
 
 from horizon import tabs
 from horizon import exceptions
 
-from openstack_dashboard.dashboards.admin.alarms import tables
 import requests
-
+import json
 
 class AlarmsHistoryTab(tabs.TableTab):
     table_classes = (tables.AlarmsHistoryTable,)
@@ -29,9 +30,20 @@ class AlarmsHistoryTab(tabs.TableTab):
     template_name = ("horizon/common/_detail_table.html")
 
     def get_alarms_history_data(self):
-        request = self.tab_group.request
-        services = []
-        return services
+        r = requests.get('http://150.165.15.4:9090/alarms_history')
+        alarms_obj = []
+
+        if r.status_code == 200:
+            alarms_dict = r.json()
+            for data in alarms_dict:
+                alarm_name = data['alarm_name']
+                for data_history in data['history']:
+                    timestamp = data_history['timestamp']
+                    alarm_type = data_history['type']
+                    detail_str = json.loads(data_history['detail'])
+                    alarm = alarms_hist(timestamp, alarm_name, alarm_type, 'Current State: ' + detail_str['state'])
+                    alarms_obj.append(alarm)
+        return alarms_obj
 
 class AlarmsListTab(tabs.TableTab):
     table_classes = (tables.AlarmsListTable,)
@@ -42,6 +54,7 @@ class AlarmsListTab(tabs.TableTab):
     def get_alarms_list_data(self):
         r = requests.get('http://localhost:9090/alarm_description')
         alarms_obj = []
+
         if r.status_code == 200:
             alarms_dict = r.json()
             for ids in alarms_dict.keys():
@@ -49,7 +62,7 @@ class AlarmsListTab(tabs.TableTab):
                 alarm_name = alarms_dict[ids][0]
                 enabled = alarms_dict[ids][1]
                 description = alarms_dict[ids][2]
-                alarm = alarms(ids, alarm_name, enabled, description)
+                alarm = alarms_list(ids, alarm_name, enabled, description)
                 alarms_obj.append(alarm)
             
         return alarms_obj        
