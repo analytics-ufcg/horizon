@@ -44,7 +44,7 @@ class UpgradeTable(tables.DataTable):
 
     class Meta:
         name="upgrades"
-        verbose_name = _("Upgrade")
+        verbose_name = _(" ")
         table_actions = (UpgradeFilterAction,)
         multi_select = False
 
@@ -61,3 +61,29 @@ class FlavorTable(tables.DataTable):
     class Meta:
         name="flavors"
         verbose_name = _('Flavors')
+
+class StatusTable(tables.DataTable):
+    host = tables.Column('host', verbose_name=_('Host'))
+    status = tables.Column('status', verbose_name=_('Status'))
+
+    def get_object_id(self,obj):
+        return "%s" %(obj.host)
+
+    class Meta:
+        name = "status"
+        verbose_name = _("Hosts Power Status")
+    
+
+class MigrationTable(tables.DataTable):
+    host = tables.Column('host', verbose_name=_('Host'))
+    server = tables.Column('server', verbose_name=_('Server'))
+    end = tables.Column('endhost', verbose_name=_('New Host'))
+
+    def get_object_id(self,obj):
+        return "%s" %(obj.server)
+
+    class Meta:
+        name = "migration"
+        verbose_name = _("Suggested Server Migrations")
+
+     

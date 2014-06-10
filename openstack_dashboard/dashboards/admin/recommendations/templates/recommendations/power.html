@@ -1,5 +1,11 @@
 {% load i18n %}
 <div id="power_overview">
-  {% trans "Power Saving Recommendations"%}
+   <div id="status">
+        {{ status_table.render }}
+   </div>
+   <div id="migrations">
+        {{ migration_table.render }}
+   </div>
+
 </div>
 

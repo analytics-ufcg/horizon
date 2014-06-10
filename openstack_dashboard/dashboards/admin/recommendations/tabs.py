@@ -19,7 +19,8 @@ from horizon import tabs
 
 from openstack_dashboard.dashboards.admin.recommendations import tables
 from openstack_dashboard.api.telemetry import RecommendationsUpgrade as dataUpgrade
- 
+from openstack_dashboard.api.telemetry import RecommendataionPowerStatus as dataStatus
+from openstack_dashboard.api.telemetry import RecommendationMigration as dataMigration 
 import requests
 
 class UpgradesTab(tabs.TableTab):
@@ -56,15 +57,42 @@ class FlavorsTab(tabs.Tab):
         #return flavor_list
         return None
 
-class PowerTab(tabs.Tab):
+class PowerTab(tabs.TableTab):
+    table_classes = ( tables.StatusTable, tables.MigrationTable, ) #tables.StatusTable ,
     name = _("Power Saving")
     slug = "power"
     template_name = ("admin/recommendations/power.html")
+    #template_name = ("horizon/common/_detail_table.html")
+    #def get_context_data(self, request):
+    #    return None
+    def get_status_data(self):
+        req_migration = requests.get("http://150.165.15.4:9090/host_migration")
+        host_status = []
+        if req_migration.status_code == 200:
+            data = req_migration.json()['Hosts']
+            for k in data.keys():
+                if data[k] == True:
+                    row = dataStatus(k,"Shut Off")
+                else:
+                    row = dataStatus(k,"Keep On")
+                host_status.append(row)
+        return host_status
 
-    def get_context_data(self, request):
-        return None 
+    def get_migration_data(self):
+        req = requests.get("http://150.165.15.4:9090/host_migration")
+        migration = []
+        if req.status_code == 200:
+            data = req.json()['Migracoes']
+            for k in data.keys():
+                for vm in data[k]:
+                    if data[k][vm] != None:
+                       row = dataMigration(k,vm,data[k][vm])
+                       migration.append(row)
+        return migration
+
+
 
 class RecommendationsTabs(tabs.TabGroup):
     slug = "recommendations_overview"
-    tabs = (UpgradesTab, FlavorsTab, PowerTab, )
+    tabs = ( UpgradesTab, FlavorsTab, PowerTab, )#UpgradesTab,  FlavorsTab, PowerTab, )
     sticky = True
