@@ -223,13 +223,15 @@
       if(host != "--"){
          url_requisicao_host += complemento;
          console.log(url_requisicao_host);
+         $('<div id="load_rec" style="display:none"> <br><br><center><img src="../../../../../static/dashboard/img/spinner.gif"></img> <br> <h4>The request is being made... This may take a few minutes. Please wait.</h4></center></div>').appendTo("#chart3");
+    $("#load_rec").show();
 			$.ajax({
 				url : url_requisicao_host,
 				dataType : 'json'
 			}).fail(function( xhr, textStatus, errorThrown) {
-                               			$('#chart').empty().queue(function(exec) {
+                               			$('#chart3').empty().queue(function(exec) {
                                 		var ht = $('#agg').find("option:selected").val();
-						$('#chart').html('<p><h3>' + 'Could not generate the graph for the aggregate ' + ht + '</h3><p>');
+						$('#chart3').html('<p><h3>' + 'Could not generate the graph for the aggregate ' + ht + '</h3><p>');
 						exec();
 					});
                                 
@@ -237,8 +239,8 @@
 				var dados = data;
                                 if (dados === null || dados.length === 0 ) {
                                         var ht = $('#agg').find("option:selected").val();
-					$('#chart').empty().queue(function(exec) {
-						$('#chart').html('<p><h3>' + 'Could not generate the graph for the aggregate ' + ht + '</h3><p>');
+					$('#chart3').empty().queue(function(exec) {
+						$('#chart3').html('<p><h3>' + 'Could not generate the graph for the aggregate ' + ht + '</h3><p>');
 						exec();
 					});
 				} else {
@@ -247,7 +249,7 @@
 					var dt = dados[index].data;
 					if (dt == null) {
                                                 var ht = $('#agg').find("option:selected").val();
-						$('#chart').html('<p><h3>' + 'Could not generate the graph for the aggregate ' + ht + '</h3><p>');
+						$('#chart3').html('<p><h3>' + 'Could not generate the graph for the aggregate ' + ht + '</h3><p>');
 					} else {
 						var valores = selectMetric(metric, dt);
 						console.log(valores);

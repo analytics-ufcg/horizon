@@ -234,7 +234,7 @@
       var host = $("#hosts").find("option:selected").val();
       if(host != "--"){
          url_requisicao_host += complemento;
-	 $('<div id="load_rec" style="display:none"> <br><br><center><img src="../../../../../static/dashboard/img/spinner.gif"></img> <br> <h4>Running recommendation... This may take a few minutes. Please wait.</h4></center></div>').appendTo("#chart2");
+	 $('<div id="load_rec" style="display:none"> <br><br><center><img src="../../../../../static/dashboard/img/spinner.gif"></img> <br> <h4>The request is being made... This may take a few minutes. Please wait.</h4></center></div>').appendTo("#chart2");
          $("#load_rec").show();
 			$.ajax({
 				url : url_requisicao_host,
