@@ -16,22 +16,26 @@ from horizon import exceptions
 from horizon import forms
 from horizon import messages
 
+from openstack_dashboard.api.telemetry import AlarmsList as alarms_list
+
 from openstack_dashboard import api
 
+import requests
 
 class AddAlarmForm(forms.SelfHandlingForm):
-    alarm_name = forms.CharField(label=_("Alarm Name"),
-                           max_length=64)
-    threshold = forms.IntegerField(label=_("Threshold"),
+    name = forms.CharField(label=_("Alarm Name"),
+                           max_length=64, help_text=_("Field to input the Alarm Name"))
+    threshold = forms.IntegerField(label=_("Threshold"), help_text=_("The value of metric you want to compare"),
                            )
-    evaluation_period = forms.IntegerField(label=_("Evaluation Period"),
+    evalperiod = forms.IntegerField(label=_("Evaluation Period"), help_text=_("Evaluation Period"),
                            )
-    resource = forms.ChoiceField(label=_("Resource"),
+    resource = forms.ChoiceField(label=_("Resource"), help_text=_("The metric"),
                            choices=[('cpu_util', _('cpu_util'))])
-    operator = forms.ChoiceField(label=_("Operator"),
-                           choices=[('greater', _('greater')), ('less', _('less'))])
-    time = forms.IntegerField(label=_("Time"),
+    operator = forms.ChoiceField(label=_("Operator"), help_text=_("Greater than threshold or less"),
+                           choices=[('gt', _('greater')), ('lt', _('less'))])
+    period = forms.IntegerField(label=_("Time"), help_text=_("Time"),
                            )
 
     def handle(self, request, data):
-        return False
+        r = requests.post("http://150.165.15.4:9090/add_alarm?name=%s&resource=%s&threshold=%d&operator=%s&period=%d&evalperiod=%d" % (data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod']))
+        return True

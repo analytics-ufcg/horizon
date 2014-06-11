@@ -12,6 +12,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from horizon import tables
+from horizon import messages
 
 import requests
 
@@ -43,12 +44,13 @@ class AlarmsHistoryTable(tables.DataTable):
 class DeleteAlarmsAction(tables.DeleteAction):
     data_type_singular = _("Alarm")
     data_type_plural = _("Alarms")
-    
 
+    def delete(self, request, obj_id):
+        r = requests.get("http://150.165.15.4:9090/alarm_delete?alarm_id=" + obj_id)
 
 class CreateAlarmsAction(tables.LinkAction):
-    name = "launch"
-    verbose_name = _("Alarm Configuration")
+    name = "create_alarm"
+    verbose_name = _("Create Alarm")
     url = "horizon:admin:alarms:create"
     classes = ("btn-launch", "ajax-modal")
 
