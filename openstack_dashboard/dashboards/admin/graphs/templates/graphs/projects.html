@@ -188,7 +188,12 @@
 				axis : {
 					x : {
 						label : 'Time',
-						type : 'timeseries'
+						type : 'timeseries',
+                                                tick: {
+                                                      fit: true,
+                                                      count: 5,
+                                                      format: '%e %b %H:%M',					
+						}
 					},
 					y : {
 						label : '(%) '
