@@ -40,13 +40,17 @@
 
 </div>
 <br><br><br>
-<div class="span4 chart_container" id="recomendacoes_geradas_grafico"></div>
-<div class="span4 chart_container" id="recomendacoes_grafico_violacoes"></div>
-<div class="usage_info_wrapper">
-<h4> <b>Sugestion</b>:  Describe the ideal number of cores that instances should have according to the recommendation.</h4>
-<h4> <b>Lose</b>: Describe the mean of the amount of CPU not used in every instance in relation to the number of cores for each data available.</h4>
-<h4> <b>Violations</b>: Describe the percentage number of times that overloaded the machines considering the use of instances of suggestion indicated.</h4>
+<div class="span5 chart_container" id="recomendacoes_geradas_grafico"></div>
+<div class="span5 chart_container" id="recomendacoes_grafico_violacoes"></div>
+<br><br><br>
+<div id="tabela_recomendacoes_geradas" class="span5 table_wrapper">
 </div>
+<div id="info_rec_flavors" style="display:none;" class="span5">
+<p> <b>Sugestion</b>:  Describe the ideal number of cores that instances should have according to the recommendation.</p>
+<p> <b>Lose</b>: Describe the mean of the amount of CPU not used in every instance in relation to the number of cores for each data available.</p>
+<p> <b>Violations</b>: Describe the percentage number of times that overloaded the machines considering the use of instances of suggestion indicated.</p>
+</div>
+
 </div>
 <script type="text/javascript">
 
@@ -153,8 +157,13 @@ function gera_recomendacao() {
 			console.log("vazio");
 		} else {
 
-			var tabela_rec = '<table class="table table-bordered"><thead><tr><th>Recommendation</th><th>Sugestion</th><th>Lose</th><th>Violations</th> </tr></thead><tbody>';
-			var rows;
+			var tabela_rec = '<table id="flavor_rec" class="table table-bordered table-striped datatable"><thead><tr class="tablesorter-headerRow">';
+                        tabela_rec += '<th class="sortable normal_column tablesorter-header" data-column="0" tabindex="0"><div class="tablesorter-header-inner">Recommendation</div></th>';
+                        tabela_rec += '<th class="sortable normal_column tablesorter-header" data-column="1" tabindex="0"><div class="tablesorter-header-inner">Sugestion</div></th>';
+                        tabela_rec += '<th class="sortable normal_column tablesorter-header" data-column="2" tabindex="0"><div class="tablesorter-header-inner">Lose</div></th>';
+                        tabela_rec += '<th class="sortable normal_column tablesorter-header" data-column="3" tabindex="0"><div class="tablesorter-header-inner">Violations</div></th></tr></thead><tbody>';
+			
+                        var rows;
 			var numero_da_rec = 1;
 
 			$.each(recomendacoes, function(k, v) {
@@ -172,14 +181,15 @@ function gera_recomendacao() {
 				}else{
 					core = k + " cores";
 				}
-				rows = '<tr><th>' + 'Recommendation  ' + numero_da_rec + '</th><th>' + core.replace(':',', ') +  '</th><th>' + JSON.parse(recomendacoes[k][0]).split(':')[0]+' %' + '</th><th>' + recomendacoes[k][1] + ' %' + '</th></tr>';
-				tabela_rec += rows;
+                                rows = '<tr><td>' + 'Recommendation  ' + numero_da_rec + '</td><td>' + core.replace(':',', ') +  '</td><td>' + JSON.parse(recomendacoes[k][0]).split(':')[0]+' %' + '</td><td>' + recomendacoes[k][1] + ' %' + '</td></tr>';
+                                tabela_rec += rows;
 				numero_da_rec += 1;
 			});
 			tabela_rec += '</tbdody></table>';
-			{# $(tabela_rec).appendTo('#recomendacoes_geradas'); #}
+			$(tabela_rec).appendTo('#tabela_recomendacoes_geradas'); 
 			grafico_rec(lista_rec, lista_valores, lista_ic); 
-			grafico_violacoes(lista_rec, lista_violacoes); 
+			grafico_violacoes(lista_rec, lista_violacoes);
+                        $("#info_rec_flavors").show(); 
 		}
 	});
 
