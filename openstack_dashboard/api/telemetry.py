@@ -36,3 +36,16 @@ class RecommendationFlavors:
         self.lose = lose
         self.violations = violations    
     
+
+class RecommendataionPowerStatus:
+
+    def __init__(self, host, status):
+        self.host = host
+        self.status = status
+
+class RecommendationMigration:
+     
+   def __init__(self, host,server, endhost):
+       self.host = host
+       self.server = server
+       self.endhost = endhost
