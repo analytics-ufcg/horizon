@@ -13,6 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from horizon import tables
 
+import requests
 
 class AlarmsHistoryFilterAction(tables.FilterAction):
     def filter(self, alarms_history, filter_string):
@@ -39,6 +40,18 @@ class AlarmsHistoryTable(tables.DataTable):
         table_actions = (AlarmsHistoryFilterAction,)
         multi_select = False
 
+class DeleteAlarmsAction(tables.DeleteAction):
+    data_type_singular = _("Alarm")
+    data_type_plural = _("Alarms")
+    
+
+
+class CreateAlarmsAction(tables.LinkAction):
+    name = "launch"
+    verbose_name = _("Alarm Configuration")
+    url = "horizon:admin:alarms:create"
+    classes = ("btn-launch", "ajax-modal")
+
 class AlarmsListFilterAction(tables.FilterAction):
     def filter(self, alarms_list, filter_string):
         q = filter_string.lower()
@@ -61,7 +74,7 @@ class AlarmsListTable(tables.DataTable):
     class Meta:
         name = "alarms_list"
         verbose_name = _("Alarms List")
-        table_actions = (AlarmsListFilterAction,)
-        multi_select = False
+        rows_actions = (DeleteAlarmsAction)
+        table_actions = (AlarmsListFilterAction,CreateAlarmsAction,DeleteAlarmsAction,)
 
 

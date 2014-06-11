@@ -66,15 +66,15 @@
 <script type="text/javascript">
 
   if (typeof $ !== 'undefined') {
-    show_hide_datepickers();
+    show_hide_datepickers3();
   } else {
     addHorizonLoadEvent(function() {
-      show_hide_datepickers();
-      verifica_parametros2();
+      show_hide_datepickers3();
+      verifica_parametros3();
     });
   }
 
-  function show_hide_datepickers() {
+  function show_hide_datepickers3() {
     $("#date_options_agg").change(function(evt) {
         // Enhancing behaviour of selectbox, on 'other' value selected, I don't
         // want to refresh, but show hide the date fields
@@ -129,8 +129,7 @@
 	array_memoria.push("Memory usage");
 	$.each(json, function(d) {
 		array_tempo.push(json[d].timestamp.replace("T", " "));
-		var json_memory = JSON.parse(json[d].data);
-		array_memoria.push(json_memory[0].percent);
+		array_memoria.push((json[d].data).toFixed(2));
 	});
 	lista_particoes.push(array_tempo);
 	lista_particoes.push(array_memoria);
@@ -141,28 +140,15 @@
   function getPartitions(json) {
 	array_tempo = [];
 	array_tempo.push("x");
-	var map_particoes = {};
 	var lista_particoes = [];
+        array_disk = [];
+        array_disk.push("Disk Usage")
 	$.each(json, function(d) {
 		array_tempo.push(json[d].timestamp.replace("T", " "));
-		var json_disco = JSON.parse(json[d].data);
-		$.each(json_disco, function(k, v) {
-			var particao = json_disco[k];
-			var chave = particao.device.replaceAll("/", "\\ ");
-			if (!map_particoes.hasOwnProperty(chave)) {
-				map_particoes[chave] = [];
-				map_particoes[chave].push(chave);
-				map_particoes[chave].push(particao.percent);
-			} else {
-				map_particoes[chave].push(particao.percent);
-			}
-		});
-
+                array_disk.push((json[d].data).toFixed(2));
 	});
 	lista_particoes.push(array_tempo);
-	$.each(map_particoes, function(k, v) {
-		lista_particoes.push(map_particoes[k]);
-	});
+        lista_particoes.push(array_disk);
 
 	return lista_particoes;
   }
@@ -224,10 +210,10 @@
         url_requisicao_host += "/hosts_aggregation_cpu";	
       }
       else if( metric == "disk"){	
-	url_requisicao_host += "/hosts_disk_otimization";
+	url_requisicao_host += "/hosts_aggregation_disk";
       }
       else if( metric == "memory") {
-	url_requisicao_host += "/hosts_memory_otimization";
+	url_requisicao_host += "/hosts_aggregation_memory";
       }
       else { 
         console.log("erro");

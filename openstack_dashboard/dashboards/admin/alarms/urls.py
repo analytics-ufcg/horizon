@@ -17,7 +17,8 @@ from django.conf.urls import url  # noqa
 
 from openstack_dashboard.dashboards.admin.alarms import views
 
-urlpatterns = patterns('openstack_dashboard.dashboards.admin.alarms.views',
+urlpatterns = patterns('',
     url(r'^$', views.IndexView.as_view(), name='index'),
+    url(r'^create$', views.AddAlarmView.as_view(), name='create'),
 )
 

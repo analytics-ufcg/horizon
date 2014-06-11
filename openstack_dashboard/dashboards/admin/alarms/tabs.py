@@ -20,28 +20,6 @@ from horizon import tabs
 import requests
 import json
 
-class AlarmsHistoryTab(tabs.TableTab):
-    table_classes = (tables.AlarmsHistoryTable,)
-    name = _("Alarms History")
-    slug = "alarms_history"
-    template_name = ("horizon/common/_detail_table.html")
-
-    def get_alarms_history_data(self):
-        r = requests.get('http://150.165.15.4:9090/alarms_history')
-        alarms_obj = []
-
-        if r.status_code == 200:
-            alarms_dict = r.json()
-            for data in alarms_dict:
-                alarm_name = data['alarm_name']
-                for data_history in data['history']:
-                    timestamp = data_history['timestamp']
-                    alarm_type = data_history['type']
-                    detail_str = json.loads(data_history['detail'])
-                    alarm = alarms_hist(timestamp, alarm_name, alarm_type, 'Current State: ' + detail_str['state'])
-                    alarms_obj.append(alarm)
-        return alarms_obj
-
 class AlarmsListTab(tabs.TableTab):
     table_classes = (tables.AlarmsListTable,)
     name = _("Alarms List")
@@ -64,7 +42,29 @@ class AlarmsListTab(tabs.TableTab):
             
         return alarms_obj        
 
+class AlarmsHistoryTab(tabs.TableTab):
+    table_classes = (tables.AlarmsHistoryTable,)
+    name = _("Alarms History")
+    slug = "alarms_history"
+    template_name = ("horizon/common/_detail_table.html")
+
+    def get_alarms_history_data(self):
+        r = requests.get('http://150.165.15.4:9090/alarms_history')
+        alarms_obj = []
+
+        if r.status_code == 200:
+            alarms_dict = r.json()
+            for data in alarms_dict:
+                alarm_name = data['alarm_name']
+                for data_history in data['history']:
+                    timestamp = data_history['timestamp']
+                    alarm_type = data_history['type']
+                    detail_str = json.loads(data_history['detail'])
+                    alarm = alarms_hist(timestamp, alarm_name, alarm_type, 'Current State: ' + detail_str['state'])
+                    alarms_obj.append(alarm)
+        return alarms_obj
+
 class AlarmsOverviewTabs(tabs.TabGroup):
     slug = "alarms_overview"
-    tabs = (AlarmsHistoryTab, AlarmsListTab, )
+    tabs = (AlarmsListTab, AlarmsHistoryTab,)
     sticky = True
