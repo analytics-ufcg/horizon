@@ -93,19 +93,19 @@
     }
   }
 
-  function selectMetric(nome, json) {
+  function selectMetricAgg(nome, json) {
     if (nome == "memory") {
-      return getMemory(json);
+      return getMemoryAgg(json);
         } else if (nome == "cpu") {
-	  return getCPU(json);
+	  return getCPUAgg(json);
 	} else if (nome == "disk") {
-	  return getPartitions(json);
+	  return getPartitionsAgg(json);
 	} else {
 	  return null;
     }
   }
 
-  function getCPU(json) {
+  function getCPUAgg(json) {
 	array_tempo = [];
 	array_tempo.push("x");
 	var lista_particoes = [];
@@ -121,7 +121,7 @@
 	return lista_particoes;
   } 
 
-  function getMemory(json) {
+  function getMemoryAgg(json) {
 	array_tempo = [];
 	array_tempo.push("x");
 	var lista_particoes = [];
@@ -137,7 +137,7 @@
 	return lista_particoes;
   }
 
-  function getPartitions(json) {
+  function getPartitionsAgg(json) {
 	array_tempo = [];
 	array_tempo.push("x");
 	var lista_particoes = [];
@@ -251,7 +251,7 @@
                                                 var ht = $('#agg').find("option:selected").val();
 						$('#chart3').html('<p><h3>' + 'Could not generate the graph for the aggregate ' + ht + '</h3><p>');
 					} else {
-						var valores = selectMetric(metric, dt);
+						var valores = selectMetricAgg(metric, dt);
 						console.log(valores);
 						var json = { bindto: '#chart3',
 								data : {

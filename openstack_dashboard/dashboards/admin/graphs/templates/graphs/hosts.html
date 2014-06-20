@@ -134,7 +134,7 @@
 	});
 	lista_particoes.push(array_tempo);
 	lista_particoes.push(array_memoria);
-
+        console.log(lista_particoes);
 	return lista_particoes;
   }
 
@@ -240,10 +240,9 @@
 				url : url_requisicao_host,
 				dataType : 'json'
 			}).fail(function( xhr, textStatus, errorThrown) {
-					
-					$('#chart').empty().queue(function(exec) {
+					$('#chart2').empty().queue(function(exec) {
                                 		var ht = $('#hosts').find("option:selected").val();
-						$('#chart').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
+						$('#chart2').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
 						exec();
 					});
                                 
@@ -251,17 +250,18 @@
 				var dados = data;
                                 if (dados === null || dados.length === 0 ) {
                                         var ht = $('#hosts').find("option:selected").val();
-					$('#chart').empty().queue(function(exec) {
-						$('#chart').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
+					$('#chart2').empty().queue(function(exec) {
+						$('#chart2').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
 						exec();
 					});
-				} else {
+				} else { console.log(dados);
 	                                var index = 0;
-                        	        $.each(dados,function(k,v){ if(dados[k]["host_address"]==host){ console.log("achou");return false; }else{index+=1;}  });
-					var dt = dados[index].data;
+                        	        $.each(dados,function(k,v){ if( dados[k]["host_address"]==host ){ return false; }else{index = index + 1;}  });
+                                        var dt = dados[index].data;
+                                        console.log(dt.length);
 					if (dt == null) {
                                                 var ht = $('#hosts').find("option:selected").val();
-						$('#chart').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
+						$('#chart2').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
 					} else {
 						var valores = selectMetric(metric, dt);
 						console.log(valores);
@@ -280,9 +280,7 @@
 										label : 'Time',
 										type : 'timeseries',
 										tick : {
-											fit: true,
-											count: 5,
-											format: '%e %b %H:%M',
+											format: '%e %b %H:%M:%S',
 											}
 									},
 									y : {
@@ -299,7 +297,8 @@
 								}
 							};
               
-							$('#chart').empty().queue(function(exec) {
+							$('#chart2').empty().queue(function(exec) {
+								alert("doing chart");
 								var chart = c3.generate(json);
 								exec();
 							});
