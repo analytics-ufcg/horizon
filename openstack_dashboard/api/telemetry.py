@@ -44,8 +44,50 @@ class RecommendataionPowerStatus:
         self.status = status
 
 class RecommendationMigration:
-     
-   def __init__(self, host,server, endhost):
+
+    def __init__(self, host,server, endhost):
        self.host = host
        self.server = server
        self.endhost = endhost
+
+
+class BenchmarkDisk:
+
+    def __init__(self,host,avg,median,min,max,first,second,third,fourth):
+        self.host = host
+        self.avg = avg
+        self.median = median
+        self.min = min
+        self.max = max
+        self.first = first
+        self.second = second
+        self.third = third
+        self.fourth = fourth
+
+
+class BenchmarkCpu:
+
+    def __init__(self,host,avg,median,min,max,first,second,third,fourth):
+        self.host = host
+        self.avg = avg
+        self.median = median
+        self.min = min
+        self.max = max
+        self.first = first
+        self.second = second
+        self.third = third
+        self.fourth = fourth
+
+class BenchmarkMemory:
+
+    def __init__(self,host,avg,median,min,max,first,second,third,fourth):
+        self.host = host
+        self.avg = avg
+        self.median = median
+        self.min = min
+        self.max = max
+        self.first = first
+        self.second = second
+        self.third = third
+        self.fourth = fourth
+ 

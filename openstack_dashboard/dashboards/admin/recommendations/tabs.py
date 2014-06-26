@@ -62,14 +62,12 @@ class PowerTab(tabs.TableTab):
     name = _("Power Saving")
     slug = "power"
     template_name = ("admin/recommendations/power.html")
-    #template_name = ("horizon/common/_detail_table.html")
-    #def get_context_data(self, request):
-    #    return None
+    request_host_migration = requests.get("http://150.165.15.4:9090/host_migration")
+
     def get_status_data(self):
-        req_migration = requests.get("http://150.165.15.4:9090/host_migration")
         host_status = []
-        if req_migration.status_code == 200:
-            data = req_migration.json()['Hosts']
+        if self.request_host_migration.status_code == 200:
+            data = self.request_host_migration.json()['Hosts']
             for k in data.keys():
                 if data[k] == True:
                     row = dataStatus(k,"Shut Off")
@@ -79,10 +77,9 @@ class PowerTab(tabs.TableTab):
         return host_status
 
     def get_migration_data(self):
-        req = requests.get("http://150.165.15.4:9090/host_migration")
         migration = []
-        if req.status_code == 200:
-            data = req.json()['Migracoes']
+        if self.request_host_migration.status_code == 200:
+            data = self.request_host_migration.json()['Migracoes']
             for k in data.keys():
                 for vm in data[k]:
                     if data[k][vm] != None:
