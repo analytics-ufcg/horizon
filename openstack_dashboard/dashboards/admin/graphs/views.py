@@ -14,23 +14,17 @@
 
 from django.views.generic import TemplateView  # noqa
 from django.shortcuts import render
-from django.utils.translation import ugettext_lazy as _
 
-from openstack_dashboard.api import keystone
+from horizon import tabs
+
+from openstack_dashboard.dashboards.admin.graphs import tabs as \
+    graphs_tabs
 
 import requests, json
 
-class IndexView(TemplateView):
-    template_name = 'admin/projectsmeter/index.html'
+class IndexView(tabs.TabView):
+    tab_group_class = graphs_tabs.GraphsTabs
+    template_name = 'admin/graphs/index.html'
 
-    def get(self, request, *args, **kwargs):
-        r = requests.get('http://localhost:9090/projects/instances')
-        if r.status_code == 200:
-            print r.json()
-            projs = r.json()['children']
-            projects = {}
-            for p in projs:
-                if len(p['children']) > 0:
-                    projects[p['name']] = p['children']
 
-        return render(request, self.template_name, {'projects' : projects, 'projects_json' : json.dumps(projects)})
+

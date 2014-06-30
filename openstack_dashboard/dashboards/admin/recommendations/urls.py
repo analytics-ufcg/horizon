@@ -12,16 +12,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.utils.translation import ugettext_lazy as _
+from django.conf.urls import patterns  # noqa
+from django.conf.urls import url  # noqa
 
-import horizon
+from openstack_dashboard.dashboards.admin.recommendations import views
 
-from openstack_dashboard.dashboards.admin import dashboard
-
-
-class ProjectsPanel(horizon.Panel):
-    name = _("Projects Meter")
-    slug = 'projectsmeter'
-
-
-dashboard.Admin.register(ProjectsPanel)
+urlpatterns = patterns('openstack_dashboard.dashboards.admin.recommendations.views',
+    url(r'^$', views.IndexView.as_view(), name='index'),
+)

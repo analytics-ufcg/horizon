@@ -1,3 +1,4 @@
+
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -12,17 +13,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.views.generic import TemplateView  # noqa
-from django.shortcuts import render
+from django.conf.urls import patterns  # noqa
+from django.conf.urls import url  # noqa
 
-import requests
+from openstack_dashboard.dashboards.admin.benchmark import views
 
-class IndexView(TemplateView):
-    template_name = 'admin/hosts/index.html'
-
-    def get(self, request, *args, **kwargs):
-        r = requests.get('http://localhost:9090/hosts')
-        hosts_list = []
-        if r.status_code == 200:
-            hosts_list = r.json()['children']
-        return render(request, self.template_name, {"hosts_list":hosts_list})
+urlpatterns = patterns('openstack_dashboard.dashboards.admin.benchmark.views',
+    url(r'^$', views.IndexView.as_view(), name='index'),
+)

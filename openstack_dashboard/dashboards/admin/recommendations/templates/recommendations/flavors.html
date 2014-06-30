@@ -1,0 +1,304 @@
+{% load i18n %}
+<div class="row-fluid">
+<div id="ceilometer-stats">
+
+   <form class="form-horizontal" id="linechart_general_form">
+   
+      <div class="control-group">
+        <label for="date_options" class="control-label">{% trans "Period" %}:&nbsp;</label>
+        <div class="controls">
+          <select data-line-chart-command="select_box_change"
+                  id="date_options" name="date_options" class="span2">
+            <option value="hour">{% trans "Last Hour" %}</option>
+            <option value="day">{% trans "Last Day" %}</option>
+            <option value="week">{% trans "Last Week" %}</option>
+            <option value="month">{% trans "Last Month" %}</option>
+            <option value="other">{% trans "Other" %}</option>
+         </select>
+        </div>
+      </div>
+
+
+    <div class="control-group" id="date_from">
+      <label for="date_from" class="control-label">{% trans "From" %}:&nbsp;</label>
+      <div class="controls">
+        <input data-line-chart-command="date_picker_change"
+               type="text" id="date_from_input" name="date_from" class="span2 example"/>
+      </div>
+    </div>
+
+    <div class="control-group" id="date_to">
+      <label for="date_to" class="control-label">{% trans "To" %}:&nbsp;</label>
+      <div class="controls">
+        <input data-line-chart-command="date_picker_change"
+               type="text" id="date_to_input" name="date_to" class="span2 example"/>
+      </div>
+    </div>
+      <button type="submit" class="btn btn-small" onclick="gera_recomendacao();">{% trans 'Apply' %}</button>
+   </form>
+
+
+</div>
+<br><br><br>
+<div class="span5 chart_container" id="recomendacoes_geradas_grafico"></div>
+<div class="span5 chart_container" id="recomendacoes_grafico_violacoes"></div>
+<br><br><br>
+<div id="tabela_recomendacoes_geradas" class="span5 table_wrapper">
+</div>
+<div id="info_rec_flavors" style="display:none;" class="span5">
+<p> <b>Sugestion</b>:  Describe the ideal number of cores that instances should have according to the recommendation.</p>
+<p> <b>Lose</b>: Describe the mean of the amount of CPU not used in every instance in relation to the number of cores for each data available.</p>
+<p> <b>Violations</b>: Describe the percentage number of times that overloaded the machines considering the use of instances of suggestion indicated.</p>
+</div>
+
+</div>
+<script type="text/javascript">
+
+  if (typeof $ !== 'undefined') {
+      show_hide_datepickers();
+  } else {
+    addHorizonLoadEvent(function() {
+      show_hide_datepickers();
+    });
+  }
+
+  function show_hide_datepickers() {
+    $("#date_options").change(function(evt) {
+        // Enhancing behaviour of selectbox, on 'other' value selected, I don't
+        // want to refresh, but show hide the date fields
+        console.log($(this).find("option:selected").val());
+        if ($(this).find("option:selected").val() == "other"){
+          evt.stopPropagation();
+          $("#date_from .controls input, #date_to .controls input").val('');
+          $("#date_from, #date_to").show();
+        } else {
+          $("#date_from, #date_to").hide();
+        }
+    });
+    if ($("#date_options").find("option:selected").val() == "other"){
+      $("#date_from, #date_to").show();
+    } else {
+      $("#date_from, #date_to").hide();
+    }
+  }
+
+
+var recomendacoes;
+
+function formattedDate(date, verificador) {
+	var d = new Date(date || Date.now()), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = '' + d.getFullYear(), hour = '' + (d.getHours()), minuto = '' + (d.getMinutes());
+	if (verificador == 1) {
+		month = '' + d.getMonth();
+	}
+	if (month.length < 2)
+		month = '0' + month;
+	if (day.length < 2)
+		day = '0' + day;
+	if (hour.length < 2)
+		hour = '0' + hour;
+	if (minuto.length < 2)
+		minuto = '0' + minuto;
+
+	return [year, month, day].join('-') + "T" + hour + ":" + minuto + ":00";
+
+}
+
+
+
+
+function gera_recomendacao() {
+    $("#tabela_recomendacoes_geradas").empty();
+    $('<div id="load_rec" style="display:none">	<br><br><center><img src="../../../../../static/dashboard/img/spinner.gif"></img> <br> <h4>Running recommendation... This may take a few minutes. Please wait.</h4></center></div>').appendTo("#tabela_recomendacoes_geradas");
+    $("#load_rec").show();
+
+
+    var out = $("#date_options").find("option:selected").val();
+    var dh1 = $('#date_from_input').val().replace("-", " ").replace("-", " ").split(" ");
+    var dt1 = new Date(dh1[0], dh1[1], dh1[2], 00, 00);
+    var dh2 = $('#date_to_input').val().replace("-", " ").replace("-", " ").split(" ");
+    var dt2 = new Date(dh2[0], dh2[1], dh2[2], 00, 00);
+
+    var now = new Date();
+    now.setTime(now.getTime() + now.getTimezoneOffset());
+    var url_recomenda = "http://150.165.15.4:9090/cpu_util_flavors";
+	if (out == "hour") {
+		var ontem = new Date(now - (1000 * 60 * 60 * 1));
+		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+		url_recomenda += "?timestamp_begin=" + formattedDate(ontem, 0);
+		url_recomenda += "&timestamp_end=" + formattedDate(now, 0);
+	} else if (out == "day") {
+		var ontem = new Date(now - (1000 * 60 * 60 * 24 * 1));
+		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+		url_recomenda += "?timestamp_begin=" + formattedDate(ontem, 0);
+		url_recomenda += "&timestamp_end=" + formattedDate(now, 0);
+	} else if (out == "week") {
+		var ontem = new Date(now - (1000 * 60 * 60 * 24 * 7));
+		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+		url_recomenda += "?timestamp_begin=" + formattedDate(ontem, 0);
+		url_recomenda += "&timestamp_end=" + formattedDate(now, 0);
+	} else if (out == "month") {
+		var ontem = new Date(now - (1000 * 60 * 60 * 24 * 30));
+		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+		url_recomenda += "?timestamp_begin=" + formattedDate(ontem, 0);
+		url_recomenda += "&timestamp_end=" + formattedDate(now, 0);
+	} else {
+		url_recomenda += "?timestamp_begin=" + formattedDate(dt1, 1);
+		url_recomenda += "&timestamp_end=" + formattedDate(dt2, 1);
+	}
+
+	var lista_rec = [];
+	var lista_valores = [];
+	var lista_ic = [];
+	var lista_violacoes = [];
+	$.ajax({
+		url : url_recomenda,
+		dataType : 'json'
+	}).fail(function(data) {
+		$("#load_rec").remove();
+		$('<h3> An error has occurred during the request, please try again.</h3>').appendTo('#tabela_recomendacoes_geradas');
+	}).done(function(data) {
+                $("#load_rec").remove();
+		recomendacoes = data;
+
+		if (jQuery.isEmptyObject(data)) {
+                        $('<h3> The time period chosen has no data. </h3>').appendTo('#tabela_recomendacoes_geradas');
+		} else {
+
+			var tabela_rec = '<table id="flavor_rec" class="table table-bordered table-striped datatable"><thead><tr class="tablesorter-headerRow">';
+                        tabela_rec += '<th class="sortable normal_column tablesorter-header" data-column="0" tabindex="0"><div class="tablesorter-header-inner">Recommendation</div></th>';
+                        tabela_rec += '<th class="sortable normal_column tablesorter-header" data-column="1" tabindex="0"><div class="tablesorter-header-inner">Sugestion</div></th>';
+                        tabela_rec += '<th class="sortable normal_column tablesorter-header" data-column="2" tabindex="0"><div class="tablesorter-header-inner">Lose</div></th>';
+                        tabela_rec += '<th class="sortable normal_column tablesorter-header" data-column="3" tabindex="0"><div class="tablesorter-header-inner">Violations</div></th></tr></thead><tbody>';
+			
+                        var rows;
+			var numero_da_rec = 1;
+
+			$.each(recomendacoes, function(k, v) {
+				var rec = "Recommendation " + numero_da_rec;
+				lista_rec.push(rec);
+				var lista = JSON.parse(recomendacoes[k][0]).split(":");
+				lista_valores.push(parseFloat(lista[0]));
+				var valores_ic = lista[1].replace("{", "").replace("}", "").split("-");
+				var ic = [parseFloat(valores_ic[0]), parseFloat(valores_ic[1])];
+				lista_ic.push(ic);
+				lista_violacoes.push(parseFloat(recomendacoes[k][1]));
+				var core = "";
+				if(k == "1"){
+					core = k + " core";
+				}else{
+					core = k + " cores";
+				}
+                                rows = '<tr><td>' + 'Recommendation  ' + numero_da_rec + '</td><td>' + core.replace(':',', ') +  '</td><td>' + JSON.parse(recomendacoes[k][0]).split(':')[0]+' %' + '</td><td>' + recomendacoes[k][1] + ' %' + '</td></tr>';
+                                tabela_rec += rows;
+				numero_da_rec += 1;
+			});
+			tabela_rec += '</tbdody></table>';
+			$(tabela_rec).appendTo('#tabela_recomendacoes_geradas'); 
+			grafico_rec(lista_rec, lista_valores, lista_ic); 
+			grafico_violacoes(lista_rec, lista_violacoes);
+                        $("#info_rec_flavors").show(); 
+		}
+	});
+
+}
+
+function grafico_rec(nomes, valores, ic) {
+	var chart;
+	console.log(ic);
+	$('#recomendacoes_geradas_grafico').highcharts({
+		chart : {
+			zoomType : 'x',
+		},
+		title : {
+			text : 'Average of Lose (%) per Recommendation'
+		},
+		xAxis : [{
+			categories : nomes
+		}],
+		yAxis : {
+			labels : {
+				formatter : function() {
+					return this.value + '%';
+				}
+			},
+			title : {
+				text : 'Lose'
+			}
+		},
+
+		tooltip : {
+			shared : true
+		},
+		plotOptions : {
+			column : {
+				pointPadding : 0.2,
+				borderWidth : 0
+			}
+		},
+		series : [{
+			name : 'Lose (%)',
+			type : 'column',
+			data : valores,
+			tooltip : {
+				pointFormat : '<span style="font-weight: bold; color: {series.color}">{series.name}</span>: <b>{point.y:.2f}%</b><br/>'
+			}
+		}, {
+			color : '#FF0000',
+			name : 'Confidence Interval',
+			type : 'errorbar',
+			data : ic,
+			tooltip : {
+				pointFormat : 'Confidence Interval: {point.low}-{point.high}'
+			}
+		}]
+	});
+
+}
+
+function grafico_violacoes(nomes, valores) {
+	var chart;
+	$('#recomendacoes_grafico_violacoes').highcharts({
+		chart : {
+			type : 'column',
+			zoomType : 'x',
+
+		},
+		title : {
+			text : 'Violations (%) per Recommendation'
+		},
+		xAxis : [{
+			categories : nomes
+		}],
+		yAxis : {
+			min : 0,
+			labels : {
+				formatter : function() {
+					return this.value + '%';
+				}
+			},
+			title : {
+				text : 'Violations (%)'
+			}
+		},
+
+		tooltip : {
+			shared : true
+		},
+		plotOptions : {
+			column : {
+				pointPadding : 0.2,
+				borderWidth : 0
+			}
+		},
+		series : [{
+			name : 'Violations (%)',
+			type : 'column',
+			data : valores,
+			tooltip : {
+				pointFormat : '<span style="font-weight: bold; color: {series.color}">{series.name}</span>: <b>{point.y:.1f}%</b><br/>'
+			}
+		}]
+	});
+}
+
+</script>
