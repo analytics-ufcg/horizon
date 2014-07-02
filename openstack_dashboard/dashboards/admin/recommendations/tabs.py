@@ -31,7 +31,7 @@ class UpgradesTab(tabs.TableTab):
     #recommendations/upgrades.html")
 
     def get_upgrades_data(self):
-        req = requests.get("http://150.165.15.4:9090/host_metrics?project=demo")
+        req = requests.get("http://150.165.15.104:10090/host_metrics?project=demo")
         upgrade_list = []
         if req.status_code == 200:
             data = req.json()
@@ -62,7 +62,7 @@ class PowerTab(tabs.TableTab):
     name = _("Power Saving")
     slug = "power"
     template_name = ("admin/recommendations/power.html")
-    request_host_migration = requests.get("http://150.165.15.4:9090/host_migration")
+    request_host_migration = requests.get("http://150.165.15.104:10090/host_migration")
 
     def get_status_data(self):
         host_status = []

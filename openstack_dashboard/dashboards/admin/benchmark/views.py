@@ -30,7 +30,7 @@ import requests
 class IndexView(tables.MultiTableView):
     table_classes = (project_tables.BenchmarkCpuTable, project_tables.BenchmarkMemoryTable, project_tables.BenchmarkDiskTable)
     template_name = 'admin/benchmark/index.html'
-    req_benchmark = requests.get("http://150.165.15.4:9090/benchmark_data")
+    req_benchmark = requests.get("http://150.165.15.104:10090/benchmark_data")
 
     def get_data(self):
         return []
