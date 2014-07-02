@@ -27,7 +27,7 @@ class AlarmsListTab(tabs.TableTab):
     template_name = ("horizon/common/_detail_table.html")
 
     def get_alarms_list_data(self):
-        r = requests.get('http://150.165.15.4:9090/alarm_description')
+        r = requests.get('http://150.165.15.104:10090/alarm_description')
         alarms_obj = []
 
         if r.status_code == 200:
@@ -49,7 +49,7 @@ class AlarmsHistoryTab(tabs.TableTab):
     template_name = ("horizon/common/_detail_table.html")
 
     def get_alarms_history_data(self):
-        r = requests.get('http://150.165.15.4:9090/alarms_history')
+        r = requests.get('http://150.165.15.104:10090/alarms_history')
         alarms_obj = []
 
         if r.status_code == 200:

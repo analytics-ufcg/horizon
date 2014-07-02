@@ -46,7 +46,7 @@ class DeleteAlarmsAction(tables.DeleteAction):
     data_type_plural = _("Alarms")
 
     def delete(self, request, obj_id):
-        r = requests.get("http://150.165.15.4:9090/alarm_delete?alarm_id=" + obj_id)
+        r = requests.get("http://150.165.15.104:10090/alarm_delete?alarm_id=" + obj_id)
 
 class CreateAlarmsAction(tables.LinkAction):
     name = "create_alarm"
@@ -72,6 +72,9 @@ class AlarmsListTable(tables.DataTable):
 
     def get_object_id(self, obj):
         return "%s" % (obj.alarm_id)
+
+    def get_object_display(self, obj):
+        return "%s" % (obj.alarm_name)
 
     class Meta:
         name = "alarms_list"

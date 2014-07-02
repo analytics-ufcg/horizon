@@ -35,7 +35,4 @@ class IndexView(tabs.TabbedTableView):
 class AddAlarmView(forms.ModalFormView):
     template_name = 'admin/alarms/create.html'
     form_class = alarms_forms.AddAlarmForm
-    success_url = 'horizon:admin:alarms:index'
-
-    def get_success_url(self):
-        return 'horizon:admin:alarms:index'
+    success_url = '/admin/alarms/'
