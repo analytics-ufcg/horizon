@@ -11,6 +11,7 @@
 #    under the License.
 
 from django.utils.translation import ugettext_lazy as _
+from django import http
 
 from horizon import exceptions
 from horizon import forms
@@ -38,4 +39,4 @@ class AddAlarmForm(forms.SelfHandlingForm):
 
     def handle(self, request, data):
         r = requests.post("http://150.165.15.4:9090/add_alarm?name=%s&resource=%s&threshold=%d&operator=%s&period=%d&evalperiod=%d" % (data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod']))
-        return True
+        return http.HttpResponse(status=r.status_code)
