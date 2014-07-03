@@ -62,10 +62,14 @@ class PowerTab(tabs.TableTab):
     name = _("Power Saving")
     slug = "power"
     template_name = ("admin/recommendations/power.html")
-    request_host_migration = requests.get("http://150.165.15.104:10090/host_migration")
+    request_host_migration = None
 
     def get_status_data(self):
         host_status = []
+
+        if self.request_host_migration is None:
+            self.request_host_migration = requests.get("http://150.165.15.104:10090/host_migration")
+
         if self.request_host_migration.status_code == 200:
             data = self.request_host_migration.json()['Hosts']
             for k in data.keys():
@@ -78,6 +82,10 @@ class PowerTab(tabs.TableTab):
 
     def get_migration_data(self):
         migration = []
+
+        if self.request_host_migration is None:
+            self.request_host_migration = requests.get("http://150.165.15.104:10090/host_migration")
+
         if self.request_host_migration.status_code == 200:
             data = self.request_host_migration.json()['Migracoes']
             for k in data.keys():
