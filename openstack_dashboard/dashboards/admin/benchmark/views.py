@@ -30,13 +30,17 @@ import requests
 class IndexView(tables.MultiTableView):
     table_classes = (project_tables.BenchmarkCpuTable, project_tables.BenchmarkMemoryTable, project_tables.BenchmarkDiskTable)
     template_name = 'admin/benchmark/index.html'
-    req_benchmark = requests.get("http://150.165.15.104:10090/benchmark_data")
+    req_benchmark = None
 
     def get_data(self):
         return []
 
     def get_cpu_data(self):
         cpu_data = []
+
+        if self.req_benchmark is None:
+            self.req_benchmark = requests.get("http://150.165.15.104:10090/benchmark_data")
+
         if self.req_benchmark.status_code == 200:
             lista = self.req_benchmark.json()
             if len(lista) > 0:
@@ -50,6 +54,10 @@ class IndexView(tables.MultiTableView):
 
     def get_disk_data(self):
         disk_data = []
+
+        if self.req_benchmark is None:
+            self.req_benchmark = requests.get("http://150.165.15.104:10090/benchmark_data")
+
         if self.req_benchmark.status_code == 200:
             lista = self.req_benchmark.json()
             if len(lista) > 0:
@@ -63,6 +71,10 @@ class IndexView(tables.MultiTableView):
 
     def get_memory_data(self):
         memory_data = []
+
+        if self.req_benchmark is None:
+            self.req_benchmark = requests.get("http://150.165.15.104:10090/benchmark_data")
+
         if self.req_benchmark.status_code == 200:
             lista = self.req_benchmark.json()
             if len(lista) > 0:

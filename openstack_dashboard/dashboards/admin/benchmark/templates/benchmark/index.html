@@ -10,7 +10,7 @@
 {% block main %}
 <div class="row-fluid">
   <form class="form-horizontal" id="form_benchmark">
-    <button type="submit" class="btn btn-small" onclick="load_bench();"> {% trans 'Start New Benchmark' %} 
+    <button type="submit" class="btn btn-small" onclick="load_bench();"> {% trans 'Schedule Benchmark Execution' %} 
     </button>
   </form>
   <div id="alarm_fail" class="alert alert-danger" data-alerts="alerts" style="display:none">
@@ -31,7 +31,7 @@
 </div>
 <script type="text/javascript"> 
   if (typeof $ !== 'undefined') {
-    load_bench();
+    //load_bench();
   } else {
     addHorizonLoadEvent(function() {
        load_bench();

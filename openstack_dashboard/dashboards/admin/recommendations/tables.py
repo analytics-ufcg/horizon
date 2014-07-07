@@ -76,7 +76,8 @@ class StatusTable(tables.DataTable):
 
 class MigrationTable(tables.DataTable):
     host = tables.Column('host', verbose_name=_('Host'))
-    server = tables.Column('server', verbose_name=_('Server'))
+    server = tables.Column('server', verbose_name=_('Server ID'))
+    name = tables.Column('name', verbose_name=_('Server Name'))
     end = tables.Column('endhost', verbose_name=_('New Host'))
 
     def get_object_id(self,obj):

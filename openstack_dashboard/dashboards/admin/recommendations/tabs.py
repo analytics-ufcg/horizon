@@ -91,7 +91,7 @@ class PowerTab(tabs.TableTab):
             for k in data.keys():
                 for vm in data[k]:
                     if data[k][vm] != None:
-                       row = dataMigration(k,vm,data[k][vm])
+                       row = dataMigration(k,vm,data[k][vm][0],data[k][vm][1])
                        migration.append(row)
         return migration
 

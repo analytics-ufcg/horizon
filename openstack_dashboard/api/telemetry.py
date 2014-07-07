@@ -45,9 +45,10 @@ class RecommendataionPowerStatus:
 
 class RecommendationMigration:
 
-    def __init__(self, host,server, endhost):
+    def __init__(self, host,server, name, endhost):
        self.host = host
        self.server = server
+       self.name = name
        self.endhost = endhost
 
 
