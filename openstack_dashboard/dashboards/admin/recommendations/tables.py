@@ -73,7 +73,19 @@ class StatusTable(tables.DataTable):
         name = "status"
         verbose_name = _("Hosts Power Status")
     
+class MigrationAction(tables.Action):
+    name = "migration_button"
+    verbose_name = _("Migrate Host")
+    verbose_name_plural = _("Migrate Hosts")
+#    action_present = _("Migrate")
+#    action_past = _("Migrated")
+#    data_type_singular = _("Host")
+#    data_type_plural = _("Hosts")
+#    success_url = "/admin/recommendations" 
 
+    def handle(self, data_table, request, object_ids):
+        print objects_ids
+ 
 class MigrationTable(tables.DataTable):
     host = tables.Column('host', verbose_name=_('Host'))
     server = tables.Column('server', verbose_name=_('Server ID'))
@@ -86,5 +98,6 @@ class MigrationTable(tables.DataTable):
     class Meta:
         name = "migration"
         verbose_name = _("Suggested Server Migrations")
-
+        multi_select = False
+        table_actions = (MigrationAction,)
      

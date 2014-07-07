@@ -58,7 +58,7 @@ class FlavorsTab(tabs.Tab):
         return None
 
 class PowerTab(tabs.TableTab):
-    table_classes = ( tables.StatusTable, tables.MigrationTable, ) #tables.StatusTable ,
+    table_classes = ( tables.StatusTable, tables.MigrationTable, ) 
     name = _("Power Saving")
     slug = "power"
     template_name = ("admin/recommendations/power.html")
@@ -99,5 +99,5 @@ class PowerTab(tabs.TableTab):
 
 class RecommendationsTabs(tabs.TabGroup):
     slug = "recommendations_overview"
-    tabs = ( UpgradesTab, FlavorsTab, PowerTab, )#UpgradesTab,  FlavorsTab, PowerTab, )
+    tabs = ( UpgradesTab, FlavorsTab, PowerTab, )
     sticky = True
