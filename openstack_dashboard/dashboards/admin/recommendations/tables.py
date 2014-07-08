@@ -80,11 +80,6 @@ class MigrationAction(tables.Action):
     verbose_name = _("Migrate Host")
     verbose_name_plural = _("Migrate Hosts")
     requires_input = False
-#    action_present = _("Migrate")
-#    action_past = _("Migrated")
-#    data_type_singular = _("Host")
-#    data_type_plural = _("Hosts")
-#    success_url = "/admin/recommendations" 
 
     def handle(self, table, request, object_ids):
         print 'HANDLE'
@@ -101,6 +96,7 @@ class MigrationTable(tables.DataTable):
     server = tables.Column('server', verbose_name=_('Server ID'))
     name = tables.Column('name', verbose_name=_('Server Name'))
     end = tables.Column('endhost', verbose_name=_('New Host'))
+    project = tables.Column('project', verbose_name=_("Project"))
 
     def get_object_id(self,obj):
         return "%s" %(obj.server)
