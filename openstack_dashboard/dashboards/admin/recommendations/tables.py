@@ -13,9 +13,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from horizon import tables
 
-
+import requests
 
 class UpgradeFilterAction(tables.FilterAction):
+    name = 'filter_upgrades'
+    
     def filter(self,table, resources, filter_string):
         q = filter_string.lower()
         
@@ -45,7 +47,7 @@ class UpgradeTable(tables.DataTable):
     class Meta:
         name="upgrades"
         verbose_name = _(" ")
-        table_actions = (UpgradeFilterAction,)
+#        table_actions = (UpgradeFilterAction,)
         multi_select = False
 
 
@@ -77,14 +79,22 @@ class MigrationAction(tables.Action):
     name = "migration_button"
     verbose_name = _("Migrate Host")
     verbose_name_plural = _("Migrate Hosts")
+    requires_input = False
 #    action_present = _("Migrate")
 #    action_past = _("Migrated")
 #    data_type_singular = _("Host")
 #    data_type_plural = _("Hosts")
 #    success_url = "/admin/recommendations" 
 
-    def handle(self, data_table, request, object_ids):
-        print objects_ids
+    def handle(self, table, request, object_ids):
+        print 'HANDLE'
+        for row in table.get_rows():
+            project = 'admin' #TODO CHANGE!!! NEED PROJECT COLUMN
+            host = row.cells['name'].data
+            instance = row.cells['server'].data
+
+            r = requests.post('http://150.165.15.104:10090/live_migration?project_name=%s&host_name=%s&instance_id=%s' % (project, host, instance))
+            print "Live migrate status code: %d" % r.status_code
  
 class MigrationTable(tables.DataTable):
     host = tables.Column('host', verbose_name=_('Host'))
