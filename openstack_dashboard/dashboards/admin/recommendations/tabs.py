@@ -14,13 +14,15 @@
 
 from django import template
 from django.utils.translation import ugettext_lazy as _
+from django.utils.datastructures import SortedDict
 
 from horizon import tabs
 
 from openstack_dashboard.dashboards.admin.recommendations import tables
 from openstack_dashboard.api.telemetry import RecommendationsUpgrade as dataUpgrade
 from openstack_dashboard.api.telemetry import RecommendataionPowerStatus as dataStatus
-from openstack_dashboard.api.telemetry import RecommendationMigration as dataMigration 
+from openstack_dashboard.api.telemetry import RecommendationMigration as dataMigration
+from openstack_dashboard import api
 import requests
 
 class UpgradesTab(tabs.TableTab):
@@ -91,11 +93,9 @@ class PowerTab(tabs.TableTab):
             for k in data.keys():
                 for vm in data[k]:
                     if data[k][vm] != None:
-                       row = dataMigration(k,vm,data[k][vm][0],data[k][vm][1], 'TODO Get Project Name')
+                       row = dataMigration(k,vm,data[k][vm][0],data[k][vm][1], data[k][vm][2])
                        migration.append(row)
         return migration
-
-
 
 class RecommendationsTabs(tabs.TabGroup):
     slug = "recommendations_overview"
