@@ -83,7 +83,9 @@ class PowerTab(tabs.TableTab):
         return host_status
 
     def get_migration_data(self):
+        hosts = {}
         migration = []
+        flag = False
 
         if self.request_host_migration is None:
             self.request_host_migration = requests.get("http://150.165.15.104:10090/host_migration")
@@ -93,8 +95,18 @@ class PowerTab(tabs.TableTab):
             for k in data.keys():
                 for vm in data[k]:
                     if data[k][vm] != None:
-                       row = dataMigration(k,vm,data[k][vm][1],data[k][vm][0], data[k][vm][2])
-                       migration.append(row)
+                           flag = True;
+                           if k not in hosts: 
+                               hosts[k] = {'server': [], 'name': [], 'endhost': [], 'project': []}
+                           hosts[k]['server'].append(vm)
+                           hosts[k]['name'].append(data[k][vm][1])
+                           hosts[k]['endhost'].append(data[k][vm][0])
+                           hosts[k]['project'].append(data[k][vm][2])
+                if flag:
+                    row = dataMigration(k,hosts[k]['server'],hosts[k]['name'],hosts[k]['endhost'], hosts[k]['project'])
+                    migration.append(row)
+                    flag = False            
+
         return migration
 
 class RecommendationsTabs(tabs.TabGroup):

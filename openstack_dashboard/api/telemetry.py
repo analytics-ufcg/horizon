@@ -46,12 +46,11 @@ class RecommendataionPowerStatus:
 class RecommendationMigration:
 
     def __init__(self, host, server, name, endhost, project):
-       self.host = host
-       self.server = server
-       self.name = name
-       self.endhost = endhost
-       self.project = project
-
+        self.host = host
+        self.server = server
+        self.name = name
+        self.endhost = endhost
+        self.project = project
 
 class BenchmarkDisk:
 
