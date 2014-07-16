@@ -100,10 +100,10 @@ class MigrationAction(tables.BatchAction):
         
         for n in range(len(user_obj.server)):
             project = user_obj.project[n]
-            host = user_obj.name[n]
+            host = user_obj.endhost[n]
             instance = user_obj.server[n]
 
-            r = requests.post('http://150.165.15.104:10090/live_migration?project_name=%s&host_name=%s&instance_id=%s' % (project, host, instance))
+            r = requests.post('http://150.165.15.104:10090/live_migration?project=%s&host_name=%s&instance_id=%s' % (project, host, instance))
             print "Live migrate status code: %d" % r.status_code 
             print host, project, instance
         
