@@ -156,7 +156,20 @@ INSTALLED_APPS = [
     'compressor',
     'horizon',
     'openstack_auth',
+    'messages',
 ]
+
+SESSION_ENGINE = 'django.core.cache.backends.db.DatabaseCache'
+DATABASES = {
+    'default': {
+        # Database configuration here
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'message_database',
+        'USER': 'root',
+        'PASSWORD': '2910901b3537f1ecc45f',
+        'default-character-set': 'utf8'
+    }    
+}
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 AUTHENTICATION_BACKENDS = ('openstack_auth.backend.KeystoneBackend',)
