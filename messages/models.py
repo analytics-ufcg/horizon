@@ -9,4 +9,10 @@ class message_module(models.Model):
     message = models.CharField(max_length=10000)
     read = models.CharField(max_length=1)
 
+    def change_status(self, status):
+        if(status == 'T' or status == 'F'):
+            self.read = status
+
+
+
 # Create your models here.
