@@ -12,3 +12,6 @@ class MessageManager:
                     subject=subject,timestamp=datetime.datetime.now(),
                     message=message, read='F')
         m.save()
+
+    def get_message_by_id(self, id):
+        return Message.objects.filter(id=id)[0]

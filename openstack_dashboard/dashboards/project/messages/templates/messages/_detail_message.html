@@ -1,0 +1,13 @@
+{% load i18n sizeformat %}
+{% load url from future %}
+
+<div class="status row-fluid detail">
+  <dl>
+    <dt>{% trans "Sender" %}</dt>
+    <dd>{{ message.sender}}</dd>
+    <dt>{% trans "Date" %}</dt>
+    <dd>{{ message.timestamp }}</dd>
+    <dt>{% trans "Message" %}</dt>
+    <dd>{{ message.message }}</dd>
+  </dl>
+</div>

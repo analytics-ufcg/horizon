@@ -60,6 +60,10 @@
     </ul>
   </div>
 
+  {% if not request.user.username == 'admin' %}
+    <a href="{% url 'horizon:project:messages:index' %}">{% trans "Messages" %}</a>
+  {% endif %}
+
   <a href="{% url 'logout' %}">{% trans "Sign Out" %}</a>
   {% include "horizon/common/_region_selector.html" %}
 </div>
