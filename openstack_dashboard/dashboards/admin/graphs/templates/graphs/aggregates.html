@@ -61,16 +61,20 @@
       <button type="submit" class="btn btn-small" onclick="verifica_parametros3();">{% trans 'Apply' %}</button>
   </form>
 
+
 </div>
-<br><br><br><br><div id="chart3" style="width: 400; height: 400"></div>
+<br><br><br><div id="chart3" ></div>
+<br><br><br><div id="agg_chart" style="width: 900px; height: 300px" > </div>
 <script type="text/javascript">
 
   if (typeof $ !== 'undefined') {
     show_hide_datepickers3();
+    agg_host_graph();
   } else {
     addHorizonLoadEvent(function() {
       show_hide_datepickers3();
       verifica_parametros3();
+      agg_host_graph();
     });
   }
 
@@ -319,4 +323,89 @@
 	return [year, month, day].join('-') + "T" + hour + ":" + minuto + ":00";
 
   }
+
+
+function agg_host_graph(){
+
+
+			var url_aggregate_vcpu = "http://150.165.15.104:10090/vcpus_for_aggregate?project=admin";
+			
+			 $.ajax({
+                                url : url_aggregate_vcpu,
+                                dataType : 'json'
+                        }).fail(function( xhr, textStatus, errorThrown) {
+                                                $('#agg_chart').empty().queue(function(exec) {
+                                                $('#agg_chart').html('<p><h3>' + 'Could not generate the graph for the aggregate '  + '</h3><p>');
+                                                exec();
+                                        });
+
+                        }).done(function(data) {
+
+				var dados = data;
+                                if (dados === null || dados.length === 0 ) {
+                                        var ht = $('#agg').find("option:selected").val();
+                                        $('#chart3').empty().queue(function(exec) {
+                                                $('#chart3').html('<p><h3>' + 'Could not generate the graph for the aggregate ' + ht + '</h3><p>');
+                                                exec();
+                                        });
+                                } else {
+					var agg_names = []; 
+					var alocados = { name: 'Allocated',  data : []};
+				        var total =  {name: 'Total',  data : []};  
+					$.each(dados, function(k,v){  
+						var dic = JSON.parse(v);
+						console.log(dic.name,dic.vcpus,dic.cpus);
+						agg_names.push(dic.name);
+				  		alocados.data.push(dic.vcpus);
+		 				total.data.push(dic.cpus);
+					});
+
+					$(function () {
+						$('#agg_chart').highcharts({
+						    chart: {
+							type: 'column'
+						    },
+						    colors: [
+                					'#ca0020',
+                					'#0571b0'
+            					    ],
+						    title: {
+							text: ' CPUs allocated by aggregate'
+						    },
+						    subtitle: {
+							text: ''
+						    },
+						    xAxis: {
+							categories: agg_names
+						    },
+						    yAxis: {
+							min: 0,
+							title: {
+							    text: 'Amount of CPU'
+							}
+						    },
+						    tooltip: {
+							headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+							pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+							    '<td style="padding:0"><b>{point.y:.0f}</b></td></tr>',
+							footerFormat: '</table>',
+							shared: true,
+							useHTML: true
+						    },
+						    plotOptions: {
+							column: {
+							    pointPadding: 0.02,
+							    borderWidth: 0
+							}
+						    },
+						    series: [alocados,total]
+						});
+					    });				
+
+				}
+
+
+			});
+
+}
 </script>

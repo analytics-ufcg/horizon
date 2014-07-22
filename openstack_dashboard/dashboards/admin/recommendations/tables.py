@@ -9,11 +9,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import logging
+
+from django import shortcuts
+from django.template import defaultfilters as filters
 from django.utils.translation import ugettext_lazy as _
 
 from horizon import tables
+from horizon import exceptions
+from horizon import messages
+from horizon.utils import functions
 
 import requests
+
+
+LOG = logging.getLogger(__name__)
+
 
 class UpgradeFilterAction(tables.FilterAction):
     name = 'filter_upgrades'
@@ -47,7 +58,7 @@ class UpgradeTable(tables.DataTable):
     class Meta:
         name="upgrades"
         verbose_name = _(" ")
-#        table_actions = (UpgradeFilterAction,)
+#       table_actions = (UpgradeFilterAction,)
         multi_select = False
 
 
@@ -74,36 +85,118 @@ class StatusTable(tables.DataTable):
     class Meta:
         name = "status"
         verbose_name = _("Hosts Power Status")
-    
-class MigrationAction(tables.Action):
+
+class MigrationAction(tables.BatchAction):
     name = "migration_button"
-    verbose_name = _("Migrate Host")
-    verbose_name_plural = _("Migrate Hosts")
-    requires_input = False
-
-    def handle(self, table, request, object_ids):
-        print 'HANDLE'
-        for row in table.get_rows():
-            project = 'admin' #TODO CHANGE!!! NEED PROJECT COLUMN
-            host = row.cells['name'].data
-            instance = row.cells['server'].data
-
-            r = requests.post('http://150.165.15.104:10090/live_migration?project_name=%s&host_name=%s&instance_id=%s' % (project, host, instance))
-            print "Live migrate status code: %d" % r.status_code
+    action_present = _("Migrate")
+    action_past = _("Migrated")
+    data_type_singular = _("Host")
+    data_type_plural = _("Hosts")
+    success_url = '/admin/recommendations'
  
+    def action(self, request, obj_id):
+        print 'ACTION'
+        user_obj = self.table.get_object_by_id(obj_id)
+        
+        for n in range(len(user_obj.server)):
+            project = user_obj.project[n]
+            host = user_obj.endhost[n]
+            instance = user_obj.server[n]
+
+            r = requests.post('http://150.165.15.104:10090/live_migration?project=%s&host_name=%s&instance_id=%s' % (project, host, instance))
+            print "Live migrate status code: %d" % r.status_code 
+            print host, project, instance
+        
+    
+    def handle(self, table, request, obj_ids):
+        print 'HANDLE'
+        action_success = []
+        action_failure = []
+        action_not_allowed = []
+ 
+        for datum_id in obj_ids:
+            datum = table.get_object_by_id(datum_id)
+            datum_display = table.get_object_display(datum) or _("N/A")
+            if not table._filter_action(self, request, datum):
+                action_not_allowed.append(datum_display)
+                LOG.info('Permission denied to %s: "%s"' %
+                         (self._get_action_name(past=True).lower(),
+                          datum_display))
+                continue
+            try:
+                self.action(request, datum_id)
+                self.update(request, datum)
+                action_success.append(datum_display)
+                self.success_ids.append(datum_id)
+                LOG.info('%s: "%s"' %
+                         (self._get_action_name(past=True), datum_display))
+            except Exception as ex:
+                # Handle the exception but silence it since we'll display
+                # an aggregate error message later. Otherwise we'd get
+                # multiple error messages displayed to the user.
+                if getattr(ex, "_safe_message", None):
+                    ignore = False
+                else:
+                    ignore = True
+                    action_failure.append(datum_display)
+                exceptions.handle(request, ignore=ignore)
+
+        # Begin with success message class, downgrade to info if problems.
+        success_message_level = messages.success
+        if action_not_allowed:
+            msg = _('You are not allowed to %(action)s: %(objs)s')
+            params = {"action":
+                      self._get_action_name(action_not_allowed).lower(),
+                      "objs": functions.lazy_join(", ", action_not_allowed)}
+            messages.error(request, msg % params)
+            success_message_level = messages.info
+        if action_failure:
+            msg = _('Unable to %(action)s: %(objs)s')
+            params = {"action": self._get_action_name(action_failure).lower(),
+                      "objs": functions.lazy_join(", ", action_failure)}
+            messages.error(request, msg % params)
+            success_message_level = messages.info
+        if action_success:
+            msg = _('%(action)s: %(objs)s')
+            params = {"action":
+                      self._get_action_name(action_success, past=True),
+                      "objs": functions.lazy_join(", ", action_success)}
+            success_message_level(request, msg % params)
+
+        return shortcuts.redirect(self.get_success_url(request))
+   
+#        for row in table.get_rows():
+#            project = row.cells['project'].data
+#            host = row.cells['name'].data
+#            instance = row.cells['server'].data
+#
+#            r = requests.post('http://150.165.15.104:10090/live_migration?project_name=%s&host_name=%s&instance_id=%s' % (project, host, instance))
+#            print "Live migrate status code: %d" % r.status_code
+
+def get_servers(zone):
+    return zone.server
+
+def get_names(zone):
+    return zone.name
+
+def get_endhosts(zone):
+    return zone.endhost
+
+def get_projects(zone):
+    return zone.project
+
 class MigrationTable(tables.DataTable):
     host = tables.Column('host', verbose_name=_('Host'))
-    server = tables.Column('server', verbose_name=_('Server ID'))
-    name = tables.Column('name', verbose_name=_('Server Name'))
-    end = tables.Column('endhost', verbose_name=_('New Host'))
-    project = tables.Column('project', verbose_name=_("Project"))
+    server = tables.Column(get_servers, verbose_name=_('Server ID'), wrap_list=True, filters=(filters.unordered_list,))
+    name = tables.Column(get_names, verbose_name=_('Server Name'), wrap_list=True, filters=(filters.unordered_list,))
+    end = tables.Column(get_endhosts, verbose_name=_('New Host'), wrap_list=True, filters=(filters.unordered_list,))
+    project = tables.Column(get_projects, verbose_name=_("Project"), wrap_list=True, filters=(filters.unordered_list,))
 
-    def get_object_id(self,obj):
-        return "%s" %(obj.server)
+    def get_object_id(self, obj):
+        return "%s" % (obj.host)
 
     class Meta:
         name = "migration"
         verbose_name = _("Suggested Server Migrations")
-        multi_select = False
         table_actions = (MigrationAction,)
      
