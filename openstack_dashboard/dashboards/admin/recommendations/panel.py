@@ -18,9 +18,9 @@ import horizon
 
 from openstack_dashboard.dashboards.admin import dashboard
 
+
 class RecommendationsPanel(horizon.Panel):
     name = _("Recommendations")
     slug = 'recommendations'
 
 dashboard.Admin.register(RecommendationsPanel)
-

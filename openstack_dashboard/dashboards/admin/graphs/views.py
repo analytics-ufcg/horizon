@@ -13,18 +13,13 @@
 #    under the License.
 
 from django.views.generic import TemplateView  # noqa
-from django.shortcuts import render
 
 from horizon import tabs
 
 from openstack_dashboard.dashboards.admin.graphs import tabs as \
     graphs_tabs
 
-import requests, json
 
 class IndexView(tabs.TabView):
     tab_group_class = graphs_tabs.GraphsTabs
     template_name = 'admin/graphs/index.html'
-
-
-

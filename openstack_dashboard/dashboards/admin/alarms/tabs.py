@@ -1,24 +1,30 @@
-# not use this file except in compliance with the License. You may obtain
-# a copy of the License at
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
+# Copyright 2013 B1 Systems GmbH
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-# License for the specific language governing permissions and limitations
-# under the License.
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
 
 from django.utils.translation import ugettext_lazy as _
 
-from openstack_dashboard.api.telemetry import AlarmsList as alarms_list
 from openstack_dashboard.api.telemetry import AlarmsHistory as alarms_hist
+from openstack_dashboard.api.telemetry import AlarmsList as alarms_list
 from openstack_dashboard.dashboards.admin.alarms import tables
 
 from horizon import tabs
 
-import requests
 import json
+import requests
+
 
 class AlarmsListTab(tabs.TableTab):
     table_classes = (tables.AlarmsListTable,)
@@ -33,14 +39,14 @@ class AlarmsListTab(tabs.TableTab):
         if r.status_code == 200:
             alarms_dict = r.json()
             for ids in alarms_dict.keys():
-                alarm_id = ids
                 alarm_name = alarms_dict[ids][0]
                 enabled = alarms_dict[ids][1]
                 description = alarms_dict[ids][2]
                 alarm = alarms_list(ids, alarm_name, enabled, description)
                 alarms_obj.append(alarm)
-            
-        return alarms_obj        
+
+        return alarms_obj
+
 
 class AlarmsHistoryTab(tabs.TableTab):
     table_classes = (tables.AlarmsHistoryTable,)
@@ -60,9 +66,14 @@ class AlarmsHistoryTab(tabs.TableTab):
                     timestamp = data_history['timestamp']
                     alarm_type = data_history['type']
                     detail_str = json.loads(data_history['detail'])
-                    alarm = alarms_hist(timestamp, alarm_name, alarm_type, 'Current State: ' + detail_str['state'])
+                    alarm = alarms_hist(timestamp,
+                                        alarm_name,
+                                        alarm_type,
+                                        'Current State: '
+                                        + detail_str['state'])
                     alarms_obj.append(alarm)
         return alarms_obj
+
 
 class AlarmsOverviewTabs(tabs.TabGroup):
     slug = "alarms_overview"

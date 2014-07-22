@@ -12,18 +12,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from django import template
 from django.utils.translation import ugettext_lazy as _
-from django.utils.datastructures import SortedDict
 
 from horizon import tabs
 
-from openstack_dashboard.dashboards.admin.recommendations import tables
-from openstack_dashboard.api.telemetry import RecommendationsUpgrade as dataUpgrade
-from openstack_dashboard.api.telemetry import RecommendataionPowerStatus as dataStatus
-from openstack_dashboard.api.telemetry import RecommendationMigration as dataMigration
-from openstack_dashboard import api
+from openstack_dashboard.api.telemetry \
+    import RecommendationMigration as dataMigration
+from openstack_dashboard.api.telemetry \
+    import RecommendationPowerStatus as dataStatus
+from openstack_dashboard.api.telemetry \
+    import RecommendationUpgrade as dataUpgrade
+from openstack_dashboard.dashboards.admin.recommendations \
+    import tables
+
 import requests
+
 
 class UpgradesTab(tabs.TableTab):
     table_classes = (tables.UpgradeTable,)
@@ -33,34 +36,44 @@ class UpgradesTab(tabs.TableTab):
     #recommendations/upgrades.html")
 
     def get_upgrades_data(self):
-        req = requests.get("http://150.165.15.104:10090/host_metrics?project=demo")
+        req = requests.get("http://150.165.15.104:10090/ \
+                           host_metrics?project=demo")
         upgrade_list = []
         if req.status_code == 200:
             data = req.json()
             for h in data.keys():
-                host = dataUpgrade(h,data[h]['Total'][0],data[h]['Em uso'][0],data[h]['Percentual'][0],data[h]['Total'][1],data[h]['Em uso'][1],data[h]['Percentual'][1],data[h]['Total'][2],data[h]['Em uso'][2],data[h]['Percentual'][2])
+                host = dataUpgrade(h, data[h]['Total'][0],
+                                   data[h]['Em uso'][0],
+                                   data[h]['Percentual'][0],
+                                   data[h]['Total'][1],
+                                   data[h]['Em uso'][1],
+                                   data[h]['Percentual'][1],
+                                   data[h]['Total'][2],
+                                   data[h]['Em uso'][2],
+                                   data[h]['Percentual'][2])
                 upgrade_list.append(host)
-        return  upgrade_list
+        return upgrade_list
+
 
 class FlavorsTab(tabs.Tab):
-    #tabs.TableTab
     #table_classes = (tables.FlavorTable,)
     name = _("Flavors")
     slug = "flavors_rec"
     #template_name = ("horizon/common/_detail_table.html")
     template_name = ("admin/recommendations/flavors.html")
-    #def get_flavors_data(self):
-    def get_context_data(self,request):
+
+    def get_context_data(self, request):
         #req = requests.get("http://150.165.15.4:9090/o")
         #flavor_list = []
         #if req.status_code == 200:
         #    data = req.json()
-             
+
         #return flavor_list
         return None
 
+
 class PowerTab(tabs.TableTab):
-    table_classes = ( tables.StatusTable, tables.MigrationTable, ) 
+    table_classes = (tables.StatusTable, tables.MigrationTable,)
     name = _("Power Saving")
     slug = "power"
     template_name = ("admin/recommendations/power.html")
@@ -70,15 +83,16 @@ class PowerTab(tabs.TableTab):
         host_status = []
 
         if self.request_host_migration is None:
-            self.request_host_migration = requests.get("http://150.165.15.104:10090/host_migration")
+            self.request_host_migration \
+                = requests.get("http://150.165.15.104:10090/host_migration")
 
         if self.request_host_migration.status_code == 200:
             data = self.request_host_migration.json()['Hosts']
             for k in data.keys():
-                if data[k] == True:
-                    row = dataStatus(k,"Shut Off")
+                if data[k] is True:
+                    row = dataStatus(k, "Shut Off")
                 else:
-                    row = dataStatus(k,"Keep On")
+                    row = dataStatus(k, "Keep On")
                 host_status.append(row)
         return host_status
 
@@ -88,28 +102,38 @@ class PowerTab(tabs.TableTab):
         flag = False
 
         if self.request_host_migration is None:
-            self.request_host_migration = requests.get("http://150.165.15.104:10090/host_migration")
+            self.request_host_migration \
+                = requests.get("http://150.165.15.104:10090/host_migration")
 
         if self.request_host_migration.status_code == 200:
             data = self.request_host_migration.json()['Migracoes']
             for k in data.keys():
                 for vm in data[k]:
-                    if data[k][vm] != None:
-                           flag = True;
-                           if k not in hosts: 
-                               hosts[k] = {'server': [], 'name': [], 'endhost': [], 'project': []}
-                           hosts[k]['server'].append(vm)
-                           hosts[k]['name'].append(data[k][vm][1])
-                           hosts[k]['endhost'].append(data[k][vm][0])
-                           hosts[k]['project'].append(data[k][vm][2])
+                    if data[k][vm] is not None:
+                        flag = True
+
+                        if k not in hosts:
+                           hosts[k] = {'server': [], 'name': [],
+                                       'endhost': [], 'project': []}
+
+                        hosts[k]['server'].append(vm)
+                        hosts[k]['name'].append(data[k][vm][1])
+                        hosts[k]['endhost'].append(data[k][vm][0])
+                        hosts[k]['project'].append(data[k][vm][2])
+
                 if flag:
-                    row = dataMigration(k,hosts[k]['server'],hosts[k]['name'],hosts[k]['endhost'], hosts[k]['project'])
+                    row = dataMigration(k,
+                                        hosts[k]['server'],
+                                        hosts[k]['name'],
+                                        hosts[k]['endhost'],
+                                        hosts[k]['project'])
                     migration.append(row)
-                    flag = False            
+                    flag = False
 
         return migration
 
+
 class RecommendationsTabs(tabs.TabGroup):
     slug = "recommendations_overview"
-    tabs = ( UpgradesTab, FlavorsTab, PowerTab, )
+    tabs = (UpgradesTab, FlavorsTab, PowerTab,)
     sticky = True

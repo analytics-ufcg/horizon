@@ -18,6 +18,7 @@ import horizon
 
 from openstack_dashboard.dashboards.admin import dashboard
 
+
 class GraphsPanel(horizon.Panel):
     name = _("Graphs")
     slug = 'graphs'

@@ -26,15 +26,18 @@ class SystemPanels(horizon.PanelGroup):
               'instances', 'volumes', 'flavors', 'images',
               'networks', 'routers', 'info')
 
+
 class IdentityPanels(horizon.PanelGroup):
     slug = "identity"
     name = _("Identity Panel")
     panels = ('domains', 'projects', 'users', 'groups', 'roles')
 
+
 class TelemetryPanels(horizon.PanelGroup):
     slug = "telemetry"
     name = _("Telemetry Panel")
-    panels = ('graphs', 'recommendations', 'alarms','benchmark')
+    panels = ('graphs', 'recommendations', 'alarms', 'benchmark')
+
 
 class Admin(horizon.Dashboard):
     name = _("Admin")

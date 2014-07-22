@@ -16,9 +16,9 @@ import horizon
 
 from openstack_dashboard.dashboards.admin import dashboard
 
+
 class Benchmark(horizon.Panel):
     name = _("Benchmark")
     slug = "benchmark"
-
 
 dashboard.Admin.register(Benchmark)

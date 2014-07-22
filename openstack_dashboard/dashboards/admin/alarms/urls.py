@@ -21,4 +21,3 @@ urlpatterns = patterns('',
     url(r'^$', views.IndexView.as_view(), name='index'),
     url(r'^create$', views.AddAlarmView.as_view(), name='create'),
 )
-

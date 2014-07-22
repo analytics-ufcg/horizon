@@ -13,8 +13,8 @@
 #    under the License.
 
 from django.core.urlresolvers import reverse
-from django.views.generic import TemplateView  # noqa
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import TemplateView  # noqa
 
 from horizon import exceptions
 from horizon import tables
@@ -34,7 +34,8 @@ class IndexView(tables.DataTableView):
     def get_data(self):
         messages_table = []
         message_obj = MessageManager()
-        messages_list = message_obj.get_message_by_recipient(self.request.user.id)
+        messages_list \
+            = message_obj.get_message_by_recipient(self.request.user.id)
 
         for messages in messages_list:
             message = user_messages(messages.id, messages.sender,
@@ -57,7 +58,7 @@ class DetailView(TemplateView):
     def get_data(self):
         try:
             message_id = self.kwargs['message_id']
-            message_obj = MessageManager();
+            message_obj = MessageManager()
             message = message_obj.get_message_by_id(message_id)
         except Exception:
             redirect = reverse(self.redirect_url)
