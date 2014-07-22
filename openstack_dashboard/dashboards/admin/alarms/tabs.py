@@ -19,6 +19,9 @@ from horizon import tabs
 
 import requests
 import json
+import ConfigParser
+
+from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
 class AlarmsListTab(tabs.TableTab):
     table_classes = (tables.AlarmsListTable,)
@@ -27,18 +30,21 @@ class AlarmsListTab(tabs.TableTab):
     template_name = ("horizon/common/_detail_table.html")
 
     def get_alarms_list_data(self):
-        r = requests.get('http://150.165.15.104:10090/alarm_description')
         alarms_obj = []
 
-        if r.status_code == 200:
-            alarms_dict = r.json()
-            for ids in alarms_dict.keys():
-                alarm_id = ids
-                alarm_name = alarms_dict[ids][0]
-                enabled = alarms_dict[ids][1]
-                description = alarms_dict[ids][2]
-                alarm = alarms_list(ids, alarm_name, enabled, description)
-                alarms_obj.append(alarm)
+        config = ConfigParser.ConfigParser()
+        config.read('openstack_dashboard/api/telemetry_api/environment.conf')
+
+        data_handler = DataHandler(config)
+
+        alarms_dict = data_handler.alarm_description() 
+        for ids in alarms_dict.keys():
+            alarm_id = ids
+            alarm_name = alarms_dict[ids][0]
+            enabled = alarms_dict[ids][1]
+            description = alarms_dict[ids][2]
+            alarm = alarms_list(ids, alarm_name, enabled, description)
+            alarms_obj.append(alarm)
             
         return alarms_obj        
 
@@ -49,19 +55,22 @@ class AlarmsHistoryTab(tabs.TableTab):
     template_name = ("horizon/common/_detail_table.html")
 
     def get_alarms_history_data(self):
-        r = requests.get('http://150.165.15.104:10090/alarms_history')
         alarms_obj = []
 
-        if r.status_code == 200:
-            alarms_dict = r.json()
-            for data in alarms_dict:
-                alarm_name = data['alarm_name']
-                for data_history in data['history']:
-                    timestamp = data_history['timestamp']
-                    alarm_type = data_history['type']
-                    detail_str = json.loads(data_history['detail'])
-                    alarm = alarms_hist(timestamp, alarm_name, alarm_type, 'Current State: ' + detail_str['state'])
-                    alarms_obj.append(alarm)
+        config = ConfigParser.ConfigParser()
+        config.read('openstack_dashboard/api/telemetry_api/environment.conf')
+
+        data_handler = DataHandler(config)
+
+        alarms_dict = data_handler.alarms_history() 
+        for data in alarms_dict:
+            alarm_name = data['alarm_name']
+            for data_history in data['history']:
+                timestamp = data_history['timestamp']
+                alarm_type = data_history['type']
+                detail_str = json.loads(data_history['detail'])
+                alarm = alarms_hist(timestamp, alarm_name, alarm_type, 'Current State: ' + detail_str['state'])
+                alarms_obj.append(alarm)
         return alarms_obj
 
 class AlarmsOverviewTabs(tabs.TabGroup):
