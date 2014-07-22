@@ -4,10 +4,7 @@ import datetime
 
 class MessageManager:
     def get_message_by_recipient(self, recipient):
-        ret = []
-        for message in Message.objects.all():
-            if(message.recipient == recipient):
-                ret.append(message)
+        ret = Message.objects.filter(recipient=recipient)
         return ret
 
     def send_message(self, sender, recipient, subject, message):
