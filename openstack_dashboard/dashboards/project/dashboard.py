@@ -59,6 +59,12 @@ class DatabasePanels(horizon.PanelGroup):
               'database_backups',)
 
 
+class UserPanels(horizon.PanelGroup):
+    name = _("User")
+    slug = "user"
+    panels = ('messages',)
+
+
 class Project(horizon.Dashboard):
     name = _("Project")
     slug = "project"
@@ -67,7 +73,8 @@ class Project(horizon.Dashboard):
         NetworkPanels,
         ObjectStorePanels,
         OrchestrationPanels,
-        DatabasePanels,)
+        DatabasePanels,
+        UserPanels,)
     default_panel = 'overview'
     supports_tenants = True
 

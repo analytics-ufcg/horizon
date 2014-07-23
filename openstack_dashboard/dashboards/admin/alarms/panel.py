@@ -18,9 +18,9 @@ import horizon
 
 from openstack_dashboard.dashboards.admin import dashboard
 
+
 class AlarmsPanel(horizon.Panel):
     name = _("Alarms")
     slug = 'alarms'
 
 dashboard.Admin.register(AlarmsPanel)
-

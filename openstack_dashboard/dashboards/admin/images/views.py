@@ -30,7 +30,7 @@ from openstack_dashboard.dashboards.project.images.images import views
 from openstack_dashboard.dashboards.admin.images import forms
 from openstack_dashboard.dashboards.admin.images \
     import tables as project_tables
-import requests
+
 
 class IndexView(tables.DataTableView):
     table_class = project_tables.AdminImagesTable
@@ -44,9 +44,6 @@ class IndexView(tables.DataTableView):
         filters = {'is_public': None}
         marker = self.request.GET.get(
             project_tables.AdminImagesTable._meta.pagination_param, None)
-        print "--------------------"
-        print marker.__getattribute__
-        print "--------------------"
         try:
             images, self._more = api.glance.image_list_detailed(self.request,
                                                             marker=marker,

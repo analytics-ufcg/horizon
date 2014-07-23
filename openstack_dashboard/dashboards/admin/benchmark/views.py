@@ -12,23 +12,27 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-
-from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView  # noqa
-from django.shortcuts import render
 
 from horizon import tables
 
-from openstack_dashboard.dashboards.admin.benchmark import tables as project_tables
+from openstack_dashboard.dashboards.admin.benchmark \
+    import tables as project_tables
 
-from openstack_dashboard.api.telemetry import BenchmarkMemory as benchMemory 
-from openstack_dashboard.api.telemetry import BenchmarkCpu as benchCpu 
-from openstack_dashboard.api.telemetry import BenchmarkDisk as benchDisk
+from openstack_dashboard.api.telemetry \
+    import BenchmarkCpu as benchCpu
+from openstack_dashboard.api.telemetry \
+    import BenchmarkDisk as benchDisk
+from openstack_dashboard.api.telemetry \
+    import BenchmarkMemory as benchMemory
 
 import requests
 
+
 class IndexView(tables.MultiTableView):
-    table_classes = (project_tables.BenchmarkCpuTable, project_tables.BenchmarkMemoryTable, project_tables.BenchmarkDiskTable)
+    table_classes = (project_tables.BenchmarkCpuTable,
+                     project_tables.BenchmarkMemoryTable,
+                     project_tables.BenchmarkDiskTable)
     template_name = 'admin/benchmark/index.html'
     req_benchmark = None
 
@@ -39,13 +43,19 @@ class IndexView(tables.MultiTableView):
         cpu_data = []
 
         if self.req_benchmark is None:
-            self.req_benchmark = requests.get("http://150.165.15.104:10090/benchmark_data")
+            self.req_benchmark \
+                = requests.get("http://150.165.15.104:10090/benchmark_data")
 
         if self.req_benchmark.status_code == 200:
             lista = self.req_benchmark.json()
             if len(lista) > 0:
                 for dic in lista:
-                    row = benchCpu(dic['host'], dic['cpu_average'], dic['cpu_median'], dic['cpu_min'], dic['cpu_max'], dic['cpu_first_quarter'],dic['cpu_second_quarter'], dic['cpu_third_quarter'], dic['cpu_fourth_quarter'])
+                    row = benchCpu(dic['host'], dic['cpu_average'],
+                                   dic['cpu_median'], dic['cpu_min'],
+                                   dic['cpu_max'], dic['cpu_first_quarter'],
+                                   dic['cpu_second_quarter'],
+                                   dic['cpu_third_quarter'],
+                                   dic['cpu_fourth_quarter'])
                     cpu_data.append(row)
             else:
                 return cpu_data
@@ -56,13 +66,20 @@ class IndexView(tables.MultiTableView):
         disk_data = []
 
         if self.req_benchmark is None:
-            self.req_benchmark = requests.get("http://150.165.15.104:10090/benchmark_data")
+            self.req_benchmark \
+                = requests.get("http://150.165.15.104:10090/benchmark_data")
 
         if self.req_benchmark.status_code == 200:
             lista = self.req_benchmark.json()
             if len(lista) > 0:
                 for dic in lista:
-                    row = benchCpu(dic['host'], dic['disk_average'], dic['disk_median'], dic['disk_min'], dic['disk_max'],dic['disk_first_quarter'],dic['disk_second_quarter'],dic['disk_third_quarter'],dic['disk_fourth_quarter'])
+                    row = benchDisk(dic['host'], dic['disk_average'],
+                                    dic['disk_median'], dic['disk_min'],
+                                    dic['disk_max'],
+                                    dic['disk_first_quarter'],
+                                    dic['disk_second_quarter'],
+                                    dic['disk_third_quarter'],
+                                    dic['disk_fourth_quarter'])
                     disk_data.append(row)
             else:
                 return disk_data
@@ -73,13 +90,20 @@ class IndexView(tables.MultiTableView):
         memory_data = []
 
         if self.req_benchmark is None:
-            self.req_benchmark = requests.get("http://150.165.15.104:10090/benchmark_data")
+            self.req_benchmark \
+                = requests.get("http://150.165.15.104:10090/benchmark_data")
 
         if self.req_benchmark.status_code == 200:
             lista = self.req_benchmark.json()
             if len(lista) > 0:
                 for dic in lista:
-                    row = benchCpu(dic['host'], dic['mem_average'], dic['mem_median'], dic['mem_min'], dic['mem_max'], dic['mem_first_quarter'], dic['mem_second_quarter'], dic['mem_third_quarter'], dic['mem_fourth_quarter'])
+                    row = benchMemory(dic['host'], dic['mem_average'],
+                                      dic['mem_median'], dic['mem_min'],
+                                      dic['mem_max'],
+                                      dic['mem_first_quarter'],
+                                      dic['mem_second_quarter'],
+                                      dic['mem_third_quarter'],
+                                      dic['mem_fourth_quarter'])
                     memory_data.append(row)
             else:
                 return memory_data

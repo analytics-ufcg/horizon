@@ -1,5 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
+# Copyright 2012 Nebula, Inc.
+#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -12,14 +14,20 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.views.generic import TemplateView  # noqa
+from messages.models import Message
 
-from horizon import tabs
-
-from openstack_dashboard.dashboards.admin.graphs import tabs as \
-    graphs_tabs
+import datetime
 
 
-class IndexView(tabs.TabView):
-    tab_group_class = graphs_tabs.GraphsTabs
-    template_name = 'admin/graphs/index.html'
+class MessageManager:
+    def get_message_by_recipient(self, recipient):
+        return Message.objects.filter(recipient=recipient)
+
+    def send_message(self, sender, recipient, subject, message):
+        m = Message(sender=sender, recipient=recipient,
+                    subject=subject, timestamp=datetime.datetime.now(),
+                    message=message, read='F')
+        m.save()
+
+    def get_message_by_id(self, id):
+        return Message.objects.filter(id=id)[0]

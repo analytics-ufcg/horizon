@@ -21,55 +21,67 @@ from horizon import tables
 class BenchmarkCpuTable(tables.DataTable):
     host = tables.Column('host', verbose_name=_('Host'))
     avg = tables.Column('avg', verbose_name=_('Average'))
-    median = tables.Column('median' ,verbose_name=_('Median'))
-    min = tables.Column('min' ,verbose_name=_('Min'))
-    max = tables.Column('max' ,verbose_name=_('Max'))
-    first_quantile = tables.Column('first' ,verbose_name=_('First Quartile'))
-    second_quantile = tables.Column('second' ,verbose_name=_('Second Quartile'))
-    third_quantile = tables.Column('third' ,verbose_name=_('First Quartile'))
-    fourth_quantile = tables.Column('fourth', verbose_name=_('Fourth Quartile'))
+    median = tables.Column('median', verbose_name=_('Median'))
+    min = tables.Column('min', verbose_name=_('Min'))
+    max = tables.Column('max', verbose_name=_('Max'))
+    first_quantile = tables.Column('first',
+                                   verbose_name=_('First Quartile'))
+    second_quantile = tables.Column('second',
+                                    verbose_name=_('Second Quartile'))
+    third_quantile = tables.Column('third',
+                                   verbose_name=_('First Quartile'))
+    fourth_quantile = tables.Column('fourth',
+                                    verbose_name=_('Fourth Quartile'))
 
     def get_object_id(self, obj):
-        return '%s' %(obj.host)
+        return '%s' % (obj.host)
 
     class Meta:
-        name="cpu"
+        name = "cpu"
         verbose_name = _("CPU")
 
 
 class BenchmarkMemoryTable(tables.DataTable):
     host = tables.Column('host', verbose_name=_('Host'))
     avg = tables.Column('avg', verbose_name=_('Average'))
-    median = tables.Column('median' ,verbose_name=_('Median'))
-    min = tables.Column('min' ,verbose_name=_('Min'))
-    max = tables.Column('max' ,verbose_name=_('Max'))
-    first_quantile = tables.Column('first' ,verbose_name=_('First Quartile'))
-    second_quantile = tables.Column('second' ,verbose_name=_('Second Quartile'))
-    third_quantile = tables.Column('third' ,verbose_name=_('First Quartile'))
-    fourth_quantile = tables.Column('fourth', verbose_name=_('Fourth Quartile'))
+    median = tables.Column('median', verbose_name=_('Median'))
+    min = tables.Column('min', verbose_name=_('Min'))
+    max = tables.Column('max', verbose_name=_('Max'))
+    first_quantile = tables.Column('first',
+                                   verbose_name=_('First Quartile'))
+    second_quantile = tables.Column('second',
+                                    verbose_name=_('Second Quartile'))
+    third_quantile = tables.Column('third',
+                                   verbose_name=_('First Quartile'))
+    fourth_quantile = tables.Column('fourth',
+                                    verbose_name=_('Fourth Quartile'))
 
     def get_object_id(self, obj):
-        return '%s' %(obj.host)
+        return '%s' % (obj.host)
 
     class Meta:
-        name="memory"
+        name = "memory"
         verbose_name = _("Memory")
+
 
 class BenchmarkDiskTable(tables.DataTable):
     host = tables.Column('host', verbose_name=_('Host'))
     avg = tables.Column('avg', verbose_name=_('Average'))
-    median = tables.Column('median' ,verbose_name=_('Median'))
-    min = tables.Column('min' ,verbose_name=_('Min'))
-    max = tables.Column('max' ,verbose_name=_('Max'))
-    first_quantile = tables.Column('first' ,verbose_name=_('First Quartile'))
-    second_quantile = tables.Column('second' ,verbose_name=_('Second Quartile'))
-    third_quantile = tables.Column('third' ,verbose_name=_('First Quartile'))
-    fourth_quantile = tables.Column('fourth', verbose_name=_('Fourth Quartile'))
+    median = tables.Column('median', verbose_name=_('Median'))
+    min = tables.Column('min', verbose_name=_('Min'))
+    max = tables.Column('max', verbose_name=_('Max'))
+    first_quantile = tables.Column('first',
+                                   verbose_name=_('First Quartile'))
+    second_quantile = tables.Column('second',
+                                    verbose_name=_('Second Quartile'))
+    third_quantile = tables.Column('third',
+                                   verbose_name=_('First Quartile'))
+    fourth_quantile = tables.Column('fourth',
+                                    verbose_name=_('Fourth Quartile'))
 
     def get_object_id(self, obj):
-        return '%s' %(obj.host)
+        return '%s' % (obj.host)
 
     class Meta:
-        name="disk"
+        name = "disk"
         verbose_name = _("Disk")
-

@@ -1,13 +1,18 @@
-# not use this file except in compliance with the License. You may obtain
-# a copy of the License at
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
+# Copyright 2013 B1 Systems GmbH
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-# License for the specific language governing permissions and limitations
-# under the License.
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
 
 import logging
 
@@ -15,9 +20,9 @@ from django import shortcuts
 from django.template import defaultfilters as filters
 from django.utils.translation import ugettext_lazy as _
 
-from horizon import tables
 from horizon import exceptions
 from horizon import messages
+from horizon import tables
 from horizon.utils import functions
 
 import requests
@@ -28,35 +33,35 @@ LOG = logging.getLogger(__name__)
 
 class UpgradeFilterAction(tables.FilterAction):
     name = 'filter_upgrades'
-    
-    def filter(self,table, resources, filter_string):
+
+    def filter(self, table, resources, filter_string):
         q = filter_string.lower()
-        
+
         def comp(resource):
             if q in resource.type.lower():
                 return True
             return False
-        
-        return filter(comp,resources)
+
+        return filter(comp, resources)
+
 
 class UpgradeTable(tables.DataTable):
     host = tables.Column('host', verbose_name=_('Host'))
-    cpu_total = tables.Column('cpu_total',verbose_name= _('Total CPU'))
-    cpu_usage = tables.Column('cpu_usage',verbose_name=_('CPU usage'))
-    mem_total = tables.Column('memory_total',verbose_name=_('Total Memory'))
-    mem_usage = tables.Column('memory_usage',verbose_name=_('Memory usage'))
-    disk_total = tables.Column('disk_total',verbose_name=('Total Disk'))
-    disk_usage = tables.Column('disk_usage',verbose_name=_('Disk usage'))
-    cpu_p = tables.Column('cpu_percentage',verbose_name=_('CPU (%)'))
-    mem_p = tables.Column('memory_percentage',verbose_name=_('Memory (%)'))
-    disk_p = tables.Column('disk_percentage',verbose_name=_('Disk (%)'))
+    cpu_total = tables.Column('cpu_total', verbose_name=_('Total CPU'))
+    cpu_usage = tables.Column('cpu_usage', verbose_name=_('CPU usage'))
+    mem_total = tables.Column('memory_total', verbose_name=_('Total Memory'))
+    mem_usage = tables.Column('memory_usage', verbose_name=_('Memory usage'))
+    disk_total = tables.Column('disk_total', verbose_name=('Total Disk'))
+    disk_usage = tables.Column('disk_usage', verbose_name=_('Disk usage'))
+    cpu_p = tables.Column('cpu_percentage', verbose_name=_('CPU (%)'))
+    mem_p = tables.Column('memory_percentage', verbose_name=_('Memory (%)'))
+    disk_p = tables.Column('disk_percentage', verbose_name=_('Disk (%)'))
 
-    
     def get_object_id(self, obj):
         return "%s" % (obj.host)
 
     class Meta:
-        name="upgrades"
+        name = "upgrades"
         verbose_name = _(" ")
 #       table_actions = (UpgradeFilterAction,)
         multi_select = False
@@ -68,23 +73,25 @@ class FlavorTable(tables.DataTable):
     lose = tables.Column('lose', verbose_name=_('Lose (%)'))
     violation = tables.Column('violations', verbose_name=_('Violations (%)'))
 
-    def get_object_id(self,obj):
-        return "%s" %(obj.name)
-    
+    def get_object_id(self, obj):
+        return "%s" % (obj.name)
+
     class Meta:
-        name="flavors"
+        name = "flavors"
         verbose_name = _('Flavors')
+
 
 class StatusTable(tables.DataTable):
     host = tables.Column('host', verbose_name=_('Host'))
     status = tables.Column('status', verbose_name=_('Status'))
 
-    def get_object_id(self,obj):
-        return "%s" %(obj.host)
+    def get_object_id(self, obj):
+        return "%s" % (obj.host)
 
     class Meta:
         name = "status"
         verbose_name = _("Hosts Power Status")
+
 
 class MigrationAction(tables.BatchAction):
     name = "migration_button"
@@ -93,27 +100,25 @@ class MigrationAction(tables.BatchAction):
     data_type_singular = _("Host")
     data_type_plural = _("Hosts")
     success_url = '/admin/recommendations'
- 
+
     def action(self, request, obj_id):
-        print 'ACTION'
         user_obj = self.table.get_object_by_id(obj_id)
-        
+
         for n in range(len(user_obj.server)):
             project = user_obj.project[n]
             host = user_obj.endhost[n]
             instance = user_obj.server[n]
 
-            r = requests.post('http://150.165.15.104:10090/live_migration?project=%s&host_name=%s&instance_id=%s' % (project, host, instance))
-            print "Live migrate status code: %d" % r.status_code 
-            print host, project, instance
-        
-    
+            requests.post('http://150.165.15.104:10090/ \
+                          live_migration?project=%s \
+                          &host_name=%s&instance_id=%s'
+                          % (project, host, instance))
+
     def handle(self, table, request, obj_ids):
-        print 'HANDLE'
         action_success = []
         action_failure = []
         action_not_allowed = []
- 
+
         for datum_id in obj_ids:
             datum = table.get_object_by_id(datum_id)
             datum_display = table.get_object_display(datum) or _("N/A")
@@ -164,33 +169,42 @@ class MigrationAction(tables.BatchAction):
             success_message_level(request, msg % params)
 
         return shortcuts.redirect(self.get_success_url(request))
-   
-#        for row in table.get_rows():
-#            project = row.cells['project'].data
-#            host = row.cells['name'].data
-#            instance = row.cells['server'].data
-#
-#            r = requests.post('http://150.165.15.104:10090/live_migration?project_name=%s&host_name=%s&instance_id=%s' % (project, host, instance))
-#            print "Live migrate status code: %d" % r.status_code
+
 
 def get_servers(zone):
     return zone.server
 
+
 def get_names(zone):
     return zone.name
+
 
 def get_endhosts(zone):
     return zone.endhost
 
+
 def get_projects(zone):
     return zone.project
 
+
 class MigrationTable(tables.DataTable):
-    host = tables.Column('host', verbose_name=_('Host'))
-    server = tables.Column(get_servers, verbose_name=_('Server ID'), wrap_list=True, filters=(filters.unordered_list,))
-    name = tables.Column(get_names, verbose_name=_('Server Name'), wrap_list=True, filters=(filters.unordered_list,))
-    end = tables.Column(get_endhosts, verbose_name=_('New Host'), wrap_list=True, filters=(filters.unordered_list,))
-    project = tables.Column(get_projects, verbose_name=_("Project"), wrap_list=True, filters=(filters.unordered_list,))
+    host = tables.Column('host',
+                         verbose_name=_('Host'))
+    server = tables.Column(get_servers,
+                           verbose_name=_('Server ID'),
+                           wrap_list=True, filters=(filters.unordered_list,))
+    name = tables.Column(get_names,
+                         verbose_name=_('Server Name'),
+                         wrap_list=True,
+                         filters=(filters.unordered_list,))
+    end = tables.Column(get_endhosts,
+                        verbose_name=_('New Host'),
+                        wrap_list=True,
+                        filters=(filters.unordered_list,))
+    project = tables.Column(get_projects,
+                            verbose_name=_("Project"),
+                            wrap_list=True,
+                            filters=(filters.unordered_list,))
 
     def get_object_id(self, obj):
         return "%s" % (obj.host)
@@ -199,4 +213,3 @@ class MigrationTable(tables.DataTable):
         name = "migration"
         verbose_name = _("Suggested Server Migrations")
         table_actions = (MigrationAction,)
-     

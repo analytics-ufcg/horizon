@@ -1,5 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
+# Copyright 2012 Nebula, Inc.
+#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -12,14 +14,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.views.generic import TemplateView  # noqa
+from django.utils.translation import ugettext_lazy as _
 
-from horizon import tabs
+import horizon
 
-from openstack_dashboard.dashboards.admin.graphs import tabs as \
-    graphs_tabs
+from openstack_dashboard.dashboards.project import dashboard
 
 
-class IndexView(tabs.TabView):
-    tab_group_class = graphs_tabs.GraphsTabs
-    template_name = 'admin/graphs/index.html'
+class Messages(horizon.Panel):
+    name = _("Messages")
+    slug = 'messages'
+
+dashboard.Project.register(Messages)

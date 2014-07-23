@@ -168,7 +168,7 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': '2910901b3537f1ecc45f',
         'default-character-set': 'utf8'
-    }    
+    }
 }
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

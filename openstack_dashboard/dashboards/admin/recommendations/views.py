@@ -12,15 +12,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.views.generic import TemplateView  # noqa
-from django.shortcuts import render
-
 from horizon import tabs
 
 from openstack_dashboard.dashboards.admin.recommendations import tabs as \
     recommendations_tabs
 
-import requests
 
 class IndexView(tabs.TabbedTableView):
     tab_group_class = recommendations_tabs.RecommendationsTabs

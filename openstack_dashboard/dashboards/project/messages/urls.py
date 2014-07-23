@@ -12,14 +12,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.views.generic import TemplateView  # noqa
+from django.conf.urls import patterns  # noqa
+from django.conf.urls import url  # noqa
 
-from horizon import tabs
+from openstack_dashboard.dashboards.project.messages import views
 
-from openstack_dashboard.dashboards.admin.graphs import tabs as \
-    graphs_tabs
+MESSAGE = r'^(?P<message_id>[^/]+)/%s$'
 
-
-class IndexView(tabs.TabView):
-    tab_group_class = graphs_tabs.GraphsTabs
-    template_name = 'admin/graphs/index.html'
+urlpatterns = patterns('openstack_dashboard.dashboards.project.messages.views',
+    url(r'^$', views.IndexView.as_view(), name='index'),
+    url(MESSAGE % 'detail', views.DetailView.as_view(), name='detail'),
+)
