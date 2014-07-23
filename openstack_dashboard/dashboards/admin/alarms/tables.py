@@ -20,6 +20,9 @@ from horizon import tables
 
 import requests
 
+import ConfigParser
+
+from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
 class AlarmsHistoryFilterAction(tables.FilterAction):
     def filter(self, alarms_history, filter_string):
@@ -57,9 +60,8 @@ class DeleteAlarmsAction(tables.DeleteAction):
     data_type_plural = _("Alarms")
 
     def delete(self, request, obj_id):
-        requests.get("http://150.165.15.104:10090/ \
-                      alarm_delete?alarm_id=" + obj_id)
-
+        data_handler = DataHandler() 
+        data_handler.delete_alarm(obj_id)
 
 class CreateAlarmsAction(tables.LinkAction):
     name = "create_alarm"

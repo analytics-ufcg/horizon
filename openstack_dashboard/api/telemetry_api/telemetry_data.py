@@ -5,7 +5,7 @@ from host_data import HostDataHandler
 from benchmark_data import BenchmarkDataHandler
 from reduction import Reduction
 
-import json, ast, smtplib, math, requests, numpy, ast
+import json, ast, smtplib, math, requests, numpy, ast, ConfigParser
 
 import analytics.recommendations
 
@@ -36,8 +36,9 @@ class MigrateException(Exception):
 
 class DataHandler:
 
-    def __init__(self, config):
-        self.__config = config
+    def __init__(self):
+        config = ConfigParser.ConfigParser()
+        config.read('openstack_dashboard/api/telemetry_api/environment.conf')
         self.__ceilometer = CeilometerClient(config)
         self.__keystone = KeystoneClient(config)
         self.__nova = NovaClient(config)

@@ -36,10 +36,7 @@ class AlarmsListTab(tabs.TableTab):
     def get_alarms_list_data(self):
         alarms_obj = []
 
-        config = ConfigParser.ConfigParser()
-        config.read('openstack_dashboard/api/telemetry_api/environment.conf')
-
-        data_handler = DataHandler(config)
+        data_handler = DataHandler()
 
         alarms_dict = data_handler.alarm_description() 
         for ids in alarms_dict.keys():
@@ -61,10 +58,7 @@ class AlarmsHistoryTab(tabs.TableTab):
     def get_alarms_history_data(self):
         alarms_obj = []
 
-        config = ConfigParser.ConfigParser()
-        config.read('openstack_dashboard/api/telemetry_api/environment.conf')
-
-        data_handler = DataHandler(config)
+        data_handler = DataHandler()
 
         alarms_dict = data_handler.alarms_history() 
         for data in alarms_dict:
