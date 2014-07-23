@@ -112,7 +112,7 @@ class DataHandler:
 	saida = {}
 	saida['Hosts']= desligar
 	saida['Migracoes'] = migracoes
-        return json.dumps(saida)    
+        return saida
 
     def cpu_util_from(self, timestamp_begin=None, timestamp_end=None, resource_id=None):
         return json.dumps(self.__ceilometer.get_cpu_util(timestamp_begin, timestamp_end, resource_id))

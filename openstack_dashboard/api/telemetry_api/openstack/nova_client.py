@@ -49,7 +49,7 @@ class NovaClient:
 
             dic_dos_hosts[host] = dic
 
-        return json.dumps(dic_dos_hosts)
+        return dic_dos_hosts
 
 
     def get_nova_urls(self, url):
@@ -117,7 +117,7 @@ class NovaClient:
     def vm_info(self,projects):
         dic_hosts = {}
         attr_host = 'OS-EXT-SRV-ATTR:host'
-        host_statistics = json.loads( self.metrics(projects[0]) )
+        host_statistics = self.metrics(projects[0])
         keys = host_statistics.keys()
         for host in keys:
             dic_hosts[host] = {'Total':host_statistics[host]['Total'],'Info_project':{}, 'Livre': [a - b for a,b in zip(host_statistics[host]['Total'],host_statistics[host]['Em uso']) ] , 'vms':{} , 'nomes':{} }

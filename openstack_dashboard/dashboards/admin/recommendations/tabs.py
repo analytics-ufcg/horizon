@@ -27,6 +27,9 @@ from openstack_dashboard.dashboards.admin.recommendations \
 
 import requests
 
+import ConfigParser
+
+from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
 class UpgradesTab(tabs.TableTab):
     table_classes = (tables.UpgradeTable,)
@@ -36,21 +39,20 @@ class UpgradesTab(tabs.TableTab):
     #recommendations/upgrades.html")
 
     def get_upgrades_data(self):
-        req = requests.get("http://150.165.15.104:10090/host_metrics?project=demo")
         upgrade_list = []
-        if req.status_code == 200:
-            data = req.json()
-            for h in data.keys():
-                host = dataUpgrade(h, data[h]['Total'][0],
-                                   data[h]['Em uso'][0],
-                                   data[h]['Percentual'][0],
-                                   data[h]['Total'][1],
-                                   data[h]['Em uso'][1],
-                                   data[h]['Percentual'][1],
-                                   data[h]['Total'][2],
-                                   data[h]['Em uso'][2],
-                                   data[h]['Percentual'][2])
-                upgrade_list.append(host)
+        data_handler = DataHandler()
+        data = data_handler.host_metrics('admin') 
+        for h in data.keys():
+            host = dataUpgrade(h, data[h]['Total'][0],
+                               data[h]['Em uso'][0],
+                               data[h]['Percentual'][0],
+                               data[h]['Total'][1],
+                               data[h]['Em uso'][1],
+                               data[h]['Percentual'][1],
+                               data[h]['Total'][2],
+                               data[h]['Em uso'][2],
+                               data[h]['Percentual'][2])
+            upgrade_list.append(host)
         return upgrade_list
 
 
@@ -76,58 +78,59 @@ class PowerTab(tabs.TableTab):
     name = _("Power Saving")
     slug = "power"
     template_name = ("admin/recommendations/power.html")
-    request_host_migration = None
+    host_migration_data = None
 
     def get_status_data(self):
         host_status = []
 
-        if self.request_host_migration is None:
-            self.request_host_migration \
-                = requests.get("http://150.165.15.104:10090/host_migration")
+        data_handler = DataHandler()
 
-        if self.request_host_migration.status_code == 200:
-            data = self.request_host_migration.json()['Hosts']
-            for k in data.keys():
-                if data[k] is True:
-                    row = dataStatus(k, "Shut Off")
-                else:
-                    row = dataStatus(k, "Keep On")
-                host_status.append(row)
-        return host_status
+        if self.host_migration_data is None:
+            self.host_migration_data = data_handler.sugestion()
+
+	data = self.host_migration_data['Hosts']
+	for k in data.keys():
+	    if data[k] is True:
+		row = dataStatus(k, "Shut Off")
+	    else:
+		row = dataStatus(k, "Keep On")
+	    host_status.append(row)
+        
+	return host_status
 
     def get_migration_data(self):
         hosts = {}
         migration = []
         flag = False
 
-        if self.request_host_migration is None:
-            self.request_host_migration \
-                = requests.get("http://150.165.15.104:10090/host_migration")
+        data_handler = DataHandler()
 
-        if self.request_host_migration.status_code == 200:
-            data = self.request_host_migration.json()['Migracoes']
-            for k in data.keys():
-                for vm in data[k]:
-                    if data[k][vm] is not None:
-                        flag = True
+        if self.host_migration_data is None:
+            self.host_migration_data = data_handler.sugestion()
 
-                        if k not in hosts:
-                           hosts[k] = {'server': [], 'name': [],
-                                       'endhost': [], 'project': []}
+	data = self.host_migration_data['Migracoes']
+	for k in data.keys():
+	    for vm in data[k]:
+		if data[k][vm] is not None:
+		    flag = True
 
-                        hosts[k]['server'].append(vm)
-                        hosts[k]['name'].append(data[k][vm][1])
-                        hosts[k]['endhost'].append(data[k][vm][0])
-                        hosts[k]['project'].append(data[k][vm][2])
+		    if k not in hosts:
+		       hosts[k] = {'server': [], 'name': [],
+				   'endhost': [], 'project': []}
 
-                if flag:
-                    row = dataMigration(k,
-                                        hosts[k]['server'],
-                                        hosts[k]['name'],
-                                        hosts[k]['endhost'],
-                                        hosts[k]['project'])
-                    migration.append(row)
-                    flag = False
+		    hosts[k]['server'].append(vm)
+		    hosts[k]['name'].append(data[k][vm][1])
+		    hosts[k]['endhost'].append(data[k][vm][0])
+		    hosts[k]['project'].append(data[k][vm][2])
+
+	    if flag:
+		row = dataMigration(k,
+				    hosts[k]['server'],
+				    hosts[k]['name'],
+				    hosts[k]['endhost'],
+				    hosts[k]['project'])
+		migration.append(row)
+		flag = False
 
         return migration
 
