@@ -109,10 +109,7 @@ class MigrationAction(tables.BatchAction):
             host = user_obj.endhost[n]
             instance = user_obj.server[n]
 
-            requests.post('http://150.165.15.104:10090/ \
-                          live_migration?project=%s \
-                          &host_name=%s&instance_id=%s'
-                          % (project, host, instance))
+            requests.post('http://150.165.15.104:10090/live_migration?project=%s&host_name=%s&instance_id=%s' % (project, host, instance))
 
     def handle(self, table, request, obj_ids):
         action_success = []

@@ -38,9 +38,7 @@ class AddAlarmForm(forms.SelfHandlingForm):
                                 help_text=_("Time"))
 
     def handle(self, request, data):
-        requests.post("http://150.165.15.104:10090/ \
-                       add_alarm?name=%s&resource=%s&threshold=%d \
-                       &operator=%s&period=%d&evalperiod=%d"
+        requests.post("http://150.165.15.104:10090/add_alarm?name=%s&resource=%s&threshold=%d&operator=%s&period=%d&evalperiod=%d"
                        % (data['name'], data['resource'],
                           data['threshold'], data['operator'],
                           data['period'], data['evalperiod']))
