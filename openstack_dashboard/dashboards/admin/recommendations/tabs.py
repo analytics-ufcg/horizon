@@ -27,8 +27,6 @@ from openstack_dashboard.dashboards.admin.recommendations \
 
 import requests
 
-import ConfigParser
-
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
 class UpgradesTab(tabs.TableTab):
