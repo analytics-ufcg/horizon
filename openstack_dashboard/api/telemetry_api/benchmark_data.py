@@ -27,7 +27,7 @@ class BenchmarkDataHandler:
 'mem_third_quarter': row[15], 'mem_fourth_quarter': row[16], 'disk_average':row[17], 'disk_median':row[18], 'disk_min':row[19], 'disk_max':row[20], 'disk_first_quarter': row[21], 'disk_second_quarter':row[22], 'disk_third_quarter': row[23], 'disk_fourth_quarter': row[24]   
 })            
 
-            return json.dumps(ret)
+            return ret
         except Exception, e:
             print e
             return None
