@@ -57,7 +57,7 @@ class DeleteAlarmsAction(tables.DeleteAction):
     data_type_plural = _("Alarms")
 
     def delete(self, request, obj_id):
-        requests.get("http://150.165.15.104:10090/alarm_delete?alarm_id=" + obj_id)
+        requests.post("http://150.165.15.104:10090/alarm_delete?alarm_id=" + obj_id)
 
 
 class CreateAlarmsAction(tables.LinkAction):
