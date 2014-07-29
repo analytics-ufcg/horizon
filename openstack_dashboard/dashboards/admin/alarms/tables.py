@@ -104,3 +104,4 @@ class AlarmsListTable(tables.DataTable):
         table_actions = (AlarmsListFilterAction,
                          CreateAlarmsAction,
                          DeleteAlarmsAction,)
+
