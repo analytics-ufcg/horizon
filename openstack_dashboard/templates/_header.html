@@ -61,7 +61,7 @@
   </div>
 
   {% if not request.user.username == 'admin' %}
-    {% with messages=request.user.user_messages %}
+    {% with messages=request.user.user_messages|length %}
       <a href="{% url 'horizon:project:messages:index' %}">{% trans "Messages - " %} {{ messages }}</a>
     {% endwith %}
   {% endif %}

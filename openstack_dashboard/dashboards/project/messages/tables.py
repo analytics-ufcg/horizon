@@ -14,6 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from django import template
 from django.utils.translation import ugettext_lazy as _
 
 from horizon import tables
@@ -37,14 +38,37 @@ class DeleteMessagesAction(tables.DeleteAction):
     def delete(self, request, obj_id):
         return True
 
+class ReadMessageAction(tables.LinkAction):
+    name = "read_message"
+    verbose_name = _("Read Message")
+    url = "horizon:project:messages:detail"
+    classes = ("btn-launch", "ajax-model")
+
+
+def get_senders(message):
+    template_name = 'project/messages/_senders.html'
+    context = {"senders": message.sender, "read": message.read}
+    return template.loader.render_to_string(template_name, context)
+
+
+def get_subjects(message):
+    template_name = 'project/messages/_subjects.html'
+    context = {"subjects": message.subject, "read": message.read}
+    return template.loader.render_to_string(template_name, context)
+
+
+def get_timestamps(message):
+    template_name = 'project/messages/_timestamps.html'
+    context = {"timestamps": message.timestamp, "read": message.read}
+    return template.loader.render_to_string(template_name, context)
+
 
 class MessagesTable(tables.DataTable):
-    sender = tables.Column("sender",
+    sender = tables.Column(get_senders,
                            verbose_name=_('Sender'))
-    subject = tables.Column("subject",
-                            link=("horizon:project:messages:detail"),
+    subject = tables.Column(get_subjects,
                             verbose_name=_('Subject'))
-    timestamp = tables.Column("timestamp",
+    timestamp = tables.Column(get_timestamps,
                               verbose_name=_('Date'))
 
     def get_object_id(self, obj):
@@ -53,4 +77,5 @@ class MessagesTable(tables.DataTable):
     class Meta:
         name = "messages_table"
         verbose_name = _("Messages")
+        row_actions = (ReadMessageAction,)
         table_actions = (MessagesFilterAction, DeleteMessagesAction)

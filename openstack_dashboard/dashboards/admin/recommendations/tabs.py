@@ -77,13 +77,15 @@ class PowerTab(tabs.TableTab):
     slug = "power"
     template_name = ("admin/recommendations/power.html")
     request_host_migration = None
+    hosts_list = tables.HOSTS
 
     def get_status_data(self):
         host_status = []
 
         if self.request_host_migration is None:
             self.request_host_migration \
-                = requests.get("http://150.165.15.104:10090/host_migration")
+                = requests.get('http://150.165.15.104:10032/host_migration_selection?hosts=%s'
+                  % (','.join(self.hosts_list))) # CHANGE PORT
 
         if self.request_host_migration.status_code == 200:
             data = self.request_host_migration.json()['Hosts']
@@ -102,7 +104,8 @@ class PowerTab(tabs.TableTab):
 
         if self.request_host_migration is None:
             self.request_host_migration \
-                = requests.get("http://150.165.15.104:10090/host_migration")
+                = requests.get('http://150.165.15.104:10032/host_migration_selection?hosts=%s'
+                  % (','.join(self.hosts_list))) # CHANGE PORT
 
         if self.request_host_migration.status_code == 200:
             data = self.request_host_migration.json()['Migracoes']
@@ -128,7 +131,6 @@ class PowerTab(tabs.TableTab):
                                         hosts[k]['project'])
                     migration.append(row)
                     flag = False
-
         return migration
 
 

@@ -29,6 +29,7 @@ import requests
 
 
 LOG = logging.getLogger(__name__)
+HOSTS = []
 
 
 class UpgradeFilterAction(tables.FilterAction):
@@ -93,23 +94,36 @@ class StatusTable(tables.DataTable):
         verbose_name = _("Hosts Power Status")
 
 
-class MigrationAction(tables.BatchAction):
+class MigrationAllAction(tables.Action):
     name = "migration_button"
-    action_present = _("Migrate")
-    action_past = _("Migrated")
+    verbose_name = _("Migrate All Host")
+    verbose_name_plural = _("Migrate All Hosts")
+    requires_input = False
+
+    def handle(self, data_table, request, obj_ids):
+        for row in data_table.get_rows():
+            user_obj = self.table.get_object_by_id(row.cells['host'].data)
+
+            for n in range(len(user_obj.server)):
+                project = user_obj.project[n]
+                host = user_obj.endhost[n]
+                instance = user_obj.server[n]
+
+                requests.post('http://150.165.15.104:10090/live_migration?project=%s&host_name=%s&instance_id=%s' % (project, host, instance))
+
+
+class RedefineAction(tables.BatchAction):
+    name = "redefine_button"
+    action_present = _("Redefine")
+    action_past = _("Redefined")
     data_type_singular = _("Host")
     data_type_plural = _("Hosts")
     success_url = '/admin/recommendations'
 
     def action(self, request, obj_id):
-        user_obj = self.table.get_object_by_id(obj_id)
-
-        for n in range(len(user_obj.server)):
-            project = user_obj.project[n]
-            host = user_obj.endhost[n]
-            instance = user_obj.server[n]
-
-            requests.post('http://150.165.15.104:10090/live_migration?project=%s&host_name=%s&instance_id=%s' % (project, host, instance))
+        print "Action"
+        HOSTS.append(obj_id)
+        print "HOSTS = ", HOSTS
 
     def handle(self, table, request, obj_ids):
         action_success = []
@@ -209,4 +223,4 @@ class MigrationTable(tables.DataTable):
     class Meta:
         name = "migration"
         verbose_name = _("Suggested Server Migrations")
-        table_actions = (MigrationAction,)
+        table_actions = (MigrationAllAction, RedefineAction,)
