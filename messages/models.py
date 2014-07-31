@@ -28,3 +28,8 @@ class Message(models.Model):
     def change_status(self, status):
         if(status == 'T' or status == 'F'):
             self.read = status
+
+#For user.py file 
+def user_messages(self):
+    return Message.objects.filter(recipient=self.id, read="F")
+
