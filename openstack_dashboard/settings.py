@@ -275,3 +275,7 @@ if DEBUG:
 # below may be ommited, though it should not be harmful
 from openstack_auth import utils as auth_utils
 auth_utils.patch_middleware_get_user()
+
+from messages import models
+from openstack_auth import user
+user.User.user_messages = models.user_messages

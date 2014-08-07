@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# Copyright 2012 Nebula, Inc.
+# Copyright 2014 UFCG.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -31,3 +31,11 @@ class MessageManager:
 
     def get_message_by_id(self, id):
         return Message.objects.filter(id=id)[0]
+
+    def get_message_read_by_id(self, id):
+        return Message.objects.filter(recipient=id, read="F")
+
+    def change_status(self, id, status):
+        m = Message.objects.filter(id=id)[0]
+        m.read = status
+        m.save()

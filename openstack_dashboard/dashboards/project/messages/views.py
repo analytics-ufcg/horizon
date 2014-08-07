@@ -59,7 +59,9 @@ class DetailView(TemplateView):
         try:
             message_id = self.kwargs['message_id']
             message_obj = MessageManager()
+            message_obj.change_status(message_id, 'T')
             message = message_obj.get_message_by_id(message_id)
+
         except Exception:
             redirect = reverse(self.redirect_url)
             exceptions.handle(self.request,

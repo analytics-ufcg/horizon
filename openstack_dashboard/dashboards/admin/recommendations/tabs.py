@@ -79,6 +79,7 @@ class PowerTab(tabs.TableTab):
     host_migration_data = None
 
     def get_status_data(self):
+        hosts_list = tables.HOSTS
         host_status = []
 
         data_handler = DataHandler()
@@ -97,6 +98,7 @@ class PowerTab(tabs.TableTab):
 	return host_status
 
     def get_migration_data(self):
+        hosts_list = tables.HOSTS
         hosts = {}
         migration = []
         flag = False
@@ -130,7 +132,11 @@ class PowerTab(tabs.TableTab):
 		migration.append(row)
 		flag = False
 
-        return migration
+            if hosts_list is not []:
+                hosts_list = []
+                tables.HOSTS = []
+        
+            return migration
 
 
 class RecommendationsTabs(tabs.TabGroup):
