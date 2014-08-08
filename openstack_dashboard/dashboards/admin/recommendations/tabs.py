@@ -85,7 +85,7 @@ class PowerTab(tabs.TableTab):
         data_handler = DataHandler()
 
         if self.host_migration_data is None:
-            self.host_migration_data = data_handler.sugestion()
+            self.host_migration_data = data_handler.suggestion(hosts_list)
 
 	data = self.host_migration_data['Hosts']
 	for k in data.keys():
@@ -106,7 +106,7 @@ class PowerTab(tabs.TableTab):
         data_handler = DataHandler()
 
         if self.host_migration_data is None:
-            self.host_migration_data = data_handler.sugestion()
+            self.host_migration_data = data_handler.suggestion(hosts_list)
 
 	data = self.host_migration_data['Migracoes']
 	for k in data.keys():

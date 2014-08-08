@@ -51,6 +51,35 @@ class NovaClient:
 
         return dic_dos_hosts
 
+    def verify_host_has_server(self, host_name, server_id):
+        from novaclient.v1_1 import client # nova client v3 raises exception for this
+        nova = client.Client(self.__os_username, self.__os_password, 'admin', self.__os_auth_url)
+        server = nova.servers.get(server_id)
+        if server._info['OS-EXT-SRV-ATTR:host'] == host_name:
+            return True
+        return False
+
+    def list_compute_nodes(self):
+        from novaclient.v1_1 import client # nova client v3 raises exception for this
+        nova = client.Client(self.__os_username, self.__os_password, 'admin', self.__os_auth_url)
+        hosts = nova.hosts.list()
+        compute_nodes = []
+        for host in hosts:
+            if host._info['service']=='compute':
+                compute_nodes.append(host)
+        return compute_nodes
+
+    def get_servers_by_host(self, host_name, project_list):
+        host_servers = []
+        from novaclient.v1_1 import client # nova client v3 raises exception for this
+        for project in project_list:
+            nova = client.Client(self.__os_username, self.__os_password, project, self.__os_auth_url)
+            servers = nova.servers.list()
+            for server in servers:
+                if server._info['OS-EXT-SRV-ATTR:host'] == host_name:
+                    host_servers.append(server)
+        return host_servers
+
 
     def get_nova_urls(self, url):
         auth_tokens_url = self.__os_auth_url + '/tokens'
@@ -97,8 +126,12 @@ class NovaClient:
     def vm_migration(self,project_name,host_name,instance_id):
         from novaclient.v1_1 import client # nova client v3 raises exception for this
         nova = client.Client(self.__os_username, self.__os_password, project_name, self.__os_auth_url)
-        nova.servers.live_migrate(instance_id, host_name, True, False)
-
+        try:
+            nova.servers.live_migrate(instance_id, host_name, True, False)
+        except Exception as e:
+            raise Exception(e.message)
+        return "Ok"
+  
     def vm_hostname(self,project_name,instance_id):
         from novaclient.v1_1 import client # nova client v3 raises exception for this
         nova = client.Client(self.__os_username, self.__os_password, project_name, self.__os_auth_url)
@@ -126,12 +159,15 @@ class NovaClient:
             nova = client.Client(self.__os_username, self.__os_password, p, self.__os_auth_url)
             flavors = self.flavor_information(p)
             vm_list = nova.servers.list()
+            list_instances =[]
             for vm in vm_list:
-                list_instances = []
                 dic_hosts[vm._info[attr_host]]['vms'][vm.id] = flavors[vm.flavor['id']]
                 dic_hosts[vm._info[attr_host]]['nomes'][vm.id] = vm._info['name']
                 list_instances.append(vm.id)
-                dic_hosts[vm._info[attr_host]]['Info_project'][str(p)]=list_instances
+                if(str(p) not in dic_hosts[vm._info[attr_host]]['Info_project'].keys()):
+                    dic_hosts[vm._info[attr_host]]['Info_project'][str(p)] = [vm.id]
+                else:
+                    dic_hosts[vm._info[attr_host]]['Info_project'][str(p)].append(vm.id)
         lista_ordenada = []
         dic_ord = sorted( dic_hosts.items(), key=lambda x: (  len( x[1]['vms'].keys() )==0, -x[1]['Livre'][0] ))
         for e in dic_ord:
@@ -146,12 +182,12 @@ class NovaClient:
         return lista_ordenada2 
   
 
-    def get_benchmark_id(self, host):
+    def get_benchmark_id(self):
         from novaclient.v1_1 import client
-        nova = client.Client(env.OS_USERNAME, env.OS_PASSWORD, 'admin', env.OS_AUTH_URL)
+        nova = client.Client(self.__os_username, self.__os_password, 'admin', self.__os_auth_url)
         images = self.images_list()['images']
         for image in images:
-            if image['name']=='benchmark-'+host:
+            if image['name']==  'ubuntu-benchmark':
                 return image['id']
         return False        
         
@@ -175,7 +211,7 @@ class NovaClient:
             if server.name == 'benchmark-'+host_name:
                 return False
         hosts_name = self.__os_compute_nodes.keys()
-        nova.servers.create('benchmark-'+host_name, 'a382c667-31b2-4314-96ee-f99611f810e9', self.get_benchmark_flavor(), availability_zone='nova:'+host_name)
+        nova.servers.create('benchmark-'+host_name, self.get_benchmark_id(), self.get_benchmark_flavor(), availability_zone='nova:'+host_name, nics=[{'net-id':'68f33fc4-9a9e-48bd-9e00-9f3b23dab808'}])
         return True
 
     def get_benchmark_ip(self, project, host_name):
@@ -189,7 +225,7 @@ class NovaClient:
         if benchmark_id == ' ':
             return 'nao ha instancia de benchmark'
         instance_bench = nova.servers.get(benchmark_id)
-        return instance_bench.addresses['private'][0]['addr']
+        return instance_bench.addresses['admin-net'][0]['addr']
 
     def remove_instance(self, id):
         from novaclient.v1_1 import client # nova client v3 raises exception for this
@@ -201,7 +237,7 @@ class NovaClient:
 
     def benchmark_id(self, host):
         from novaclient.v1_1 import client # nova client v3 raises exception for this
-        nova = client.Client(self.__os_username,self.__os_password,self.os_tenant_admin,self.__os_auth_url)
+        nova = client.Client(self.__os_username,self.__os_password,'admin',self.__os_auth_url)
         servers = nova.servers.list()
         for server in servers:
             if server.name != 'benchmark-'+host:
@@ -268,4 +304,21 @@ class NovaClient:
                     if meta['critical'] == 'true':
                         has_meta.append(instance.id)
         return has_meta
+
+    def vcpus_for_aggregate(self, project):
+        aggregates = self.host_aggregates(project)
+        ret = []
+        for hosts in aggregates:
+            total_vcpus = 0
+            total_cpus = 0
+            for host in hosts['host_address']:
+                host_name = self.server_name_by_ip(host)
+                host_data = self.host_describe(host_name)
+                for instance in host_data['host']:
+                    if((instance['resource'])['project']=='(used_now)'):
+                        total_vcpus += (instance['resource'])['cpu']
+                    if((instance['resource'])['project']=='(total)'):
+                        total_cpus += (instance['resource'])['cpu']
+            ret.append('{"name":' + '"' + hosts["name"] + '"' + ', "vcpus":' + str(total_vcpus) + ', "cpus":' + str(total_cpus)  + '}')
+        return ret
 

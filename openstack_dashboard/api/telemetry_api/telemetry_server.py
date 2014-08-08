@@ -182,8 +182,9 @@ def add_alarm():
     threshold = request.args.get('threshold')
     period = request.args.get('period')
     evalperiod = request.args.get('evalperiod')
+    send_mail = request.args.get('send_mail')
 
-    alarm = data_handler.add_alarm(name, resource, threshold, operator, period, evalperiod)
+    alarm = data_handler.add_alarm(name, resource, threshold, operator, period, evalperiod, send_mail)
     
     if alarm:
         resp = make_response(json.dumps({'alarm_id' : alarm.alarm_id}))
@@ -205,7 +206,7 @@ def alarm_description():
     resp.headers['Access-Control-Allow-Origin'] = "*"
     return resp
 
-@app.route('/alarm_delete')
+@app.route('/alarm_delete', methods=['POST'])
 def alarm_delete():
     alarm_id = request.args.get('alarm_id')
     resp = make_response(data_handler.delete_alarm(alarm_id))
@@ -235,8 +236,13 @@ def live_migration():
     return resp
 
 @app.route('/host_migration')
-def can_migrate():
-    migrate = data_handler.sugestion()
+def host_migration_selection():
+    hosts_name = request.args.get('hosts')
+    if hosts_name == '':
+        hosts_list = []
+    else:
+        hosts_list = hosts_name.split(",")
+    migrate = data_handler.suggestion(hosts_list)
     resp = make_response(migrate)
     resp.headers['Access-Control-Allow-Origin']="*"
     return resp
@@ -299,7 +305,12 @@ def hosts_aggregation_disk():
     resp.headers['Access-Control-Allow-Origin'] = "*"
     return resp
 
-
+@app.route('/vcpus_for_aggregate')
+def vcpus_for_aggregate():
+    project = request.args.get('project')
+    resp = make_response(data_handler.vcpus_for_aggregate(project))
+    resp.headers['Access-Control-Allow-Origin'] = "*"
+    return resp
 
 @app.route('/hosts_aggregates')
 def hosts_aggregates():

@@ -47,9 +47,9 @@ class CeilometerClient:
             ret.append({'VM': d.resource_id, 'Cores': d.resource_metadata['flavor.vcpus'], 'CPU_UTIL': d.counter_volume})
         return ret
 
-    def set_alarm(self, name, meter, threshold, operator, period, evaluation_period):
+    def set_alarm(self, name, meter, threshold, operator, period, evaluation_period, send_mail):
         try:
-            alarm = self.ceilometer.alarms.create(name=name, meter_name=meter, threshold=threshold, comparison_operator=operator, statistic='avg', period=period, evaluation_periods=evaluation_period, repeat_actions=True, alarm_actions=[self.__alarm_url, 'log:/'])
+            alarm = self.ceilometer.alarms.create(name=name, meter_name=meter, threshold=threshold, comparison_operator=operator, statistic='avg', period=period, evaluation_periods=evaluation_period, send_mail=send_mail, repeat_actions=True, alarm_actions=[self.__alarm_url, 'log:/'])
             return alarm
         except:
             return None
@@ -86,6 +86,13 @@ class CeilometerClient:
         for alarm in alarms:
             parametros[alarm.alarm_id] = [alarm.name, alarm.enabled, alarm.description]
         return parametros
+
+    def get_alarm_email_status(self, alarm_id):
+        alarms = self.ceilometer.alarms.list()
+        for alarm in alarms:
+            if alarm.alarm_id == alarm_id:
+                return alarm.send_mail
+
 
     def delete_alarms(self, alarm_id):
         self.ceilometer.alarms.delete(alarm_id)
