@@ -36,11 +36,13 @@ class AddAlarmForm(forms.SelfHandlingForm):
                                           ('lt', _('less'))])
     period = forms.IntegerField(label=_("Time"),
                                 help_text=_("Time"))
-    email = forms.BooleanField(label=_("Send Email"), required=True)
+    
+    send_mail = forms.BooleanField(label=_("Send me an email when the alarm is activated"), required=False)
 
     def handle(self, request, data):
-        requests.post("http://150.165.15.104:10090/add_alarm?name=%s&resource=%s&threshold=%d&operator=%s&period=%d&evalperiod=%d"
+        requests.post("http://150.165.15.104:10090/add_alarm?name=%s&resource=%s&threshold=%d&operator=%s&period=%d&evalperiod=%d&send_mail=%d"
                        % (data['name'], data['resource'],
                           data['threshold'], data['operator'],
-                          data['period'], data['evalperiod']))
+                          data['period'], data['evalperiod'],
+                          data['send_mail']))
         return True
