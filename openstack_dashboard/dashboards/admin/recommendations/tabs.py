@@ -109,7 +109,6 @@ class PowerTab(tabs.TableTab):
             self.host_migration_data = data_handler.suggestion(hosts_list)
 
 	data = self.host_migration_data['Migracoes']
-        print data
 	for k in data.keys():
             for vm in data[k]:
 		if data[k][vm] is not None:
