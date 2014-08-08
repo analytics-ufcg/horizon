@@ -16,8 +16,8 @@ from horizon import forms
 
 import requests
 
-
 class AddAlarmForm(forms.SelfHandlingForm):
+
     name = forms.CharField(label=_("Alarm Name"),
                            max_length=64,
                            help_text=_("Field to input the Alarm Name"))
@@ -36,7 +36,13 @@ class AddAlarmForm(forms.SelfHandlingForm):
                                           ('lt', _('less'))])
     period = forms.IntegerField(label=_("Time"),
                                 help_text=_("Time"))
+    instances = forms.ChoiceField(label=_("Instace"))
     email = forms.BooleanField(label=_("Send Email"), required=True)
+
+    def __init__(self, *args, **kwargs):
+        super(AddAlarmForm, self).__init__(*args, **kwargs)
+        self.fields['instances'].choices = [('all', _('all'))]
+        
 
     def handle(self, request, data):
         requests.post("http://150.165.15.104:10090/add_alarm?name=%s&resource=%s&threshold=%d&operator=%s&period=%d&evalperiod=%d"
@@ -44,3 +50,5 @@ class AddAlarmForm(forms.SelfHandlingForm):
                           data['threshold'], data['operator'],
                           data['period'], data['evalperiod']))
         return True
+
+
