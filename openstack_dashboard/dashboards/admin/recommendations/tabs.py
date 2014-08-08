@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -84,7 +82,7 @@ class PowerTab(tabs.TableTab):
 
         if self.request_host_migration is None:
             self.request_host_migration \
-                = requests.get('http://150.165.15.104:10090/host_migration_selection?hosts=%s'
+                = requests.get('http://150.165.15.104:10090/host_migration?hosts=%s'
                   % (','.join(hosts_list)))
 
         if self.request_host_migration.status_code == 200:
@@ -105,7 +103,7 @@ class PowerTab(tabs.TableTab):
 
         if self.request_host_migration is None:
             self.request_host_migration \
-                = requests.get('http://150.165.15.104:10090/host_migration_selection?hosts=%s'
+                = requests.get('http://150.165.15.104:10090/host_migration?hosts=%s'
                   % (','.join(hosts_list)))
 
         if self.request_host_migration.status_code == 200:
@@ -132,7 +130,7 @@ class PowerTab(tabs.TableTab):
                                         hosts[k]['project'])
                     migration.append(row)
                     flag = False
-            if hosts_list is not []:
+            if hosts_list:
                 hosts_list = []
                 tables.HOSTS = []
         return migration
