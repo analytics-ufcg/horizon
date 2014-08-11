@@ -23,6 +23,7 @@ from horizon.utils import functions
 
 import requests
 
+from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
 LOG = logging.getLogger(__name__)
 HOSTS = []
