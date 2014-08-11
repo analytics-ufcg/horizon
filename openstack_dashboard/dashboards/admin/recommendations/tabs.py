@@ -81,7 +81,7 @@ class PowerTab(tabs.TableTab):
         host_status = []
 
         if self.host_migration_data is None:
-            self.host_migration_data = data_handler.sugestion()
+            self.host_migration_data = data_handler.suggestion(hosts_list)
 
 	data = self.host_migration_data['Hosts']
 	for k in data.keys():
@@ -102,11 +102,11 @@ class PowerTab(tabs.TableTab):
         data_handler = DataHandler()
 
         if self.host_migration_data is None:
-            self.host_migration_data = data_handler.sugestion()
+            self.host_migration_data = data_handler.suggestion(hosts_list)
 
 	data = self.host_migration_data['Migracoes']
 	for k in data.keys():
-	    for vm in data[k]:
+            for vm in data[k]:
 		if data[k][vm] is not None:
 		    flag = True
 
@@ -132,7 +132,7 @@ class PowerTab(tabs.TableTab):
                 hosts_list = []
                 tables.HOSTS = []
         
-            return migration
+        return migration
 
 
 class RecommendationsTabs(tabs.TabGroup):

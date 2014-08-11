@@ -15,3 +15,21 @@ class KeystoneClient:
         keystone = client.Client(tenant_id=project_id, username=self.__os_username, password=self.__os_password, auth_url=self.__os_auth_url)
         userData = str(keystone.users.get(user_id))[6:-1]
         return ast.literal_eval(userData)['email']
+
+    def list_users(self, project_id):
+        keystone = client.Client(tenant_id=project_id, username=self.__os_username, password=self.__os_password, auth_url=self.__os_auth_url)
+        users = []
+        for user in keystone.users.list():
+            users.append(user.username)
+        return users
+
+    def get_user(self, project_id, name):
+        keystone = client.Client(tenant_id=project_id, username=self.__os_username, password=self.__os_password, auth_url=self.__os_auth_url)
+        for user in keystone.users.list():
+            if user.username == name:
+                return user
+        return None
+
+    def list_project_users(self, project_id, tenant_id):
+        keystone = client.Client(tenant_id=project_id, username=self.__os_username, password=self.__os_password, auth_url=self.__os_auth_url)
+        return keystone.tenants.list_users(tenant_id)
