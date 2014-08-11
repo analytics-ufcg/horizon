@@ -195,8 +195,8 @@ class DataHandler:
     def alarms_history(self, timestamp_begin=None, timestamp_end=None):
         return json.dumps(self.__ceilometer.get_alarms_history(timestamp_begin, timestamp_end))
 
-    def add_alarm(self, name, resource, threshold, operator, period, ev_period):
-        return self.__ceilometer.set_alarm(name, resource, threshold, operator, period, ev_period)
+    def add_alarm(self, name, resource, threshold, operator, period, ev_period, send_mail):
+        return self.__ceilometer.set_alarm(name, resource, threshold, operator, period, ev_period, send_mail)
 
     def alarm_email(self, data_requested):
         alarm_id = ast.literal_eval(data_requested)['alarm_id']
