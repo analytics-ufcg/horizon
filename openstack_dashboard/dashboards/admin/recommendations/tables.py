@@ -1,7 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
-# Copyright 2013 B1 Systems GmbH
-#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -25,12 +21,11 @@ from horizon import messages
 from horizon import tables
 from horizon.utils import functions
 
-import requests
-
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
 LOG = logging.getLogger(__name__)
 HOSTS = []
+HOSTS_ALL = []
 
 
 class UpgradeFilterAction(tables.FilterAction):
@@ -102,16 +97,25 @@ class MigrationAllAction(tables.Action):
     requires_input = False
 
     def handle(self, data_table, request, obj_ids):
-        for row in data_table.get_rows():
-            user_obj = self.table.get_object_by_id(row.cells['host'].data)
+         global HOSTS_ALL
+         hosts_obj = []
+         data_handler = DataHandler();
 
-            for n in range(len(user_obj.server)):
-                project = user_obj.project[n]
-                host = user_obj.endhost[n]
-                instance = user_obj.server[n]
+         if HOSTS_ALL:
+             for host in HOSTS_ALL:
+                 hosts_obj.append(self.table.get_object_by_id(host))
+         else:
+             for row in data_table.get_rows():
+                 hosts_obj.append(self.table.get_object_by_id(row.cells['host'].data))
+         
+         for host in hosts_obj:
+             for n in range(len(host.server)):
+                 project = host.project[n]
+                 host_name = host.endhost[n]
+                 instance = host.server[n]
 
-                requests.post('http://150.165.15.104:10090/live_migration?project=%s&host_name=%s&instance_id=%s' % (project, host, instance))
-
+                 data_handler.migrate_to_host(project, host_name, instance)
+         HOSTS_ALL = []
 
 class RedefineAction(tables.BatchAction):
     name = "redefine_button"
@@ -122,9 +126,7 @@ class RedefineAction(tables.BatchAction):
     success_url = '/admin/recommendations'
 
     def action(self, request, obj_id):
-        print "Action"
         HOSTS.append(obj_id)
-        print "HOSTS = ", HOSTS
 
     def handle(self, table, request, obj_ids):
         action_success = []
@@ -135,18 +137,18 @@ class RedefineAction(tables.BatchAction):
             datum = table.get_object_by_id(datum_id)
             datum_display = table.get_object_display(datum) or _("N/A")
             if not table._filter_action(self, request, datum):
-                action_not_allowed.append(datum_display)
+                action_not_allowed.append(datum_id)
                 LOG.info('Permission denied to %s: "%s"' %
                          (self._get_action_name(past=True).lower(),
-                          datum_display))
+                          datum_id))
                 continue
             try:
                 self.action(request, datum_id)
                 self.update(request, datum)
-                action_success.append(datum_display)
+                action_success.append(datum_id)
                 self.success_ids.append(datum_id)
                 LOG.info('%s: "%s"' %
-                         (self._get_action_name(past=True), datum_display))
+                         (self._get_action_name(past=True), datum_id))
             except Exception as ex:
                 # Handle the exception but silence it since we'll display
                 # an aggregate error message later. Otherwise we'd get
@@ -155,7 +157,7 @@ class RedefineAction(tables.BatchAction):
                     ignore = False
                 else:
                     ignore = True
-                    action_failure.append(datum_display)
+                    action_failure.append(datum_id)
                 exceptions.handle(request, ignore=ignore)
 
         # Begin with success message class, downgrade to info if problems.
@@ -179,9 +181,22 @@ class RedefineAction(tables.BatchAction):
                       self._get_action_name(action_success, past=True),
                       "objs": functions.lazy_join(", ", action_success)}
             success_message_level(request, msg % params)
-
+            for host in obj_ids:
+                if host not in HOSTS_ALL:
+                    HOSTS_ALL.append(host)
+            print 'Handle: ', HOSTS_ALL
         return shortcuts.redirect(self.get_success_url(request))
 
+
+class ResetMigrateAction(tables.Action):
+    name = "reset_button"
+    verbose_name = _("Reset")
+    verbose_name_plural = _("Reset")
+    requires_input = False
+
+    def handle(self, data_table, request, obj_ids):
+         global HOSTS_ALL
+         HOSTS_ALL = []
 
 def get_servers(zone):
     return zone.server
@@ -224,4 +239,4 @@ class MigrationTable(tables.DataTable):
     class Meta:
         name = "migration"
         verbose_name = _("Suggested Server Migrations")
-        table_actions = (MigrationAllAction, RedefineAction,)
+        table_actions = (MigrationAllAction, RedefineAction, ResetMigrateAction,)
