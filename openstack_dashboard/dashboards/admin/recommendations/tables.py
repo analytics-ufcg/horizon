@@ -21,8 +21,6 @@ from horizon import messages
 from horizon import tables
 from horizon.utils import functions
 
-import requests
-
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
 LOG = logging.getLogger(__name__)
@@ -101,6 +99,7 @@ class MigrationAllAction(tables.Action):
     def handle(self, data_table, request, obj_ids):
          global HOSTS_ALL
          hosts_obj = []
+         data_handler = DataHandler();
 
          if HOSTS_ALL:
              for host in HOSTS_ALL:
@@ -115,7 +114,7 @@ class MigrationAllAction(tables.Action):
                  host_name = host.endhost[n]
                  instance = host.server[n]
 
-                 requests.post('http://150.165.15.104:10090/live_migration?project=%s&host_name=%s&instance_id=%s' % (project, host_name, instance))
+                 data_handler.migrate_to_host(project, host_name, instance)
          HOSTS_ALL = []
 
 class RedefineAction(tables.BatchAction):
