@@ -16,6 +16,7 @@ from horizon import forms
 
 import requests
 
+from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
 class AddAlarmForm(forms.SelfHandlingForm):
     name = forms.CharField(label=_("Alarm Name"),
@@ -40,9 +41,11 @@ class AddAlarmForm(forms.SelfHandlingForm):
     send_mail = forms.BooleanField(label=_("Send me an email when the alarm is activated"), required=False)
 
     def handle(self, request, data):
-        requests.post("http://150.165.15.104:10090/add_alarm?name=%s&resource=%s&threshold=%d&operator=%s&period=%d&evalperiod=%d&send_mail=%d"
-                       % (data['name'], data['resource'],
-                          data['threshold'], data['operator'],
-                          data['period'], data['evalperiod'],
-                          data['send_mail']))
-        return True
+        handler = DataHandler()
+        if handler.add_alarm(data['name'], data['resource'], 
+                             data['threshold'], data['operator'], 
+                             data['period'], data['evalperiod'], 
+                             data['send_mail']) is not None:
+            return True
+
+        return False

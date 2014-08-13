@@ -193,7 +193,7 @@ class DataHandler:
         return json.dumps(ret)
 
     def alarms_history(self, timestamp_begin=None, timestamp_end=None):
-        return json.dumps(self.__ceilometer.get_alarms_history(timestamp_begin, timestamp_end))
+        return self.__ceilometer.get_alarms_history(timestamp_begin, timestamp_end)
 
     def add_alarm(self, name, resource, threshold, operator, period, ev_period, send_mail):
         return self.__ceilometer.set_alarm(name, resource, threshold, operator, period, ev_period, send_mail)
@@ -215,7 +215,7 @@ class DataHandler:
                             '4n4lyt1cs')
 
     def alarm_description(self):
-        return json.dumps(self.__ceilometer.get_alarm_parameters())
+        return self.__ceilometer.get_alarm_parameters()
     
     def delete_alarm(self, alarm_id):
         return json.dumps(self.__ceilometer.delete_alarms(alarm_id))
