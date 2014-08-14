@@ -16,11 +16,11 @@ class KeystoneClient:
         userData = str(keystone.users.get(user_id))[6:-1]
         return ast.literal_eval(userData)['email']
 
-    def list_users(self, project_id):
+    def list_users(self, project_id='a67556c471d44dd58534a326098a4240'):
         keystone = client.Client(tenant_id=project_id, username=self.__os_username, password=self.__os_password, auth_url=self.__os_auth_url)
         users = []
         for user in keystone.users.list():
-            users.append(user.username)
+            users.append(user)
         return users
 
     def get_user(self, project_id, name):
