@@ -502,7 +502,6 @@ class DataHandler:
         data = self.__reduction.points_reduction(old_data,key2)
         return data
 
-<<<<<<< HEAD
     def vm_info(self):
         ret = []
 
@@ -520,7 +519,5 @@ class DataHandler:
 
         return ret
 
-=======
     def vcpus_for_aggregate(self, project):
         return json.dumps(self.__nova.vcpus_for_aggregate(project))
->>>>>>> f059228cbde629ea199421983f4fdf082f635708
