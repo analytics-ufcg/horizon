@@ -61,10 +61,11 @@ class AddAlarmForm(forms.SelfHandlingForm):
     def handle(self, request, data):
         data_handler = DataHandler()
         if(data['instances']!='all'):
-            data_handler.add_alarm(data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod'], data['send_mail'], data['instances'])
+            if(data_handler.add_alarm(data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod'], data['send_mail'], data['instances']) is not None):
+                return True
         else:
-            data_handler.add_alarm(data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod'], data['send_mail'])
+            if(data_handler.add_alarm(data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod'], data['send_mail']) is not None):
+                return True
 
-        return True
-
+        return False
 

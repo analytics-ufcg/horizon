@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -24,17 +22,14 @@ from openstack_dashboard.api.telemetry \
     import RecommendationUpgrade as dataUpgrade
 from openstack_dashboard.dashboards.admin.recommendations \
     import tables
-
-import requests
-
-from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
+from openstack_dashboard.api.telemetry_api.telemetry_data \
+    import DataHandler
 
 class UpgradesTab(tabs.TableTab):
     table_classes = (tables.UpgradeTable,)
     name = _("Upgrades")
     slug = "upgrades"
     template_name = ("horizon/common/_detail_table.html")
-    #recommendations/upgrades.html")
 
     def get_upgrades_data(self):
         upgrade_list = []
@@ -55,19 +50,11 @@ class UpgradesTab(tabs.TableTab):
 
 
 class FlavorsTab(tabs.Tab):
-    #table_classes = (tables.FlavorTable,)
     name = _("Flavors")
     slug = "flavors_rec"
-    #template_name = ("horizon/common/_detail_table.html")
     template_name = ("admin/recommendations/flavors.html")
 
     def get_context_data(self, request):
-        #req = requests.get("http://150.165.15.4:9090/o")
-        #flavor_list = []
-        #if req.status_code == 200:
-        #    data = req.json()
-
-        #return flavor_list
         return None
 
 
@@ -81,11 +68,10 @@ class PowerTab(tabs.TableTab):
     def get_status_data(self):
         hosts_list = tables.HOSTS
         host_status = []
-
         data_handler = DataHandler()
 
         if self.host_migration_data is None:
-            self.host_migration_data = data_handler.sugestion()
+            self.host_migration_data = data_handler.suggestion(hosts_list)
 
 	data = self.host_migration_data['Hosts']
 	for k in data.keys():
@@ -102,15 +88,14 @@ class PowerTab(tabs.TableTab):
         hosts = {}
         migration = []
         flag = False
-
         data_handler = DataHandler()
 
         if self.host_migration_data is None:
-            self.host_migration_data = data_handler.sugestion()
+            self.host_migration_data = data_handler.suggestion(hosts_list)
 
 	data = self.host_migration_data['Migracoes']
 	for k in data.keys():
-	    for vm in data[k]:
+            for vm in data[k]:
 		if data[k][vm] is not None:
 		    flag = True
 
@@ -136,7 +121,7 @@ class PowerTab(tabs.TableTab):
                 hosts_list = []
                 tables.HOSTS = []
         
-            return migration
+        return migration
 
 
 class RecommendationsTabs(tabs.TabGroup):

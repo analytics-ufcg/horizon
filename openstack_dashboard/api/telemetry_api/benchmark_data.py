@@ -3,7 +3,7 @@ import time, datetime, json
 
 class BenchmarkDataHandler:
 
-    def __init__(self, server='localhost', user='root', password='pass', db='telemetry_benchmarks', table='benchmark_history'):
+    def __init__(self, server='localhost', user='root', password='2910901b3537f1ecc45f', db='telemetry_benchmarks', table='benchmark_history'):
         try:
             self.con = mdb.connect(server, user, password, db)
             self.table = table;

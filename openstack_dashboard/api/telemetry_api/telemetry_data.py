@@ -19,13 +19,14 @@ def send_email(from_addr, to_addr_list, cc_addr_list,
     header += 'Subject: %s\n\n' % subject
     message = header + message
 
-
+    
     server = smtplib.SMTP(smtpserver)
     server.starttls()
     server.login(login,password)
     problems = server.sendmail(from_addr, to_addr_list, message)
     server.quit()
     return problems
+
 
 class MigrateException(Exception):
     
@@ -54,65 +55,117 @@ class DataHandler:
     def projects(self):
         return json.dumps(self.__keystone.projects)
 
-    def sugestion(self):
-        project_list = [ a['name'] for a in json.loads(self.projects()) ]
-        host_vm_info = self.__nova.vm_info(project_list)
-        id_projetos = {}
-        for j in range(len(host_vm_info)):
-            for w in host_vm_info[j]:
-                host_vm_info[j][w]['Info_project'].keys()
-                for i in host_vm_info[j][w]['Info_project'].keys():
-                    for s in host_vm_info[j][w]['Info_project'][i]:
-                        id_projetos[s] = i
-        hosts_critical =[]
-        servers_critical = self.__nova.critical_instances(project_list)
-        desligar = {}
-        migracoes = {}
-        copia_hosts = host_vm_info[:]
-        for host in host_vm_info:
-	    hostname = host.keys()[0]
-	desligar = {}
-	migracoes = {}
-	copia_hosts = host_vm_info[:]
-	for e in host_vm_info:
-		dic_aux = e.copy()
-		chave = e.keys()[0]
-		if( len( dic_aux[chave]['vms'].keys() ) > 0 ):
-			vms_aux = dic_aux[chave]['vms'].copy()
-			copia_hosts.remove(e)
-			migra = False
-			migracoes[chave] = {}
-			for i in vms_aux:
-			   for j in copia_hosts:
-				   if(i not in servers_critical):
-					   migra = False
-					   if( (j[j.keys()[0]]['Livre'][0] >= vms_aux[i][0]) and (j[j.keys()[0]]['Livre'][1] >= vms_aux[i][1])  and (j[j.keys()[0]]['Livre'][2] >= vms_aux[i][2])):
-						   valores = [ j[j.keys()[0]]['Livre'][0] - vms_aux[i][0], j[j.keys()[0]]['Livre'][1] - vms_aux[i][1], j[j.keys()[0]]['Livre'][2] - vms_aux[i][2] ]
-						   j[j.keys()[0]]['Livre'] = valores
-						   dic = j[j.keys()[0]]['vms']
-						   dic[vms_aux.keys()[0]] = vms_aux[vms_aux.keys()[0]]
-						   j[j.keys()[0]]['vms'] = dic
-						   j[j.keys()[0]]['nomes'][i] = dic_aux[chave]['nomes'][i]
-						   migracoes[chave][i] = [j.keys()[0],e[chave]['nomes'].get(i),id_projetos[i]]
-						   migra = True
-						   break
-					   else:
-						   continue
-				   else:
-					   continue
-			   if migra == False:
-				   migracoes[chave][i] = None
-				   desligar[chave] = False
-			if not chave in desligar:
-			   desligar[chave] = True
-		else:
-		   copia_hosts.remove(e)
-		   desligar[chave] = True
-		   continue
-	saida = {}
-	saida['Hosts']= desligar
-	saida['Migracoes'] = migracoes
-        return saida
+    def get_critical_hosts(self,instances_critical, information):
+        critical_hosts = []
+        for cpn in information:
+            cpn_name = cpn.keys()[0]
+            cpn_server_list = cpn[cpn_name]['vms'].keys()
+            for server in cpn_server_list:
+                if server in instances_critical:
+                    critical_hosts.append(cpn_name)
+        return critical_hosts
+
+    def suggestion(self, list_not_ignore=[]):
+        project_list = [ project['name'] for project in json.loads(self.projects())] #returns the list of existing projects
+        compute_nodes_info_list = self.__nova.vm_info(project_list) #list of jsons - json correspond to a compute node information
+        instances_id_project = {} #dict instances_id : project_name
+        for compute_node_aux in compute_nodes_info_list:
+            try:
+                compute_name = compute_node_aux.keys()[0] #get the name of compute node to access information
+                for key in compute_node_aux[compute_name]['Info_project'].keys(): #key represent a project
+                    #id represent de id of any instance present in a given project(key) and in the compute_name
+                    for id in compute_node_aux[compute_name]['Info_project'][key]:
+                        instances_id_project[id] = key
+            except Exception as excp:
+                return {"error": excp.message}
+        #get the list of critical instances (can't migrate them)
+        critical_instances = self.__nova.critical_instances(project_list)
+        #list of critical hosts
+        critical_cpn = self.get_critical_hosts(critical_instances,compute_nodes_info_list)
+        shutdown = {} #dict compute_node : True/False for shutdown
+        migrations = {} #dict with all migrations 
+        compute_nodes_copy = compute_nodes_info_list[:] #copy to aux with the algorithm
+        #begin of algorithm
+        #cpn_data - compute node data
+        try:
+            for cpn_data in compute_nodes_info_list:
+                data  = cpn_data.copy() #contains all information about a compute node
+                actual_cpn = cpn_data.keys()[0] #actual compute node (try migration for all instances)
+                #verify is the compute node has critical instances
+                if actual_cpn in critical_cpn:
+                    compute_nodes_copy.remove(cpn_data)
+                    shutdown[actual_cpn] = False
+                #verify if the compute node have vms (instances)
+                elif ( len(data[actual_cpn]['vms'].keys()) > 0 ):
+                    instances_data = data[actual_cpn]['vms'].copy() #copy the list of vms
+                    compute_nodes_copy.remove(cpn_data) #remove all data from compute node in the copy
+                    migration_flag = False #flag to say if the instance can migrate to other compute node
+                    migrations[actual_cpn] = {} #dict with all migrations for compute node
+                    for instance_id in instances_data:
+                        for other_cpn in compute_nodes_copy:
+                            #verifiation - other compute node is critical, should recive migration
+                            if other_cpn in critical_cpn:
+                                continue
+                            #verification - if instance_id is not in critical instances list
+                            elif (instance_id not in critical_instances):
+                                migration_flag = False
+                                other_cpn_name = other_cpn.keys()[0]
+                                #verification - flavor instance fits in other compute node free resources
+                                if (other_cpn[other_cpn_name]['Livre'][0] >= instances_data[instance_id][0] and
+                                    other_cpn[other_cpn_name]['Livre'][1] >= instances_data[instance_id][1] and
+                                    other_cpn[other_cpn_name]['Livre'][2] >= instances_data[instance_id][2]):
+                                    #update values of free resources
+                                    new_values = [other_cpn[other_cpn_name]['Livre'][0] - instances_data[instance_id][0], 
+                                                  other_cpn[other_cpn_name]['Livre'][1] - instances_data[instance_id][1], 
+                                                  other_cpn[other_cpn_name]['Livre'][2] - instances_data[instance_id][2]]
+                                    other_cpn[other_cpn_name]['Livre'] = new_values
+                                    #sending instance to the other host with all information
+                                    instances_other_cpn = other_cpn[other_cpn_name]['vms']
+                                    instances_other_cpn[instance_id] = instances_data[instance_id]
+                                    other_cpn[other_cpn_name]['vms'] = instances_other_cpn
+                                    other_cpn[other_cpn_name]['nomes'][instance_id] = data[actual_cpn]['nomes'][instance_id]
+                                    if list_not_ignore == []:
+                                        migration_flag = True
+                                        migrations[actual_cpn][instance_id] = [ other_cpn_name , cpn_data[actual_cpn]['nomes'].get(instance_id) ,instances_id_project[instance_id]] 
+                                    elif actual_cpn in list_not_ignore:
+                                        migration_flag = True
+                                        migrations[actual_cpn][instance_id] = [ other_cpn_name , cpn_data[actual_cpn]['nomes'].get(instance_id) ,instances_id_project[instance_id]]
+                                    else:
+                                        migration_flag = False
+                                else:
+                                    break
+                            else:
+                                continue
+                        # verification in any instance migration is False, the actual_cpn couldn't be shutdown
+                        # and say the instance will not go to any other compute node
+                        if migration_flag == False:
+                            migrations[actual_cpn][instance_id] = None
+                            shutdown[actual_cpn] = False
+                    #update to say the actual_cpn can be shutdown
+                    if not actual_cpn in shutdown:
+                        shutdown[actual_cpn] = True
+                #in case compute node doesn't have vms, we say that the compute node can be shutdown
+                else:
+                    compute_nodes_copy.remove(cpn_data)
+                    shutdown[actual_cpn] = True
+                    continue
+        except Exception as excp2:
+                return {"error in algorithm suggestion":excp2.message}
+
+        output = {} #json output with all data
+        output['Hosts'] = shutdown
+        output['Migracoes'] = migrations
+        recomendation = self.remove_duplicated_migrations(output)
+        return recomendation
+        #return json.dumps(output)
+
+    def remove_duplicated_migrations(self, output):
+        result = output
+        for compute_node in result['Migracoes'].keys():
+            for server  in result['Migracoes'][compute_node].keys():
+                if not self.__nova.verify_host_has_server(compute_node,server):
+                    result['Migracoes'][compute_node].pop(server)
+        return result
 
     def cpu_util_from(self, timestamp_begin=None, timestamp_end=None, resource_id=None):
         return json.dumps(self.__ceilometer.get_cpu_util(timestamp_begin, timestamp_end, resource_id))
@@ -142,28 +195,30 @@ class DataHandler:
     def alarms_history(self, timestamp_begin=None, timestamp_end=None):
         return self.__ceilometer.get_alarms_history(timestamp_begin, timestamp_end)
 
-    def add_alarm(self, name, resource, threshold, operator, period, ev_period, email, instance=""):
-        return self.__ceilometer.set_alarm(name, resource, threshold, operator, period, ev_period, email, instance)
+    def add_alarm(self, name, resource, threshold, operator, period, ev_period, send_mail, instance=""):
+        return self.__ceilometer.set_alarm(name, resource, threshold, operator, period, ev_period, send_mail, instance)
 
     def alarm_email(self, data_requested):
         alarm_id = ast.literal_eval(data_requested)['alarm_id']
         userId = self.__ceilometer.get_alarm_userid(alarm_id)
         projectId = self.__ceilometer.get_alarm_projectid(alarm_id)
         userEmail = self.__keystone.get_user_email(userId, projectId)
-
-        send_email('cloudtelemetry@gmail.com', 
-                        [userEmail],
-                        [],
-                        'Alert Telemetry Cloud',
-                        'Email disparado pelo alarme!!!', 
-                        'cloudtelemetry@gmail.com',
-                        '4n4lyt1cs')
+        status = self.__ceilometer.get_alarm_email_status(alarm_id)
+       
+        if status == True or status == 'True':  
+            send_email('cloudtelemetry.service@gmail.com', 
+                            [userEmail],
+                            [],
+                            'Alert Telemetry Cloud',
+                            'Email disparado pelo alarme!!!', 
+                            'cloudtelemetry.service@gmail.com',
+                            '4n4lyt1cs')
 
     def alarm_description(self):
         return self.__ceilometer.get_alarm_parameters()
     
     def delete_alarm(self, alarm_id):
-        return self.__ceilometer.delete_alarms(alarm_id)
+        return json.dumps(self.__ceilometer.delete_alarms(alarm_id))
 
     def hosts_cpu(self, timestamp_begin, timestamp_end):
         return self.__hosts_db.get_data_db('Cpu_Util', timestamp_begin, timestamp_end)
@@ -247,8 +302,11 @@ class DataHandler:
 	#elif host_vm._info[attr_host] == 'truta' and host_name != 'truta':
         #    raise MigrateException(500,"Migracao de host para compute node")
         #else:
-        self.__nova.vm_migration(project_name,host_name,instance_id)
-        return True
+        try:
+            retorno = self.__nova.vm_migration(project_name,host_name,instance_id)
+        except Exception as a:
+            return {"erro":a.message}
+        return {"status":"success"}
 
 
     def get_benchmark_bd(self):
@@ -267,6 +325,7 @@ class DataHandler:
  
     def get_benchmark_status(self, project, host):
         benchmark_ip = self.__nova.get_benchmark_ip(project, host)
+        print benchmark_ip
         data = requests.get('http://'+benchmark_ip+':5151/get_status')
         return data.text
 
@@ -443,6 +502,7 @@ class DataHandler:
         data = self.__reduction.points_reduction(old_data,key2)
         return data
 
+<<<<<<< HEAD
     def vm_info(self):
         ret = []
 
@@ -460,3 +520,7 @@ class DataHandler:
 
         return ret
 
+=======
+    def vcpus_for_aggregate(self, project):
+        return json.dumps(self.__nova.vcpus_for_aggregate(project))
+>>>>>>> f059228cbde629ea199421983f4fdf082f635708
