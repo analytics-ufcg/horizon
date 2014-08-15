@@ -14,6 +14,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from horizon import forms
 
+from openstack_dashboard import api
+
+from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
+
 import requests
 
 class AddAlarmForm(forms.SelfHandlingForm):
@@ -36,21 +40,31 @@ class AddAlarmForm(forms.SelfHandlingForm):
                                           ('lt', _('less'))])
     period = forms.IntegerField(label=_("Time"),
                                 help_text=_("Time"))
-    
-    send_mail = forms.BooleanField(label=_("Send me an email when the alarm is activated"), required=False)
 
+    instances = forms.ChoiceField(label=_('Instance'))    
+
+    send_mail = forms.BooleanField(label=_("Send me an email when the alarm is activated"), required=False)
 
     def __init__(self, *args, **kwargs):
         super(AddAlarmForm, self).__init__(*args, **kwargs)
-        self.fields['instances'].choices = [('all', _('all'))]
+        data_handler = DataHandler()
+        options = [('all', _('all'))]
+        vms_information = data_handler.vm_info()
+        vm_info = vms_information[0]
+        for key in vm_info.keys():
+            values = (key, _(vm_info[key]))
+            options.append(values)
+        self.fields['instances'].choices = options
+        
         
 
     def handle(self, request, data):
-        requests.post("http://150.165.15.104:10090/add_alarm?name=%s&resource=%s&threshold=%d&operator=%s&period=%d&evalperiod=%d&send_mail=%d"
-                       % (data['name'], data['resource'],
-                          data['threshold'], data['operator'],
-                          data['period'], data['evalperiod'],
-                          data['send_mail']))
+        data_handler = DataHandler()
+        if(data['instances']!='all'):
+            data_handler.add_alarm(data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod'], data['send_mail'], data['instances'])
+        else:
+            data_handler.add_alarm(data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod'], data['send_mail'])
+
         return True
 
 
