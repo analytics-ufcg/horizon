@@ -184,7 +184,6 @@ class RedefineAction(tables.BatchAction):
             for host in obj_ids:
                 if host not in HOSTS_ALL:
                     HOSTS_ALL.append(host)
-            print 'Handle: ', HOSTS_ALL
         return shortcuts.redirect(self.get_success_url(request))
 
 

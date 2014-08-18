@@ -138,3 +138,18 @@ class UserMessages:
         self.timestamp = timestamp
         self.message = message
         self.read = read
+
+
+class MessagesUser:
+
+    def __init__(self, name, email, id):
+        self.name = name
+        self.email = email
+        self.id = id
+
+
+class HostMessages:
+
+    def __init__(self, id, zone):
+        self.id = id
+        self.zone = zone

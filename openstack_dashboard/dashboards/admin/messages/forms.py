@@ -14,13 +14,15 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-import horizon
-
-from openstack_dashboard.dashboards.project import dashboard
+from horizon import forms
 
 
-class Messages(horizon.Panel):
-    name = _("Messages")
-    slug = 'messages'
+class MessageUserForm(forms.SelfHandlingForm):
+    subject = forms.CharField(label=_("Subject"))
+    message = forms.CharField(widget=forms.widgets.Textarea(),
+                                  label=_("Message"),
+                                  required=False)
 
-dashboard.Project.register(Messages)
+    def handle(self, request, data):
+        return True
+

@@ -59,9 +59,9 @@ class DatabasePanels(horizon.PanelGroup):
               'database_backups',)
 
 
-class UserPanels(horizon.PanelGroup):
-    name = _("User")
-    slug = "user"
+class NotificationPanels(horizon.PanelGroup):
+    name = _("Notification Board")
+    slug = "notification"
     panels = ('messages',)
 
 
@@ -74,7 +74,7 @@ class Project(horizon.Dashboard):
         ObjectStorePanels,
         OrchestrationPanels,
         DatabasePanels,
-        UserPanels,)
+        NotificationPanels,)
     default_panel = 'overview'
     supports_tenants = True
 

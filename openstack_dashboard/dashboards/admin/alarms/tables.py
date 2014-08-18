@@ -20,8 +20,6 @@ from horizon import tables
 
 import requests
 
-import ConfigParser
-
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
 class AlarmsHistoryFilterAction(tables.FilterAction):
