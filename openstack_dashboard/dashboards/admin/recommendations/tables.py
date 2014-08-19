@@ -197,6 +197,7 @@ class ResetMigrateAction(tables.Action):
          global HOSTS_ALL
          HOSTS_ALL = []
 
+
 def get_servers(zone):
     return zone.server
 

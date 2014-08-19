@@ -1,6 +1,4 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
-# Copyright 2013 B1 Systems GmbH
+# Copyright 2014, Analytics-UFCG
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -24,8 +22,12 @@ from horizon import tabs
 
 import json
 import ConfigParser
+import time
+import datetime
 
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
+
+LIMIT = 1
 
 class AlarmsListTab(tabs.TableTab):
     table_classes = (tables.AlarmsListTable,)
@@ -39,6 +41,7 @@ class AlarmsListTab(tabs.TableTab):
         data_handler = DataHandler()
 
         alarms_dict = data_handler.alarm_description() 
+
         for ids in alarms_dict.keys():
             alarm_id = ids
             alarm_name = alarms_dict[ids][0]
@@ -56,19 +59,27 @@ class AlarmsHistoryTab(tabs.TableTab):
     template_name = ("horizon/common/_detail_table.html")
 
     def get_alarms_history_data(self):
+        global LIMIT
         alarms_obj = []
-
         data_handler = DataHandler()
 
-        alarms_dict = data_handler.alarms_history() 
-        for data in alarms_dict:
+        ts = time.time()
+        timestamp_begin = datetime.datetime.fromtimestamp(ts-(86400 * (LIMIT))).strftime('%Y-%m-%d %H:%M:%S')
+        timestamp_end = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+        alarms_dict = data_handler.alarms_history(timestamp_begin, timestamp_end)
+
+        for data in alarms_dict:            
             alarm_name = data['alarm_name']
+
             for data_history in data['history']:
                 timestamp = data_history['timestamp']
                 alarm_type = data_history['type']
                 detail_str = json.loads(data_history['detail'])
                 alarm = alarms_hist(timestamp, alarm_name, alarm_type, 'Current State: ' + detail_str['state'])
                 alarms_obj.append(alarm)
+
+        LIMIT += 1
+
         return alarms_obj
 
 

@@ -22,15 +22,23 @@ import requests
 
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
+
 class AlarmsHistoryFilterAction(tables.FilterAction):
-    def filter(self, alarms_history, filter_string):
+    def filter(self, table, alarms_history, filter_string):
         q = filter_string.lower()
 
         def comp(alarms_history):
-            if q in alarms_history.type.lower():
+            if q in alarms_history.name.lower():
                 return True
             return False
         return filter(comp, alarms_history)
+
+
+class UpdateHistoryAction(tables.LinkAction):
+    name = "show_more_button"
+    verbose_name = _("Show more")
+    url = '/admin/alarms'
+        
 
 
 class AlarmsHistoryTable(tables.DataTable):
@@ -49,7 +57,7 @@ class AlarmsHistoryTable(tables.DataTable):
     class Meta:
         name = "alarms_history"
         verbose_name = _("Alarm History")
-        table_actions = (AlarmsHistoryFilterAction,)
+        table_actions = (AlarmsHistoryFilterAction, UpdateHistoryAction,)
         multi_select = False
 
 
@@ -69,11 +77,11 @@ class CreateAlarmsAction(tables.LinkAction):
 
 
 class AlarmsListFilterAction(tables.FilterAction):
-    def filter(self, alarms_list, filter_string):
+    def filter(self, table, alarms_list, filter_string):
         q = filter_string.lower()
 
         def comp(alarms_list):
-            if q in alarms_list.type.lower():
+            if q in alarms_list.name.lower():
                 return True
             return False
         return filter(comp, alarms_list)
