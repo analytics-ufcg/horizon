@@ -15,11 +15,22 @@
 #    under the License.
 
 from messages.models import Message
-
-import datetime
+from openstack_dashboard.api.telemetry_api.telemetry_data import  DataHandler
+from openstack_dashboard.api.telemetry_api.openstack.nova_client import  NovaClient
+from openstack_dashboard.api.telemetry_api.openstack.keystone_client import KeystoneClient
+import datetime, ConfigParser
 
 
 class MessageManager:
+    def __init__(self):
+        config = ConfigParser.ConfigParser()
+        config.read('openstack_dashboard/api/telemetry_api/environment.conf')
+        print config.sections()
+        #data_handler = DataHandler()
+        self.__nova_client = NovaClient(config)
+        self.__keystone_client = KeystoneClient(config)
+        self.__projects = self.__keystone_client.get_tenants()
+        
     def get_message_by_recipient(self, recipient):
         return Message.objects.filter(recipient=recipient)
 
@@ -29,6 +40,18 @@ class MessageManager:
                     message=message, read='F')
         m.save()
 
+    def send_message_project(self, sender, subject, message, tenant_id):
+        users = self.__keystone_client.list_project_users(tenant_id)
+        for user in users:
+            self.send_message(sender,user, subject, message)
+
+    def send_message_host(self, sender, subject, message, host_name):
+        servers = self.__nova_client.get_servers_by_host(host_name, ['admin', 'demo'])
+        users_id = self.__nova_client.get_users_by_host(servers)
+        users_list = list(set(users_id))
+        for user in users_list:
+            self.send_message(sender,user, subject, message)
+        return True
     def get_message_by_id(self, id):
         return Message.objects.filter(id=id)[0]
 
