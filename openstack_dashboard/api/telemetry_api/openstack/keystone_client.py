@@ -30,6 +30,16 @@ class KeystoneClient:
                 return user
         return None
 
-    def list_project_users(self, project_id, tenant_id):
+    def list_project_users(self, tenant_id, project_id='a67556c471d44dd58534a326098a4240'):
         keystone = client.Client(tenant_id=project_id, username=self.__os_username, password=self.__os_password, auth_url=self.__os_auth_url)
-        return keystone.tenants.list_users(tenant_id)
+        users = keystone.tenants.list_users(tenant_id)
+        users_list = []
+        for user in users:
+            if user.id not in users_list:
+                users_list.append(user.id)
+
+        return users_list
+
+    def get_tenants(self, project_id='a67556c471d44dd58534a326098a4240'):
+        keystone = client.Client(tenant_id=project_id, username=self.__os_username, password=self.__os_password, auth_url=self.__os_auth_url)
+        return keystone.tenants.list()
