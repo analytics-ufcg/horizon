@@ -14,11 +14,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from horizon import forms
 
-import requests
+from openstack_dashboard import api
 
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
+import requests
+
 class AddAlarmForm(forms.SelfHandlingForm):
+
     name = forms.CharField(label=_("Alarm Name"),
                            max_length=64,
                            help_text=_("Field to input the Alarm Name"))
@@ -37,15 +40,32 @@ class AddAlarmForm(forms.SelfHandlingForm):
                                           ('lt', _('less'))])
     period = forms.IntegerField(label=_("Time"),
                                 help_text=_("Time"))
-    
+
+    instances = forms.ChoiceField(label=_('Instance'))    
+
     send_mail = forms.BooleanField(label=_("Send me an email when the alarm is activated"), required=False)
 
+    def __init__(self, *args, **kwargs):
+        super(AddAlarmForm, self).__init__(*args, **kwargs)
+        data_handler = DataHandler()
+        options = [('all', _('all'))]
+        vms_information = data_handler.vm_info()
+        vm_info = vms_information[0]
+        for key in vm_info.keys():
+            values = (key, _(vm_info[key]))
+            options.append(values)
+        self.fields['instances'].choices = options
+        
+        
+
     def handle(self, request, data):
-        handler = DataHandler()
-        if handler.add_alarm(data['name'], data['resource'], 
-                             data['threshold'], data['operator'], 
-                             data['period'], data['evalperiod'], 
-                             data['send_mail']) is not None:
-            return True
+        data_handler = DataHandler()
+        if(data['instances']!='all'):
+            if(data_handler.add_alarm(data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod'], data['send_mail'], data['instances']) is not None):
+                return True
+        else:
+            if(data_handler.add_alarm(data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod'], data['send_mail']) is not None):
+                return True
 
         return False
+

@@ -41,7 +41,6 @@ from horizon.utils.memoized import memoized  # noqa
 from openstack_dashboard.api import base
 from openstack_dashboard.api import network_base
 
-
 LOG = logging.getLogger(__name__)
 
 
@@ -759,3 +758,4 @@ def extension_supported(extension_name, request):
 def can_set_server_password():
     features = getattr(settings, 'OPENSTACK_HYPERVISOR_FEATURES', {})
     return features.get('can_set_password', False)
+

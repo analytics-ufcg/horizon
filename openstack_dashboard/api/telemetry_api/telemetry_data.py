@@ -195,8 +195,8 @@ class DataHandler:
     def alarms_history(self, timestamp_begin=None, timestamp_end=None):
         return self.__ceilometer.get_alarms_history(timestamp_begin, timestamp_end)
 
-    def add_alarm(self, name, resource, threshold, operator, period, ev_period, send_mail):
-        return self.__ceilometer.set_alarm(name, resource, threshold, operator, period, ev_period, send_mail)
+    def add_alarm(self, name, resource, threshold, operator, period, ev_period, send_mail, instance=""):
+        return self.__ceilometer.set_alarm(name, resource, threshold, operator, period, ev_period, send_mail, instance)
 
     def alarm_email(self, data_requested):
         alarm_id = ast.literal_eval(data_requested)['alarm_id']
@@ -501,6 +501,23 @@ class DataHandler:
         key2 = "cpu_util_percent"
         data = self.__reduction.points_reduction(old_data,key2)
         return data
+
+    def vm_info(self):
+        ret = []
+
+        project = ['admin']
+        informations =  self.__nova.vm_info(project)
+
+        vms_data = {}
+        for node in informations:
+            for node_name in node.keys():
+                vms_name = (node[node_name])['nomes']
+                for key in vms_name.keys():
+                    vms_data[key] = vms_name[key]
+
+        ret.append(vms_data)
+
+        return ret
 
     def vcpus_for_aggregate(self, project):
         return json.dumps(self.__nova.vcpus_for_aggregate(project))
