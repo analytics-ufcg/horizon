@@ -34,24 +34,25 @@ class MessageManager:
     def get_message_by_recipient(self, recipient):
         return Message.objects.filter(recipient=recipient)
 
-    def send_message(self, sender='admin', recipient, subject, message):
-        m = Message(sender=sender, recipient=recipient,
+    def send_message(self, subject, message, sender='admin', user_id='5ef9d86f92684a39b7f0d19287171582'):
+	m = Message(sender=sender, recipient=user_id,
                     subject=subject, timestamp=datetime.datetime.now(),
                     message=message, read='F')
         m.save()
 
-    def send_message_project(self, sender='admin', subject, message, tenant_id):
+    def send_message_project(self, subject, message, tenant_id, sender='admin'):
         users = self.__keystone_client.list_project_users(tenant_id)
         for user in users:
-            self.send_message(sender,user, subject, message)
+            self.send_message(sender, user, subject, message)
 
-    def send_message_host(self, sender='admin', subject, message, host_name):
+    def send_message_host(self, subject, message, host_name, sender='admin'):
         servers = self.__nova_client.get_servers_by_host(host_name, ['admin', 'demo'])
         users_id = self.__nova_client.get_users_by_host(servers)
         users_list = list(set(users_id))
         for user in users_list:
-            self.send_message(sender,user, subject, message)
+            self.send_message(sender, user, subject, message)
         return True
+
     def get_message_by_id(self, id):
         return Message.objects.filter(id=id)[0]
 

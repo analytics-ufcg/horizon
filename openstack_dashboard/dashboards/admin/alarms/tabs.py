@@ -63,7 +63,7 @@ class AlarmsHistoryTab(tabs.TableTab):
         alarms_obj = []
         data_handler = DataHandler()
         ts = time.time()
-        timestamp_begin = datetime.datetime.fromtimestamp(ts - (86400 * (limit))).strftime('%Y-%m-%d %H:%M:%S')
+        timestamp_begin = datetime.datetime.fromtimestamp(ts - (2400 * (limit))).strftime('%Y-%m-%d %H:%M:%S')
         print 'timestamp', timestamp_begin
         timestamp_end = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
         alarms_dict = data_handler.alarms_history(timestamp_begin, timestamp_end)

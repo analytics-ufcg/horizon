@@ -11,6 +11,7 @@
 #    under the License.
 
 from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
 from horizon import exceptions
@@ -34,7 +35,8 @@ class IndexView(tabs.TabbedTableView):
 class MessageView(forms.ModalFormView):
     form_class = messages_forms.MessageUserForm
     template_name = 'admin/messages/message.html'
-    success_url = 'admin/messages'
+    success_url = reverse_lazy("horizon:admin:messages:index")
+
 '''
     @memoized.memoized_method
     def get_object(self):

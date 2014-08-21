@@ -16,6 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from horizon import forms
 
+from messages.message_selection import MessageManager
 
 class MessageUserForm(forms.SelfHandlingForm):
     subject = forms.CharField(label=_("Subject"))
@@ -24,5 +25,6 @@ class MessageUserForm(forms.SelfHandlingForm):
                                   required=False)
 
     def handle(self, request, data):
+        messager = MessageManager()
+        messager.send_message(data['subject'], data['message'])
         return True
-
