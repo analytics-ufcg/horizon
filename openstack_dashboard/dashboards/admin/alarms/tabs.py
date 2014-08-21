@@ -27,7 +27,6 @@ import datetime
 
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
-LIMIT = 1
 
 class AlarmsListTab(tabs.TableTab):
     table_classes = (tables.AlarmsListTable,)
@@ -52,6 +51,7 @@ class AlarmsListTab(tabs.TableTab):
             
         return alarms_obj        
 
+
 class AlarmsHistoryTab(tabs.TableTab):
     table_classes = (tables.AlarmsHistoryTable,)
     name = _("Alarms History")
@@ -59,12 +59,12 @@ class AlarmsHistoryTab(tabs.TableTab):
     template_name = ("horizon/common/_detail_table.html")
 
     def get_alarms_history_data(self):
-        global LIMIT
+        limit = tables.LIMIT
         alarms_obj = []
         data_handler = DataHandler()
-
         ts = time.time()
-        timestamp_begin = datetime.datetime.fromtimestamp(ts-(86400 * (LIMIT))).strftime('%Y-%m-%d %H:%M:%S')
+        timestamp_begin = datetime.datetime.fromtimestamp(ts - (86400 * (limit))).strftime('%Y-%m-%d %H:%M:%S')
+        print 'timestamp', timestamp_begin
         timestamp_end = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
         alarms_dict = data_handler.alarms_history(timestamp_begin, timestamp_end)
 
@@ -77,8 +77,6 @@ class AlarmsHistoryTab(tabs.TableTab):
                 detail_str = json.loads(data_history['detail'])
                 alarm = alarms_hist(timestamp, alarm_name, alarm_type, 'Current State: ' + detail_str['state'])
                 alarms_obj.append(alarm)
-
-        LIMIT += 1
 
         return alarms_obj
 

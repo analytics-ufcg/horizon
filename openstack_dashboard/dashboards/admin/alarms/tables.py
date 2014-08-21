@@ -22,7 +22,9 @@ import requests
 
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
+LIMIT = 1
 
+'''
 class AlarmsHistoryFilterAction(tables.FilterAction):
     def filter(self, table, alarms_history, filter_string):
         q = filter_string.lower()
@@ -32,13 +34,19 @@ class AlarmsHistoryFilterAction(tables.FilterAction):
                 return True
             return False
         return filter(comp, alarms_history)
+'''
 
+class UpdateHistoryAction(tables.Action):
+    name = "update_history"
+    verbose_name = _("Show More")
+    verbose_name_plural = _("Show More")
+    requires_input = False
+    print 'Limite Table:', LIMIT
 
-class UpdateHistoryAction(tables.LinkAction):
-    name = "show_more_button"
-    verbose_name = _("Show more")
-    url = '/admin/alarms'
-        
+    def handle(self, data_table, request, obj_ids):
+        global LIMIT
+        LIMIT += 1
+        print 'LIMIT', LIMIT
 
 
 class AlarmsHistoryTable(tables.DataTable):
@@ -57,7 +65,7 @@ class AlarmsHistoryTable(tables.DataTable):
     class Meta:
         name = "alarms_history"
         verbose_name = _("Alarm History")
-        table_actions = (AlarmsHistoryFilterAction, UpdateHistoryAction,)
+        table_actions = (UpdateHistoryAction,)
         multi_select = False
 
 
@@ -69,23 +77,24 @@ class DeleteAlarmsAction(tables.DeleteAction):
         data_handler = DataHandler() 
         data_handler.delete_alarm(obj_id)
 
+
 class CreateAlarmsAction(tables.LinkAction):
     name = "create_alarm"
     verbose_name = _("Create Alarm")
     url = "horizon:admin:alarms:create"
     classes = ("btn-launch", "ajax-modal")
 
-
+'''
 class AlarmsListFilterAction(tables.FilterAction):
     def filter(self, table, alarms_list, filter_string):
         q = filter_string.lower()
 
         def comp(alarms_list):
-            if q in alarms_list.name.lower():
+            if q in alarms_list.alarm_name.lower():
                 return True
             return False
         return filter(comp, alarms_list)
-
+'''
 
 class AlarmsListTable(tables.DataTable):
     alarm_name = tables.Column("alarm_name",
@@ -107,7 +116,6 @@ class AlarmsListTable(tables.DataTable):
         name = "alarms_list"
         verbose_name = _("Alarms List")
         rows_actions = (DeleteAlarmsAction)
-        table_actions = (AlarmsListFilterAction,
-                         CreateAlarmsAction,
+        table_actions = (CreateAlarmsAction,
                          DeleteAlarmsAction,)
 
