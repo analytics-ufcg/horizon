@@ -43,7 +43,7 @@ class AddAlarmForm(forms.SelfHandlingForm):
 
     instances = forms.ChoiceField(label=_('Instance'))    
 
-    send_mail = forms.BooleanField(label=_("Send me an email when the alarm is activated"), required=False)
+    send_mail = forms.BooleanField(label=_("Send the owner an email when the alarm is activated"), required=False)
 
     def __init__(self, *args, **kwargs):
         super(AddAlarmForm, self).__init__(*args, **kwargs)
