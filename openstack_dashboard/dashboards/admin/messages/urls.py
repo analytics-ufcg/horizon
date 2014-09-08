@@ -17,10 +17,11 @@ from openstack_dashboard.dashboards.admin.messages import views
 
 urlpatterns = patterns('openstack_dashboard.dashboards.admin.messages.views',
     url(r'^$', views.IndexView.as_view(), name='index'),
-    url(r'^message', views.MessageView.as_view(), name='message'),
-    url(r'^message$', views.MessageView.as_view(), name='message'),
-    url(r'^message/$', views.MessageView.as_view(), name='message'),
-    url(r'^message/', views.MessageView.as_view(), name='message'),
-    url(r'^(?P<id>[^/]+)/message$',
-        views.MessageView.as_view(), name='message'),
+    url(r'^message_user$', views.MessageUserView.as_view(), name='message_user'),
+    url(r'^(?P<id>[^/]+)/message_user$',
+        views.MessageUserView.as_view(), name='message_user'),
+    url(r'^(?P<id>[^/]+)/message_project$',
+        views.MessageProjectView.as_view(), name='message_project'),
+    url(r'^(?P<id>[^/]+)/message_host$',
+        views.MessageHostView.as_view(), name='message_host'),
 )

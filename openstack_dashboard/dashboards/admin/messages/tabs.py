@@ -36,18 +36,11 @@ class UsersTab(tabs.TableTab):
 
     def get_users_data(self):
         users_data = []
-#        domain_context = self.request.session.get('domain_context', None)
+        domain_context = self.request.session.get('domain_context', None)
 
         try:
-             config = ConfigParser.ConfigParser()
-             config.read('openstack_dashboard/api/telemetry_api/environment.conf')
-             keystone_client = KeystoneClient(config)
-
-             for user in keystone_client.list_users():
-                 users_obj = api.telemetry.MessagesUser(user.username, user.email, user.id)
-#            users_data = api.keystone.user_list(self.request,
-#                                           domain=domain_context)
-                 users_data.append(users_obj)
+            users_data = api.keystone.user_list(self.request,
+                                           domain=domain_context)
         except Exception:
             exceptions.handle(self.request,
                               _('Unable to retrieve user list.'))
@@ -86,6 +79,7 @@ class HostsTab(tabs.TableTab):
 
     def get_hosts_data(self):
         hosts_data = []
+
         config = ConfigParser.ConfigParser()
         config.read('openstack_dashboard/api/telemetry_api/environment.conf')
         nova_client = NovaClient(config)
@@ -93,7 +87,7 @@ class HostsTab(tabs.TableTab):
         for host in nova_client.list_compute_nodes():
             host_obj = api.telemetry.HostMessages(host.host_name, host.zone)
             hosts_data.append(host_obj)
-
+            
         return hosts_data
 
 

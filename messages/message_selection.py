@@ -25,8 +25,6 @@ class MessageManager:
     def __init__(self):
         config = ConfigParser.ConfigParser()
         config.read('openstack_dashboard/api/telemetry_api/environment.conf')
-        print config.sections()
-        #data_handler = DataHandler()
         self.__nova_client = NovaClient(config)
         self.__keystone_client = KeystoneClient(config)
         self.__projects = self.__keystone_client.get_tenants()
@@ -34,8 +32,8 @@ class MessageManager:
     def get_message_by_recipient(self, recipient):
         return Message.objects.filter(recipient=recipient)
 
-    def send_message(self, subject, message, sender='admin', user_id='5ef9d86f92684a39b7f0d19287171582'):
-	m = Message(sender=sender, recipient=user_id,
+    def send_message(self, subject, message, user_id, sender='admin'):
+        m = Message(sender=sender, recipient=user_id,
                     subject=subject, timestamp=datetime.datetime.now(),
                     message=message, read='F')
         m.save()

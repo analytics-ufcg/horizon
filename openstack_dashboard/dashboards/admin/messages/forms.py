@@ -15,16 +15,66 @@
 from django.utils.translation import ugettext_lazy as _
 
 from horizon import forms
+from horizon import messages
 
 from messages.message_selection import MessageManager
 
+
 class MessageUserForm(forms.SelfHandlingForm):
+    id = forms.CharField(label=_("ID"), widget=forms.HiddenInput)
     subject = forms.CharField(label=_("Subject"))
     message = forms.CharField(widget=forms.widgets.Textarea(),
-                                  label=_("Message"),
-                                  required=False)
+                                  label=_("Message"))
 
     def handle(self, request, data):
-        messager = MessageManager()
-        messager.send_message(data['subject'], data['message'])
+        messager = MessageManager();
+        user_id = data.pop('id')
+
+        try:
+            messager.send_message(data['subject'], data['message'], user_id)
+            messages.success(request,
+                             _('Message for User has been sent successfully.'))
+        except Exception:
+            messages.error(request, _('Unable to send message for the user.'))
+
+        return True
+    
+    
+class MessageProjectForm(forms.SelfHandlingForm):
+    id = forms.CharField(label=_("ID"), widget=forms.HiddenInput)
+    subject = forms.CharField(label=_("Subject"))
+    message = forms.CharField(widget=forms.widgets.Textarea(),
+                                  label=_("Message"))
+
+    def handle(self, request, data):
+        messager = MessageManager();
+        project_id = data.pop('id')
+        
+        try:
+            messager.send_message_project(data['subject'], data['message'], project_id)
+            messages.success(request,
+                             _('Message for Project has been sent successfully.'))
+        except Exception:
+            messages.error(request, _('Unable to send message for the user.'))
+
+        return True
+        
+
+class MessageHostForm(forms.SelfHandlingForm):
+    id = forms.CharField(label=_("ID"), widget=forms.HiddenInput)
+    subject = forms.CharField(label=_("Subject"))
+    message = forms.CharField(widget=forms.widgets.Textarea(),
+                                  label=_("Message"))
+
+    def handle(self, request, data):
+        messager = MessageManager();
+        host_id = data.pop('id')
+        
+        try:
+            messager.send_message_host(data['subject'], data['message'], host_id)
+            messages.success(request,
+                             _('Message for Host has been sent successfully.'))
+        except Exception:
+            messages.error(request, _('Unable to send message for the user.'))
+
         return True

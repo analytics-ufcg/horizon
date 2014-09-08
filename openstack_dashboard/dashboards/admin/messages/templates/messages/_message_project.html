@@ -1,0 +1,26 @@
+{% extends "horizon/common/_modal_form.html" %}
+{% load i18n %}
+{% load url from future %}
+
+{% block form_id %}send_project_message_form{% endblock %}
+{% block form_action %}{% url 'horizon:admin:messages:message_project' project.id %}{% endblock %}
+
+{% block modal_id %}send_project_message_modal{% endblock %}
+{% block modal-header %}{% trans "Send Message Project" %}{% endblock %}
+
+{% block modal-body %}
+<div class="left">
+  <fieldset>
+  {% include "horizon/common/_form_fields.html" %}
+  </fieldset>
+</div>
+<div class="right">
+  <h3>{% trans "Text" %}:</h3>
+  <p>{% trans "From here you can send a message for users in the project" %}</p>
+</div>
+{% endblock %}
+
+{% block modal-footer %}
+  <input class="btn btn-primary pull-right" type="submit" value="{% trans "Send Message" %}" />
+  <a href="{% url 'horizon:admin:messages:index' %}" class="btn secondary cancel close">{% trans "Cancel" %}</a>
+{% endblock %}

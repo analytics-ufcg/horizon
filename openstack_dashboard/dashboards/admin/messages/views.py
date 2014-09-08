@@ -21,6 +21,8 @@ from horizon.utils import memoized
 
 from openstack_dashboard import api
 
+from openstack_dashboard.api.telemetry import HostMessages as host
+
 from openstack_dashboard.dashboards.admin.messages import forms as \
     messages_forms
 from openstack_dashboard.dashboards.admin.messages import tabs as \
@@ -32,31 +34,102 @@ class IndexView(tabs.TabbedTableView):
     template_name = 'admin/messages/index.html'
 
 
-class MessageView(forms.ModalFormView):
+class MessageUserView(forms.ModalFormView):
     form_class = messages_forms.MessageUserForm
-    template_name = 'admin/messages/message.html'
+    template_name = 'admin/messages/message_user.html'
     success_url = reverse_lazy("horizon:admin:messages:index")
 
-'''
     @memoized.memoized_method
     def get_object(self):
         try:
             return api.keystone.user_get(self.request, self.kwargs['id'],
                 admin=True)
         except Exception:
-            redirect = reverse("horizon:admin:messages:index")
+            redirect = reverse("horizon:admin:users:index")
             exceptions.handle(self.request,
-                              _('Unable to send message.'),
+                              _('Unable to send message for the user.'),
                               redirect=redirect)
 
     def get_context_data(self, **kwargs):
-        context = super(MessageView, self).get_context_data(**kwargs)
+        context = super(MessageUserView, self).get_context_data(**kwargs)
         context['user'] = self.get_object()
         return context
 
     def get_initial(self):
         user = self.get_object()
-        return {'name': user.name,
-                'email': getattr(user, 'email', None),
-                'id': user.id}
-'''
+        domain_id = getattr(user, "domain_id", None)
+        domain_name = ''
+        # Retrieve the domain name where the project belong
+        if api.keystone.VERSIONS.active >= 3:
+            try:
+                domain = api.keystone.domain_get(self.request,
+                                                    domain_id)
+                domain_name = domain.name
+            except Exception:
+                exceptions.handle(self.request,
+                    _('Unable to retrieve project domain.'))
+        return {'domain_id': domain_id,
+                'domain_name': domain_name,
+                'id': user.id,
+                'name': user.name,
+                'project': user.project_id,
+                'email': getattr(user, 'email', None)}
+
+
+class MessageProjectView(forms.ModalFormView):
+    form_class = messages_forms.MessageUserForm
+    template_name = 'admin/messages/message_project.html'
+    success_url = reverse_lazy("horizon:admin:messages:index")
+    
+    @memoized.memoized_method
+    def get_object(self):
+        try:
+            return api.keystone.tenant_get(self.request, self.kwargs['id'],
+                admin=True)
+        except Exception:
+            redirect = reverse("horizon:admin:users:index")
+            exceptions.handle(self.request,
+                              _('Unable to send message for the project.'),
+                              redirect=redirect)
+
+    def get_context_data(self, **kwargs):
+        context = super(MessageProjectView, self).get_context_data(**kwargs)
+        context['project'] = self.get_object()
+        return context
+
+    def get_initial(self):
+        project = self.get_object()
+        domain_id = getattr(project, "domain_id", None)
+        domain_name = ''
+        # Retrieve the domain name where the project belong
+        if api.keystone.VERSIONS.active >= 3:
+            try:
+                domain = api.keystone.domain_get(self.request,
+                                                    domain_id)
+                domain_name = domain.name
+            except Exception:
+                exceptions.handle(self.request,
+                    _('Unable to retrieve project domain.'))
+        return {'domain_id': domain_id,
+                'domain_name': domain_name,
+                'id': project.id,
+                'name': project.name}
+
+
+class MessageHostView(forms.ModalFormView):
+    form_class = messages_forms.MessageUserForm
+    template_name = 'admin/messages/message_host.html'
+    success_url = reverse_lazy("horizon:admin:messages:index")
+    
+    def get_context_data(self, **kwargs):
+        context = super(MessageHostView, self).get_context_data(**kwargs)
+        context["id"] = self.kwargs['id']
+        return context
+    
+    def get_object(self):
+        id = self.kwargs['id']
+        return id
+    
+    def get_initial(self):
+        id = self.get_object()
+        return {'id': id}

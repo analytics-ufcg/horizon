@@ -17,11 +17,11 @@ from django.utils.translation import ugettext_lazy as _
 from horizon import tables
 
 
-class SendMessageAction(tables.LinkAction):
-    name = "send_message"
+class SendMessageUserAction(tables.LinkAction):
+    name = "send_message_user"
     verbose_name = _("Send Message")
-    url = "horizon:admin:messages:message"
-    classes = ("ajax-modal", "btn")
+    url = "horizon:admin:messages:message_user"
+    classes = ("ajax-modal", "btn-edit")
 
 
 class UserFilterAction(tables.FilterAction):
@@ -41,27 +41,30 @@ class UsersTable(tables.DataTable):
     id = tables.Column('id',
                        verbose_name=_('ID'))
 
-#    def get_object_id(self, obj):
-#        return "%s" % (obj.id)
-
-#    def get_object_display(self, obj):
-#        return "%s" % (obj.name)
-
     class Meta:
         name = "users"
         verbose_name = _("Users")
-        row_actions = (SendMessageAction,)
+        row_actions = (SendMessageUserAction,)
         table_actions = (UserFilterAction,)
+        multi_select = False
 
 
+class SendMessageProjectAction(tables.LinkAction):
+    name = "send_message_project"
+    verbose_name = _("Send Message")
+    url = "horizon:admin:messages:message_project"
+    classes = ("ajax-modal", "btn-edit")
+    
+    
 class ProjectsFilterAction(tables.FilterAction):
-    def filter(self, projects, filter_string):
+    def filter(self, table, projects, filter_string):
         q = filter_string.lower()
 
         def comp(projects):
-            if q in users.type.lower():
+            if q in users.name.lower():
                 return True
             return False
+        
         return filter(comp, projects)
 
 
@@ -73,15 +76,20 @@ class ProjectsTable(tables.DataTable):
     id = tables.Column('id',
                        verbose_name=_('ID'))
 
-#    def get_object_id(self, obj):
-#        return "%s-%s" % (obj.project, obj.id)
-
     class Meta:
         name = "projects"
         verbose_name = _("Projects")
-        row_actions = (SendMessageAction,)
+        row_actions = (SendMessageProjectAction,)
         table_actions = (ProjectsFilterAction,)
         multi_select = False
+
+
+
+class SendMessageHostAction(tables.LinkAction):
+    name = "send_message_project"
+    verbose_name = _("Send Message")
+    url = "horizon:admin:messages:message_host"
+    classes = ("ajax-modal", "btn-edit")
 
 
 class HostsFilterAction(tables.FilterAction):
@@ -101,12 +109,9 @@ class HostsTable(tables.DataTable):
     zone = tables.Column('zone',
                           verbose_name=_('Zone'))
 
-#    def get_object_id(self, obj):
-#        return "%s" % (obj.host)
-
     class Meta:
         name = "hosts"
         verbose_name = _("Hosts")
-        row_actions = (SendMessageAction,)
+        row_actions = (SendMessageHostAction,)
         table_actions = (HostsFilterAction,)
         multi_select = False

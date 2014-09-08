@@ -2,11 +2,11 @@
 {% load i18n %}
 {% load url from future %}
 
-{% block form_id %}send_message_form{% endblock %}
-{% block form_action %}{% url 'horizon:admin:messages:message' %}{% endblock %}
+{% block form_id %}send_user_message_form{% endblock %}
+{% block form_action %}{% url 'horizon:admin:messages:message_user' user.id %}{% endblock %}
 
-{% block modal_id %}send_message_modal{% endblock %}
-{% block modal-header %}{% trans "Send Message" %}{% endblock %}
+{% block modal_id %}send_user_message_modal{% endblock %}
+{% block modal-header %}{% trans "Send Message User" %}{% endblock %}
 
 {% block modal-body %}
 <div class="left">
@@ -16,11 +16,11 @@
 </div>
 <div class="right">
   <h3>{% trans "Text" %}:</h3>
-  <p>{% trans "From here you can send a message" %}</p>
+  <p>{% trans "From here you can send a message for an user" %}</p>
 </div>
 {% endblock %}
 
 {% block modal-footer %}
-  <input class="btn btn-primary pull-right" type="submit" value="{% trans "Send" %}" />
+  <input class="btn btn-primary pull-right" type="submit" value="{% trans "Send Message" %}" />
   <a href="{% url 'horizon:admin:messages:index' %}" class="btn secondary cancel close">{% trans "Cancel" %}</a>
 {% endblock %}
