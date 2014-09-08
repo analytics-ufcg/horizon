@@ -504,18 +504,21 @@ class DataHandler:
 
     def vm_info(self):
         ret = []
+        project = []
 
-        project = ['admin']
-        informations =  self.__nova.vm_info(project)
+        for project_data in json.loads(self.projects()):
+            project.append(project_data["name"])
+        
+        for project_name in project:
+            informations =  self.__nova.vm_info(project)
+            vms_data = {}
+            for node in informations:
+                for node_name in node.keys():
+                    vms_name = (node[node_name])['nomes']
+                    for key in vms_name.keys():
+                        vms_data[key] = vms_name[key]
 
-        vms_data = {}
-        for node in informations:
-            for node_name in node.keys():
-                vms_name = (node[node_name])['nomes']
-                for key in vms_name.keys():
-                    vms_data[key] = vms_name[key]
-
-        ret.append(vms_data)
+            ret.append({project_name:vms_data})
 
         return ret
 
