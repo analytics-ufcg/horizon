@@ -9771,4 +9771,34 @@ msgstr "Horas de GB do Disco"
 
 #: usage/tables.py:54 usage/tables.py:83
 msgid "Usage"
-msgstr "Utilização"
+msgstr "Utilizaço"
+
+#: telemetry api
+
+#: dashboards/admin/dashboard.py:44
+msgid "Telemetry Panel"
+msgstr "Painel de Telemetria"
+
+msgid "Graphs"
+msgstr "Gráficos"
+
+msgid "Recommendations"
+msgstr "Recomendações"
+
+msgid "Alarms"
+msgstr "Alarmes"
+
+#: dashboards/admin/dashboard.
+msgid "Notification Panel"
+msgstr "Painel de Notificações"
+
+
+msgid "Messages"
+msgstr "Mensagens"
+
+msgid "Message - "
+msgstr "Mensagens - "
+
+
+
+
