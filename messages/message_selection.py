@@ -41,14 +41,14 @@ class MessageManager:
     def send_message_project(self, subject, message, tenant_id, sender='admin'):
         users = self.__keystone_client.list_project_users(tenant_id)
         for user in users:
-            self.send_message(subject, message, user, sender)
+            self.send_message(sender, user, subject, message)
 
     def send_message_host(self, subject, message, host_name, sender='admin'):
         servers = self.__nova_client.get_servers_by_host(host_name, ['admin', 'demo'])
         users_id = self.__nova_client.get_users_by_host(servers)
         users_list = list(set(users_id))
         for user in users_list:
-            self.send_message(subject, message, user, sender)
+            self.send_message(sender, user, subject, message)
         return True
 
     def get_message_by_id(self, id):
@@ -56,6 +56,12 @@ class MessageManager:
 
     def get_message_read_by_id(self, id):
         return Message.objects.filter(recipient=id, read="F")
+
+    def delete_message(self, id):
+        message = Message.objects.filter(id=id)[0]
+        message.delete()
+
+
 
     def change_status(self, id, status):
         m = Message.objects.filter(id=id)[0]
