@@ -16,7 +16,7 @@
 
 from django import template
 from django.utils.translation import ugettext_lazy as _
-
+from messages.message_selection import MessageManager
 from horizon import tables
 
 
@@ -36,7 +36,8 @@ class DeleteMessagesAction(tables.DeleteAction):
     data_type_plural = _("Messages")
 
     def delete(self, request, obj_id):
-        return True
+        message = MessageManager()
+        message.delete_message(obj_id)
 
 class ReadMessageAction(tables.LinkAction):
     name = "read_message"
