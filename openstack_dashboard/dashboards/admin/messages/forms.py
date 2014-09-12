@@ -52,6 +52,7 @@ class MessageProjectForm(forms.SelfHandlingForm):
         
         try:
             messager.send_message_project(data['subject'], data['message'], project_id)
+            print 'passou', project_id
             messages.success(request,
                              _('Message for Project has been sent successfully.'))
         except Exception:

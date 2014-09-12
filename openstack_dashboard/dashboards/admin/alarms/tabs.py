@@ -27,7 +27,6 @@ import datetime
 
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
-
 class AlarmsListTab(tabs.TableTab):
     table_classes = (tables.AlarmsListTable,)
     name = _("Alarms List")
@@ -59,12 +58,17 @@ class AlarmsHistoryTab(tabs.TableTab):
     template_name = ("horizon/common/_detail_table.html")
 
     def get_alarms_history_data(self):
-        limit = tables.LIMIT
+        period = tables.TIME
         alarms_obj = []
         data_handler = DataHandler()
         ts = time.time()
-        timestamp_begin = datetime.datetime.fromtimestamp(ts - (2400 * (limit))).strftime('%Y-%m-%d %H:%M:%S')
-        print 'timestamp', timestamp_begin
+
+        print 'period', period
+        timestamp_begin = datetime.datetime.fromtimestamp(ts - 
+                          (period)).strftime('%Y-%m-%d %H:%M:%S')
+        
+        print 'timestamp day', timestamp_begin
+
         timestamp_end = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
         alarms_dict = data_handler.alarms_history(timestamp_begin, timestamp_end)
 

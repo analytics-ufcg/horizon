@@ -57,6 +57,12 @@ class MessageManager:
     def get_message_read_by_id(self, id):
         return Message.objects.filter(recipient=id, read="F")
 
+    def delete_message(self, id):
+        message = Message.objects.filter(id=id)[0]
+        message.delete()
+
+
+
     def change_status(self, id, status):
         m = Message.objects.filter(id=id)[0]
         m.read = status

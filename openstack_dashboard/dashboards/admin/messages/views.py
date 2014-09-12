@@ -77,7 +77,7 @@ class MessageUserView(forms.ModalFormView):
 
 
 class MessageProjectView(forms.ModalFormView):
-    form_class = messages_forms.MessageUserForm
+    form_class = messages_forms.MessageProjectForm
     template_name = 'admin/messages/message_project.html'
     success_url = reverse_lazy("horizon:admin:messages:index")
     
@@ -117,7 +117,7 @@ class MessageProjectView(forms.ModalFormView):
 
 
 class MessageHostView(forms.ModalFormView):
-    form_class = messages_forms.MessageUserForm
+    form_class = messages_forms.MessageHostForm
     template_name = 'admin/messages/message_host.html'
     success_url = reverse_lazy("horizon:admin:messages:index")
     

@@ -84,9 +84,8 @@ class ProjectsTable(tables.DataTable):
         multi_select = False
 
 
-
 class SendMessageHostAction(tables.LinkAction):
-    name = "send_message_project"
+    name = "send_message_host"
     verbose_name = _("Send Message")
     url = "horizon:admin:messages:message_host"
     classes = ("ajax-modal", "btn-edit")

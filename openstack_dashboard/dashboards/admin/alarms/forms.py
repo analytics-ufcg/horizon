@@ -50,10 +50,11 @@ class AddAlarmForm(forms.SelfHandlingForm):
         data_handler = DataHandler()
         options = [('all', _('all'))]
         vms_information = data_handler.vm_info()
-        vm_info = vms_information[0]
-        for key in vm_info.keys():
-            values = (key, _(vm_info[key]))
-            options.append(values)
+        print vms_information
+        for vm_info in vms_information:
+            for key in vm_info.keys():
+                values = (key, _(key))
+                options.append(values)
         self.fields['instances'].choices = options
         
         

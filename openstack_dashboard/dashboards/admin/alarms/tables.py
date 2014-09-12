@@ -22,7 +22,8 @@ import requests
 
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
-LIMIT = 1
+
+TIME = 3600
 
 '''
 class AlarmsHistoryFilterAction(tables.FilterAction):
@@ -38,15 +39,38 @@ class AlarmsHistoryFilterAction(tables.FilterAction):
 
 class UpdateHistoryAction(tables.Action):
     name = "update_history"
-    verbose_name = _("Show More")
-    verbose_name_plural = _("Show More")
+    verbose_name = _("Show More (Hour)")
+    verbose_name_plural = _("Show More (Hour)")
+    preempt = True
     requires_input = False
-    print 'Limite Table:', LIMIT
 
     def handle(self, data_table, request, obj_ids):
-        global LIMIT
-        LIMIT += 1
-        print 'LIMIT', LIMIT
+        global TIME
+        TIME += 3600
+
+
+class UpdateHistoryActionDay(tables.Action):
+    name = "update_history_day"
+    verbose_name = _("Show More (Day)")
+    verbose_name_plural = _("Show More (Day)")
+    preempt = True
+    requires_input = False
+
+    def handle(self, data_table, request, obj_ids):
+        global TIME
+        TIME += 86400
+
+
+class ResetHistoryAction(tables.Action):
+    name = "reset_button"
+    verbose_name = _("Reset")
+    verbose_name_plural = _("Reset")
+    preempt = True
+    requires_input = False
+
+    def handle(self, data_table, request, obj_ids):
+        global TIME
+        TIME = 3600
 
 
 class AlarmsHistoryTable(tables.DataTable):
@@ -65,7 +89,9 @@ class AlarmsHistoryTable(tables.DataTable):
     class Meta:
         name = "alarms_history"
         verbose_name = _("Alarm History")
-        table_actions = (UpdateHistoryAction,)
+        table_actions = (UpdateHistoryAction,
+                         UpdateHistoryActionDay,
+                         ResetHistoryAction,)
         multi_select = False
 
 
