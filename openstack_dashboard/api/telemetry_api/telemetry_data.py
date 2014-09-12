@@ -85,6 +85,12 @@ class DataHandler:
         shutdown = {} #dict compute_node : True/False for shutdown
         migrations = {} #dict with all migrations 
         compute_nodes_copy = compute_nodes_info_list[:] #copy to aux with the algorithm
+        owner_cpn_instance = {}
+        #for cp in compute_nodes_info_list:
+        #    owner_cpn = cp.keys()[0]
+        #    vms_cp = cp[owner_cpn]['vms'].keys()
+        #    for v in vms_cp:
+        #        owner_cpn_instance[v] = owner_cpn
         #begin of algorithm
         #cpn_data - compute node data
         try:
@@ -92,80 +98,90 @@ class DataHandler:
                 data  = cpn_data.copy() #contains all information about a compute node
                 actual_cpn = cpn_data.keys()[0] #actual compute node (try migration for all instances)
                 #verify is the compute node has critical instances
-                if actual_cpn in critical_cpn:
-                    compute_nodes_copy.remove(cpn_data)
-                    shutdown[actual_cpn] = False
-                #verify if the compute node have vms (instances)
-                elif ( len(data[actual_cpn]['vms'].keys()) > 0 ):
-                    instances_data = data[actual_cpn]['vms'].copy() #copy the list of vms
-                    compute_nodes_copy.remove(cpn_data) #remove all data from compute node in the copy
-                    migration_flag = False #flag to say if the instance can migrate to other compute node
-                    migrations[actual_cpn] = {} #dict with all migrations for compute node
-                    for instance_id in instances_data:
-                        for other_cpn in compute_nodes_copy:
-                            #verifiation - other compute node is critical, should recive migration
-                            if other_cpn in critical_cpn:
-                                continue
-                            #verification - if instance_id is not in critical instances list
-                            elif (instance_id not in critical_instances):
-                                migration_flag = False
-                                other_cpn_name = other_cpn.keys()[0]
-                                #verification - flavor instance fits in other compute node free resources
-                                if (other_cpn[other_cpn_name]['Livre'][0] >= instances_data[instance_id][0] and
-                                    other_cpn[other_cpn_name]['Livre'][1] >= instances_data[instance_id][1] and
-                                    other_cpn[other_cpn_name]['Livre'][2] >= instances_data[instance_id][2]):
-                                    #update values of free resources
-                                    new_values = [other_cpn[other_cpn_name]['Livre'][0] - instances_data[instance_id][0], 
-                                                  other_cpn[other_cpn_name]['Livre'][1] - instances_data[instance_id][1], 
-                                                  other_cpn[other_cpn_name]['Livre'][2] - instances_data[instance_id][2]]
-                                    other_cpn[other_cpn_name]['Livre'] = new_values
-                                    #sending instance to the other host with all information
-                                    instances_other_cpn = other_cpn[other_cpn_name]['vms']
-                                    instances_other_cpn[instance_id] = instances_data[instance_id]
-                                    other_cpn[other_cpn_name]['vms'] = instances_other_cpn
-                                    other_cpn[other_cpn_name]['nomes'][instance_id] = data[actual_cpn]['nomes'][instance_id]
-                                    if list_not_ignore == []:
-                                        migration_flag = True
-                                        migrations[actual_cpn][instance_id] = [ other_cpn_name , cpn_data[actual_cpn]['nomes'].get(instance_id) ,instances_id_project[instance_id]] 
-                                    elif actual_cpn in list_not_ignore:
-                                        migration_flag = True
-                                        migrations[actual_cpn][instance_id] = [ other_cpn_name , cpn_data[actual_cpn]['nomes'].get(instance_id) ,instances_id_project[instance_id]]
+                if actual_cpn not in critical_cpn:
+                    if( len( data[actual_cpn]['vms'].keys()) > 0 ):
+                        instances_data = data[actual_cpn]['vms'].copy() #copy the list of vms
+                        compute_nodes_copy.remove(cpn_data) #remove all data from compute node in the copy
+                        migration_flag = False #flag to say if the instace can migrate to other compute node
+                        migrations[actual_cpn] = {} #dict with all migrations for compute node
+                        for instance_id in instances_data:
+                            for other_cpn in compute_nodes_copy:
+                                #verification - instance is not critical
+                                if (other_cpn not in critical_cpn and instance_id not in critical_instances):
+                                    migration_flag = False
+                                    other_cpn_name = other_cpn.keys()[0]
+                                    if list_not_ignore == [] or actual_cpn in list_not_ignore:
+                                        if(other_cpn[other_cpn_name]['Livre'][0] >= instances_data[instance_id][0] and
+                                           other_cpn[other_cpn_name]['Livre'][1] >= instances_data[instance_id][1] and
+                                           other_cpn[other_cpn_name]['Livre'][2] >= instances_data[instance_id][2]):
+                                           from_cpn = None
+                                           migrate_to_cpn = None
+                                           if instance_id in owner_cpn_instance:
+                                               from_cpn = owner_cpn_instance[instance_id].keys()[0]
+                                               migrate_to_cpn = owner_cpn_instance[instance_id][from_cpn]
+                                           else:
+                                               from_cpn = actual_cpn
+                                               migrate_to_cpn = other_cpn_name
+                                           if actual_cpn == from_cpn or actual_cpn == migrate_to_cpn:
+                                               #update values of free resources
+                                               new_values = [other_cpn[other_cpn_name]['Livre'][0] - instances_data[instance_id][0],
+                                                         other_cpn[other_cpn_name]['Livre'][1] - instances_data[instance_id][1],
+                                                         other_cpn[other_cpn_name]['Livre'][2] - instances_data[instance_id][2]]
+                                               other_cpn[other_cpn_name]['Livre'] = new_values
+                                               #sending instance to the other host with all information
+                                               instances_other_cpn = other_cpn[other_cpn_name]['vms']
+                                               instances_other_cpn[instance_id] = instances_data[instance_id]
+                                               other_cpn[other_cpn_name]['vms'] = instances_other_cpn
+                                               other_cpn[other_cpn_name]['nomes'][instance_id] = data[actual_cpn]['nomes'][instance_id]
+                                               migration_flag = True
+                                               migrations[actual_cpn][instance_id] = [ other_cpn_name , cpn_data[actual_cpn]['nomes'].get(instance_id) ,instances_id_project[instance_id]]
+                                               #update future owner of instance
+                                               owner_cpn_instance[instance_id] = {actual_cpn : other_cpn_name}
+                                           else:
+                                               continue
+                                        else:
+                                            break 
                                     else:
                                         migration_flag = False
                                 else:
-                                    break
-                            else:
-                                continue
-                        # verification in any instance migration is False, the actual_cpn couldn't be shutdown
-                        # and say the instance will not go to any other compute node
-                        if migration_flag == False:
-                            migrations[actual_cpn][instance_id] = None
-                            shutdown[actual_cpn] = False
-                    #update to say the actual_cpn can be shutdown
-                    if not actual_cpn in shutdown:
-                        shutdown[actual_cpn] = True
-                #in case compute node doesn't have vms, we say that the compute node can be shutdown
+                                    continue
+                            #update owner
+                            if migration_flag == False:
+                                if instance_id in owner_cpn_instance:
+                                    if( owner_cpn_instance[instance_id].has_key(actual_cpn) or actual_cpn in owner_cpn_instance[instance_id].values()):
+                                        continue
+                                else:
+                                    migrations[actual_cpn][instance_id] = None
+                                    shutdown[actual_cpn] = False
+                        if not actual_cpn in shutdown:
+                            shutdown[actual_cpn] = True
+                    else:
+                         compute_nodes_copy.remove(cpn_data)
+                         shutdown[actual_cpn] = True
+                         continue  
                 else:
                     compute_nodes_copy.remove(cpn_data)
-                    shutdown[actual_cpn] = True
-                    continue
+                    shutdown[actual_cpn] = False
         except Exception as excp2:
                 return {"error in algorithm suggestion":excp2.message}
 
+        for host_key in migrations.keys():
+            if None in migrations[host_key].values():
+                migrations[host_key] = {}
         output = {} #json output with all data
         output['Hosts'] = shutdown
         output['Migracoes'] = migrations
-        recomendation = self.remove_duplicated_migrations(output)
-        return recomendation
-        #return json.dumps(output)
+        #recomendation = self.remove_duplicated_migrations(output)
+        return output
 
-    def remove_duplicated_migrations(self, output):
-        result = output
-        for compute_node in result['Migracoes'].keys():
-            for server  in result['Migracoes'][compute_node].keys():
-                if not self.__nova.verify_host_has_server(compute_node,server):
-                    result['Migracoes'][compute_node].pop(server)
-        return result
+    #Not using anymore
+    #def remove_duplicated_migrations(self, output):
+    #    result = output
+    #    for compute_node in result['Migracoes'].keys():
+    #        for server  in result['Migracoes'][compute_node].keys():
+    #            if not self.__nova.verify_host_has_server(compute_node,server):
+    #                result['Migracoes'][compute_node].pop(server)
+    #    return result
 
     def cpu_util_from(self, timestamp_begin=None, timestamp_end=None, resource_id=None):
         return json.dumps(self.__ceilometer.get_cpu_util(timestamp_begin, timestamp_end, resource_id))
