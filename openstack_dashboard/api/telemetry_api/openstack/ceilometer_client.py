@@ -64,7 +64,7 @@ class CeilometerClient:
         
             return True
         except:
-            return False
+            return None
 
     def get_alarms_history(self, timestamp_begin=None, timestamp_end=None):
         query = []
