@@ -62,9 +62,9 @@ class CeilometerClient:
                 else:
                     alarm = self.ceilometer.alarms.create(name=name, type='threshold', meter_name=meter, threshold=threshold, matching_metadata={'resource_id': instance}, comparison_operator=operator, statistic='avg', period=period, evaluation_periods=evaluation_period, repeat_actions=True, alarm_actions=['log:/'])
         
-            return alarm
+            return True
         except:
-            return None
+            return False
 
     def get_alarms_history(self, timestamp_begin=None, timestamp_end=None):
         query = []

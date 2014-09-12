@@ -18,6 +18,10 @@ from openstack_dashboard import api
 
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
+from horizon import messages
+
+from messages.message_selection import MessageManager
+
 import requests
 
 class AddAlarmForm(forms.SelfHandlingForm):
@@ -68,7 +72,6 @@ class AddAlarmForm(forms.SelfHandlingForm):
             if(project_name in project.keys()):
                 for key in project[project_name].keys():
                     value = (key, _(project[project_name][key]))
-                    print key
                     options.append(value)
             return options
                     
@@ -78,9 +81,11 @@ class AddAlarmForm(forms.SelfHandlingForm):
         data_handler = DataHandler()
         if(data['instances']!='all'):
             if(data_handler.add_alarm(data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod'], data['send_mail'], data['instances']) is not None):
+                messages.success(request, _('Alarm has been created successfully.'))
                 return True
         else:
             if(data_handler.add_alarm(data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod'], data['send_mail']) is not None):
+                messages.success(request, _('Alarm has been created successfully.'))
                 return True
 
         return False
