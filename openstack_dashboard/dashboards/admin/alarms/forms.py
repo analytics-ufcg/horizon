@@ -41,6 +41,8 @@ class AddAlarmForm(forms.SelfHandlingForm):
     period = forms.IntegerField(label=_("Time"),
                                 help_text=_("Time"))
 
+    projects = forms.ChoiceField(label=_('Project'))
+
     instances = forms.ChoiceField(label=_('Instance'))    
 
     send_mail = forms.BooleanField(label=_("Send the owner an email when the alarm is activated"), required=False)
@@ -50,14 +52,27 @@ class AddAlarmForm(forms.SelfHandlingForm):
         data_handler = DataHandler()
         options = [('all', _('all'))]
         vms_information = data_handler.vm_info()
-        print vms_information
+
         for vm_info in vms_information:
             for key in vm_info.keys():
                 values = (key, _(key))
                 options.append(values)
-        self.fields['instances'].choices = options
+        self.fields['projects'].choices = options
+        self.fields['instances'].choices =  self.get_choice('admin')
         
-        
+    def get_choice(self, project_name):
+        data_handler = DataHandler()
+        data = data_handler.vm_info()
+        options = [('all', _('all'))]
+        for project in data:
+            if(project_name in project.keys()):
+                for key in project[project_name].keys():
+                    value = (key, _(project[project_name][key]))
+                    print key
+                    options.append(value)
+            return options
+                    
+            
 
     def handle(self, request, data):
         data_handler = DataHandler()

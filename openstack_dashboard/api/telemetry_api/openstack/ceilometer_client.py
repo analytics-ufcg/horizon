@@ -53,14 +53,14 @@ class CeilometerClient:
             if(instance == ""):
                
                 if (send_mail):
-                    alarm = self.ceilometer.alarms.create(name=name, meter_name=meter, threshold=threshold, comparison_operator=operator, statistic='avg', period=period, evaluation_periods=evaluation_period, repeat_actions=True, alarm_actions=[self.__alarm_url, 'log:/'])
+                    alarm = self.ceilometer.alarms.create(name=name, type='threshold', meter_name=meter, threshold=threshold, comparison_operator=operator, statistic='avg', period=period, evaluation_periods=evaluation_period, repeat_actions=True, alarm_actions=[self.__alarm_url, 'log:/'])
                 else:
-                    alarm = self.ceilometer.alarms.create(name=name, meter_name=meter, threshold=threshold, comparison_operator=operator, statistic='avg', period=period, evaluation_periods=evaluation_period, repeat_actions=True, alarm_actions=['log:/'])
+                    alarm = self.ceilometer.alarms.create(name=name, type='threshold', meter_name=meter, threshold=threshold, comparison_operator=operator, statistic='avg', period=period, evaluation_periods=evaluation_period, repeat_actions=True, alarm_actions=['log:/'])
             else:
                 if (send_mail):
-                    alarm = self.ceilometer.alarms.create(name=name, meter_name=meter, threshold=threshold, query=[{'field': 'resource_id', 'value': instance, 'op': 'eq'}],comparison_operator=operator, statistic='avg', period=period, evaluation_periods=evaluation_period, repeat_actions=True, alarm_actions=[self.__alarm_url, 'log:/'])
+                    alarm = self.ceilometer.alarms.create(name=name, type='threshold', meter_name=meter, threshold=threshold, matching_metadata={'resource_id': instance}, comparison_operator=operator, statistic='avg', period=period, evaluation_periods=evaluation_period, repeat_actions=True, alarm_actions=[self.__alarm_url, 'log:/'])
                 else:
-                    alarm = self.ceilometer.alarms.create(name=name, meter_name=meter, threshold=threshold, query=[{'field': 'resource_id', 'value': instance, 'op': 'eq'}],comparison_operator=operator, statistic='avg', period=period, evaluation_periods=evaluation_period, repeat_actions=True, alarm_actions=['log:/'])
+                    alarm = self.ceilometer.alarms.create(name=name, type='threshold', meter_name=meter, threshold=threshold, matching_metadata={'resource_id': instance}, comparison_operator=operator, statistic='avg', period=period, evaluation_periods=evaluation_period, repeat_actions=True, alarm_actions=['log:/'])
         
             return alarm
         except:
