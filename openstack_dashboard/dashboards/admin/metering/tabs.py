@@ -51,7 +51,7 @@ class GlobalStatsTab(tabs.Tab):
             'swift_meters': meters.list_swift(),
             'kwapi_meters': meters.list_kwapi(),
         }
-
+        print 'executando get_context_data do GlobalStatsTab'
         return context
 
 

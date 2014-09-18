@@ -29,7 +29,7 @@ def projects():
 
 @app.route('/projects/instances')
 def project_instances():
-    resp = make_response(data_handler.projects_with_instances_and_cpu_util())
+    resp = make_response(json.dumps(data_handler.projects_with_instances_and_cpu_util()))
     resp.headers['Access-Control-Allow-Origin'] = "*" 
 
     return resp

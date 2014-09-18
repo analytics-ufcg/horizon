@@ -14,11 +14,14 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from horizon import tabs
-
+from horizon  import tabs
+from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 import json
 import requests
+import ast, ConfigParser
 
+data_handler = DataHandler()
+HOSTS = ast.literal_eval(data_handler.get_config().get('Openstack', 'computenodes'))
 
 class HostsTab(tabs.Tab):
     name = _("Hosts")
@@ -26,13 +29,12 @@ class HostsTab(tabs.Tab):
     template_name = ("admin/graphs/hosts.html")
 
     def get_context_data(self, request, *args, **kwargs):
-        r = requests.get('http://150.165.15.104:10090/hosts')
-        hosts_list = []
-
-        if r.status_code == 200:
-            hosts_list = r.json()['children']
-
-        context = {'hosts_list': hosts_list}
+        context_temp = {'name':'hosts','children':[]}
+        for h in HOSTS:
+            host = {'ip':h}
+            context_temp['children'].append(host)
+        host_list = context_temp['children']
+        context = {'hosts_list': host_list}
         return context
 
 
@@ -42,12 +44,8 @@ class AggregatesTab(tabs.Tab):
     template_name = ("admin/graphs/aggregates.html")
 
     def get_context_data(self, request):
-        r = requests.get('http://150.165.15.104:10090/hosts_aggregates')
         agg_list = []
-
-        if r.status_code == 200:
-            agg_list = r.json()
-
+        agg_list = data_handler.host_aggregates('admin')
         context = {'agg_list': agg_list}
         return context
 
@@ -58,14 +56,11 @@ class ProjectsTab(tabs.Tab):
     template_name = ("admin/graphs/projects.html")
 
     def get_context_data(self, request):
-
-        r = requests.get('http://150.165.15.104:10090/projects/instances')
-        if r.status_code == 200:
-            projs = r.json()['children']
-            projects = {}
-            for p in projs:
-                if len(p['children']) > 0:
-                    projects[p['name']] = p['children']
+        projs = data_handler.projects_with_instances_and_cpu_util()['children']
+        projects = {}
+        for p in projs:
+            if len(p['children']) > 0:
+                projects[p['name']] = p['children']
 
         context = {'projects': projects,
                    'projects_json': json.dumps(projects)}
@@ -75,5 +70,6 @@ class ProjectsTab(tabs.Tab):
 
 class GraphsTabs(tabs.TabGroup):
     slug = "graphs_overview"
-    tabs = (HostsTab, ProjectsTab, AggregatesTab, )
+    tabs = (AggregatesTab, HostsTab, ProjectsTab, )
+    #tabs = (HostsTab,AggregatesTab,)
     sticky = True

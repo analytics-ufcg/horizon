@@ -34,23 +34,25 @@ class MigrateException(Exception):
         Exception.__init__(self)
         self.error = error
         self.message = message
-
 class DataHandler:
 
     def __init__(self):
-        config = ConfigParser.ConfigParser()
-        config.read('openstack_dashboard/api/telemetry_api/environment.conf')
-        self.__ceilometer = CeilometerClient(config)
-        self.__keystone = KeystoneClient(config)
-        self.__nova = NovaClient(config)
-        server = config.get('Misc', 'dbserver')
-        user = config.get('Misc', 'dbuser')
-        passwd = config.get('Misc', 'dbpass')
-        database = config.get('Misc', 'hostsdbname')
-        table = config.get('Misc', 'hostsdbtable')
+        self.__config = ConfigParser.ConfigParser()
+        self.__config.read('openstack_dashboard/api/telemetry_api/environment.conf')
+        self.__ceilometer = CeilometerClient(self.__config)
+        self.__keystone = KeystoneClient(self.__config)
+        self.__nova = NovaClient(self.__config)
+        server = self.__config.get('Misc', 'dbserver')
+        user = self.__config.get('Misc', 'dbuser')
+        passwd = self.__config.get('Misc', 'dbpass')
+        database = self.__config.get('Misc', 'hostsdbname')
+        table = self.__config.get('Misc', 'hostsdbtable')
         self.__hosts_db = HostDataHandler(server, user, passwd, database, table)
         self.__benchmark_db = BenchmarkDataHandler(server, user, passwd)
         self.__reduction = Reduction()
+
+    def get_config(self):
+        return self.__config
 
     def projects(self):
         return json.dumps(self.__keystone.projects)
@@ -206,7 +208,7 @@ class DataHandler:
 
             ret['children'].append(proj)
 
-        return json.dumps(ret)
+        return ret
 
     def alarms_history(self, timestamp_begin=None, timestamp_end=None):
         return self.__ceilometer.get_alarms_history(timestamp_begin, timestamp_end)

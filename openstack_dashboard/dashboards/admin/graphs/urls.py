@@ -19,4 +19,8 @@ from openstack_dashboard.dashboards.admin.graphs import views
 
 urlpatterns = patterns('openstack_dashboard.dashboards.admin.graphs.views',
     url(r'^$', views.IndexView.as_view(), name='index'),
+    url(r'^hosts$', views.HostView.as_view(), name='hosts'),
+    url(r'^aggregates$',views.AggregatesView.as_view(),name='aggregates'),
+    url(r'^vcpus_for_aggregate$',views.AggregatesVcpuView.as_view(),name='vcpus_for_aggregate'),
+    url(r'^projects$',views.ProjectsView.as_view(),name='projects'),
 )

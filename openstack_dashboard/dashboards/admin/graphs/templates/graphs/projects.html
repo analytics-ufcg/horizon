@@ -94,7 +94,7 @@
   }
 
   function verifica_parametros(){
-    var url_requisicao_vm = "http://150.165.15.104:10090/cpu_util2";
+    var url_requisicao_vm = "/admin/graphs/projects";
     var projeto = $("#project").find("option:selected").val();
     var instancia = $("#instances").find("option:selected").val();
     var tempo = $("#date_options_inst").find("option:selected").val();
@@ -135,6 +135,7 @@
         }
     var resource_vm = $("input[name='defaultVM']:checked").val();
     url_requisicao_vm += (complemento + "&resource_id=" + instancia);
+    $('#chart').empty();
     $('<div id="load_rec" style="display:none"> <br><br><center><img src="../../../../../static/dashboard/img/spinner.gif"></img> <br> <h4>The request is being made... This may take a few minutes. Please wait.</h4></center></div>').appendTo("#chart");
     $("#load_rec").show();
 		$.ajax({
