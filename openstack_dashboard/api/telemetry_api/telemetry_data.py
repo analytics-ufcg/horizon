@@ -538,5 +538,29 @@ class DataHandler:
 
         return ret
 
+    def instances_by_project(self):
+        project = []
+
+        for project_data in json.loads(self.projects()):
+            project.append(project_data["name"])
+
+        informations =  self.__nova.vm_info(project)
+       
+        vms_data = {}
+
+        for node in informations:
+            for node_name in node.keys():
+                project_name = (node[node_name])['Info_project']
+                vms_name = (node[node_name])['nomes']
+                for key in project_name.keys():
+                    for instance_id in project_name[key]:
+                        if not (key in vms_data.keys()):
+                            vms_data[key] = {}
+                            vms_data[key][instance_id] = vms_name[instance_id]
+                        else:
+                            vms_data[key][instance_id] = vms_name[instance_id]
+
+        return vms_data
+ 
     def vcpus_for_aggregate(self, project):
         return json.dumps(self.__nova.vcpus_for_aggregate(project))

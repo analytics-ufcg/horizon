@@ -18,6 +18,8 @@ from openstack_dashboard import api
 
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
+from operator import itemgetter
+
 from horizon import messages
 
 from messages.message_selection import MessageManager
@@ -45,47 +47,65 @@ class AddAlarmForm(forms.SelfHandlingForm):
     period = forms.IntegerField(label=_("Time"),
                                 help_text=_("Time"))
 
-    projects = forms.ChoiceField(label=_('Project'))
+    projects = forms.ChoiceField(label=_('Project'),
+                                 widget=forms.Select(attrs={
+                                       'class': 'switchable',
+                                       'data-slug': 'project'}))
 
-    instances = forms.ChoiceField(label=_('Instance'))    
+    def __init__(self, request, *args, **kwargs):
+        super(AddAlarmForm, self).__init__(request, *args, **kwargs)
 
-    send_mail = forms.BooleanField(label=_("Send the owner an email when the alarm is activated"), required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(AddAlarmForm, self).__init__(*args, **kwargs)
         data_handler = DataHandler()
-        options = [('all', _('all'))]
-        vms_information = data_handler.vm_info()
+        projects_choices = []
+        vms_info = data_handler.instances_by_project()
 
-        for vm_info in vms_information:
-            for key in vm_info.keys():
-                values = (key, _(key))
-                options.append(values)
-        self.fields['projects'].choices = options
-        self.fields['instances'].choices =  self.get_choice('admin')
-        
-    def get_choice(self, project_name):
-        data_handler = DataHandler()
-        data = data_handler.vm_info()
-        options = [('all', _('all'))]
-        for project in data:
-            if(project_name in project.keys()):
-                for key in project[project_name].keys():
-                    value = (key, _(project[project_name][key]))
-                    options.append(value)
-            return options
-                    
-            
+        for project in vms_info:
+            values = (project, _(project))
+            projects_choices.append(values)
+
+            data = 'data-project-' + project
+            instances_choices = []
+            sorted_vms_info_project = sorted(vms_info[project].items(), key=itemgetter(1))
+
+            for instance in sorted_vms_info_project:
+                values = (instance[0], _(vms_info[project][instance[0]]))
+                instances_choices.append(values)
+
+            self.fields[project] = forms.ChoiceField(choices=instances_choices,
+                                                     widget=forms.SelectWidget(
+                                                         attrs={'class': 'switched',
+                                                         'data-switch-on': 'project',
+                                                         data: _('Instances')}))
+
+        choices = ([('all_projects', _("All Projects"))] + projects_choices)
+        self.fields['projects'].choices = choices
+
+        self.fields['send_mail'] = forms.BooleanField(label=
+                                       _("Send the owner an email when the alarm is activated"),
+                                       required=False)
 
     def handle(self, request, data):
         data_handler = DataHandler()
-        if(data['instances']!='all'):
-            if(data_handler.add_alarm(data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod'], data['send_mail'], data['instances']) is not None):
+        project = data['projects']
+
+        if(project != 'all_projects'):
+            if(data_handler.add_alarm(data['name'], data['resource'],
+                                      data['threshold'], data['operator'],
+                                      data['period'], data['evalperiod'],
+                                      data['send_mail'], data[project]) is not None):
+
                 messages.success(request, _('Alarm has been created successfully.'))
+
                 return True
         else:
-            if(data_handler.add_alarm(data['name'], data['resource'], data['threshold'], data['operator'], data['period'], data['evalperiod'], data['send_mail']) is not None):
+
+            if(data_handler.add_alarm(data['name'], data['resource'],
+                                      data['threshold'], data['operator'],
+                                      data['period'], data['evalperiod'],
+                                      data['send_mail']) is not None):
+
                 messages.success(request, _('Alarm has been created successfully.'))
+
                 return True
 
         return False

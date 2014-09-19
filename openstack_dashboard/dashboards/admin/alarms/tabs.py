@@ -63,12 +63,9 @@ class AlarmsHistoryTab(tabs.TableTab):
         data_handler = DataHandler()
         ts = time.time()
 
-        print 'period', period
         timestamp_begin = datetime.datetime.fromtimestamp(ts - 
                           (period)).strftime('%Y-%m-%d %H:%M:%S')
         
-        print 'timestamp day', timestamp_begin
-
         timestamp_end = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
         alarms_dict = data_handler.alarms_history(timestamp_begin, timestamp_end)
 
@@ -79,7 +76,8 @@ class AlarmsHistoryTab(tabs.TableTab):
                 timestamp = data_history['timestamp']
                 alarm_type = data_history['type']
                 detail_str = json.loads(data_history['detail'])
-                alarm = alarms_hist(timestamp, alarm_name, alarm_type, 'Current State: ' + detail_str['state'])
+                alarm = alarms_hist(timestamp, alarm_name,
+                                    alarm_type, 'Current State: ' + detail_str['state'])
                 alarms_obj.append(alarm)
 
         return alarms_obj
