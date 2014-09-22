@@ -12,6 +12,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
+
 from horizon import forms
 
 from openstack_dashboard import api
@@ -83,6 +84,8 @@ class AddAlarmForm(forms.SelfHandlingForm):
         self.fields['send_mail'] = forms.BooleanField(label=
                                        _("Send the owner an email when the alarm is activated"),
                                        required=False)
+        self.fields['email_admin'] = forms.BooleanField(label=_("Send me, administrator, a copy too"), required=False)
+
 
     def handle(self, request, data):
         data_handler = DataHandler()
@@ -92,7 +95,7 @@ class AddAlarmForm(forms.SelfHandlingForm):
             if(data_handler.add_alarm(data['name'], data['resource'],
                                       data['threshold'], data['operator'],
                                       data['period'], data['evalperiod'],
-                                      data['send_mail'], data[project]) is not None):
+                                      data['send_mail'], data['email_admin'], data[project]) is not None):
 
                 messages.success(request, _('Alarm has been created successfully.'))
 
@@ -102,11 +105,10 @@ class AddAlarmForm(forms.SelfHandlingForm):
             if(data_handler.add_alarm(data['name'], data['resource'],
                                       data['threshold'], data['operator'],
                                       data['period'], data['evalperiod'],
-                                      data['send_mail']) is not None):
+                                      data['send_mail'], data['email_admin']) is not None):
 
                 messages.success(request, _('Alarm has been created successfully.'))
 
                 return True
 
         return False
-

@@ -213,22 +213,53 @@ class DataHandler:
     def alarms_history(self, timestamp_begin=None, timestamp_end=None):
         return self.__ceilometer.get_alarms_history(timestamp_begin, timestamp_end)
 
-    def add_alarm(self, name, resource, threshold, operator, period, ev_period, send_mail, instance=""):
-        return self.__ceilometer.set_alarm(name, resource, threshold, operator, period, ev_period, send_mail, instance)
+    def add_alarm(self, name, resource, threshold, operator, period, ev_period, send_mail, email_admin, instance=""):
+        return self.__ceilometer.set_alarm(name, resource, threshold, operator, period, ev_period, send_mail, email_admin, instance)
 
     def alarm_email(self, data_requested):
         alarm_id = ast.literal_eval(data_requested)['alarm_id']
         userId = self.__ceilometer.get_alarm_userid(alarm_id)
         projectId = self.__ceilometer.get_alarm_projectid(alarm_id)
         userEmail = self.__keystone.get_user_email(userId, projectId)
- 
-        send_email('cloudtelemetry.service1@gmail.com', 
-                        [userEmail],
-                        [],
-                        'Alert Telemetry Cloud',
-                        'Email disparado pelo alarme!!!', 
-                        'cloudtelemetry.service1@gmail.com',
-                        '4n4lyt1cs')
+        copy_admin = self.__ceilometer.get_alarm_email_status(alarm_id)
+        adminEmail = self.__keystone.get_user_email(self.__keystone.get_user(projectId,'admin'),projectId)
+
+
+
+        if 'True' in copy_admin[0] and 'True' in copy_admin[1] :
+            send_email('cloudtelemetry.service1@gmail.com',
+                   [adminEmail],
+                   [],
+                   'Alert Telemetry Cloud',
+                   'Email disparado pelo alarme!!!',
+                   'cloudtelemetry.service1@gmail.com',
+                   '4n4lyt1cs')
+
+            send_email('cloudtelemetry.service1@gmail.com',
+                   [userEmail],
+                   [],
+                   'Alert Telemetry Cloud',
+                   'Email disparado pelo alarme!!!',
+                   'cloudtelemetry.service1@gmail.com',
+                   '4n4lyt1cs')
+
+        elif 'True' in copy_admin[0] and 'False' in copy_admin[1]:
+            send_email('cloudtelemetry.service1@gmail.com',
+                   [userEmail],
+                   [],
+                   'Alert Telemetry Cloud',
+                   'Email disparado pelo alarme!!!',
+                   'cloudtelemetry.service1@gmail.com',
+                   '4n4lyt1cs')
+
+        elif 'False' in copy_admin[0] and 'True' in copy_admin[1]:
+            send_email('cloudtelemetry.service1@gmail.com',
+                   [adminEmail],
+                   [],
+                   'Alert Telemetry Cloud',
+                   'Email disparado pelo alarme!!!',
+                   'cloudtelemetry.service1@gmail.com',
+                   '4n4lyt1cs')
 
     def alarm_description(self):
         return self.__ceilometer.get_alarm_parameters()
