@@ -3,6 +3,7 @@ import json, requests, ast
 from keystone_client import KeystoneClient
 from novaclient.v3 import client
 from novaclient.v3.servers import ServerManager
+import novaclient
 
 class NovaClient:
 
@@ -91,6 +92,7 @@ class NovaClient:
         headers = {'Content-Type':'application/json','Accept':'application/json'}
         payload = {"auth": {"tenantName": self.__os_tenant_admin, "passwordCredentials": {"username": self.__os_username, "password": self.__os_password}}}
 
+
         r = requests.post(auth_tokens_url, data=json.dumps(payload), headers=headers)
         if r.status_code != 200:
             msg = 'Token request error. HTTP error ' + str(r.status_code)
@@ -110,8 +112,10 @@ class NovaClient:
 
         admin_url = compute_service['endpoints'][0]['adminURL']
         headers = {'X-Auth-Project-Id':'admin', 'Accept':'application/json', 'X-Auth-Token':token}
-        os_hosts_url = admin_url + url
+    
 
+
+        os_hosts_url = admin_url + url
         r = requests.get(os_hosts_url, headers=headers)
         if r.status_code != 200:
             msg = 'Host info request error. HTTP error ' + str(r.status_code)
@@ -127,6 +131,9 @@ class NovaClient:
         url = '/images/detail'
         return self.get_nova_urls(url)
 
+    def list_all_instances(self):
+        url = '/servers/detail?all_tenants=True'
+        return self.get_nova_urls(url)['servers']
         
     def vm_migration(self,project_name,host_name,instance_id):
         from novaclient.v1_1 import client # nova client v3 raises exception for this
