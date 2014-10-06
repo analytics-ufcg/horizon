@@ -1,5 +1,5 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
+# Copyright 2014, Analytics-UFCG
+#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -20,4 +20,5 @@ from openstack_dashboard.dashboards.admin.alarms import views
 urlpatterns = patterns('',
     url(r'^$', views.IndexView.as_view(), name='index'),
     url(r'^create$', views.AddAlarmView.as_view(), name='create'),
+#    url(r'^mail$', views.SendMailView.as_view(), name='mail'),
 )

@@ -1,4 +1,4 @@
-# Copyright 2014, Analytics-UFCG
+# Copyright 2014, Analytics/UFCG
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -26,6 +26,7 @@ import time
 import datetime
 
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
+
 
 class AlarmsListTab(tabs.TableTab):
     table_classes = (tables.AlarmsListTable,)
