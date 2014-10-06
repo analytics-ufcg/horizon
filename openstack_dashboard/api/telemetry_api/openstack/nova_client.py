@@ -70,22 +70,20 @@ class NovaClient:
                 compute_nodes.append(host)
         return compute_nodes
 
-    def get_servers_by_host(self, host_name, project_list):
+    def get_servers_by_host(self, host_name):
+        servers = self.list_all_instances()
         host_servers = []
-        from novaclient.v1_1 import client # nova client v3 raises exception for this
-        for project in project_list:
-            nova = client.Client(self.__os_username, self.__os_password, project, self.__os_auth_url)
-            servers = nova.servers.list()
+        for server in servers:
             for server in servers:
-                if server._info['OS-EXT-SRV-ATTR:host'] == host_name:
+                if server['OS-EXT-SRV-ATTR:host'] == host_name:
                     host_servers.append(server)
         return host_servers
 
     def get_users_by_host(self, host_servers):
         users_id = []
         for server in host_servers:
-            users_id.append(server._info['user_id'])
-        return users_id
+            users_id.append(server['user_id'])
+        return list(set(users_id))
 
     def get_nova_urls(self, url):
         auth_tokens_url = self.__os_auth_url + '/tokens'

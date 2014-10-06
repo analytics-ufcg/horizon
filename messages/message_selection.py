@@ -44,7 +44,7 @@ class MessageManager:
             self.send_message(subject, message, user)
 
     def send_message_host(self, subject, message, host_name, sender='admin'):
-        servers = self.__nova_client.get_servers_by_host(host_name, ['admin', 'demo'])
+        servers = self.__nova_client.get_servers_by_host(host_name)
         users_id = self.__nova_client.get_users_by_host(servers)
         users_list = list(set(users_id))
         for user in users_list:
