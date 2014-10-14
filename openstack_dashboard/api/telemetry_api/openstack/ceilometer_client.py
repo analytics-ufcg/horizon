@@ -78,9 +78,15 @@ class CeilometerClient:
 
         ret = []
         for alarm in alarms:
-            ret.append({ 'alarm_name':alarm.name, 'alarm_id':alarm.alarm_id, 'history':[event.__dict__['_info'] for event in self.ceilometer.alarms.get_history(alarm.alarm_id, query)] })
+            resource_id = self.get_alarm_resourceId(alarm)
+
+            ret.append({ 'alarm_name':alarm.name, 'alarm_id':alarm.alarm_id, 'history':[event.__dict__['_info'] for event in self.ceilometer.alarms.get_history(alarm.alarm_id, query)], 'resource_id': resource_id })
 
         return ret
+
+    def get_alarm_resourceId(self, alarm):
+        for query in alarm.threshold_rule['query']:
+            return query['value']
 
     def get_alarm_userid(self, alarm_id):
         alarm = str(self.ceilometer.alarms.get(alarm_id))[7:-1]

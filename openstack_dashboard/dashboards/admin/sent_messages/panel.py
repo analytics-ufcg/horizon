@@ -1,4 +1,4 @@
-# Copyright 2014, UFCG/Analytics
+# Copyright 2014 UFCG/Analytics.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -19,8 +19,8 @@ import horizon
 from openstack_dashboard.dashboards.admin import dashboard
 
 
-class MessageAdminPanel(horizon.Panel):
-    name = _("Send Messages")
-    slug = 'messages'
+class SentMessages(horizon.Panel):
+    name = _("Messages")
+    slug = 'sent_messages'
 
-dashboard.Admin.register(MessageAdminPanel)
+dashboard.Admin.register(SentMessages)

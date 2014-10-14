@@ -12,15 +12,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.utils.translation import ugettext_lazy as _
+from django.conf.urls import patterns  # noqa
+from django.conf.urls import url  # noqa
 
-import horizon
+from openstack_dashboard.dashboards.admin.sent_messages import views
 
-from openstack_dashboard.dashboards.admin import dashboard
+urlpatterns = patterns('openstack_dashboard.dashboards.admin.sent_messages.views',
+    url(r'^$', views.IndexView.as_view(), name='index'),
+)
 
-
-class MessageAdminPanel(horizon.Panel):
-    name = _("Send Messages")
-    slug = 'messages'
-
-dashboard.Admin.register(MessageAdminPanel)

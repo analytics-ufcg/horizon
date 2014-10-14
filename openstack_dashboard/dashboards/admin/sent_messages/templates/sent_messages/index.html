@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% trans "Send Messages" %}{% endblock %}
+{% block title %}{% trans "Messages" %}{% endblock %}
 
 {% block page_header %}
-  {% include "horizon/common/_page_header.html" with title=_("Send Messages")%}
+  {% include "horizon/common/_page_header.html" with title=_("Sent Messages") %}
 {% endblock page_header %}
 
 {% block main %}
 <div class="row-fluid">
   <div class="span12">
-    {{ tab_group.render }}
+    {{ table.render }}
   </div>
 </div>
 {% endblock %}

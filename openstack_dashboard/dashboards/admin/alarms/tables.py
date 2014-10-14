@@ -23,17 +23,17 @@ from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
 TIME = 3600
 
-'''
+
 class AlarmsHistoryFilterAction(tables.FilterAction):
     def filter(self, table, alarms_history, filter_string):
         q = filter_string.lower()
 
         def comp(alarms_history):
-            if q in alarms_history.name.lower():
+            if q in alarms_history.alarm_name.lower():
                 return True
             return False
         return filter(comp, alarms_history)
-'''
+
 
 class UpdateHistoryAction(tables.Action):
     name = "update_history"
@@ -76,8 +76,8 @@ class AlarmsHistoryTable(tables.DataTable):
                               verbose_name=_('TimeStamp'))
     alarm_name = tables.Column('alarm_name',
                                verbose_name=_('Alarm Name'))
-    alarm_type = tables.Column('alarm_type',
-                               verbose_name=_('Type'))
+    resource_id = tables.Column('resource_id',
+                               verbose_name=_('Instance ID'))
     detail = tables.Column('detail',
                            verbose_name=_('Detail'))
 
@@ -89,7 +89,8 @@ class AlarmsHistoryTable(tables.DataTable):
         verbose_name = _("Alarm History")
         table_actions = (UpdateHistoryAction,
                          UpdateHistoryActionDay,
-                         ResetHistoryAction,)
+                         ResetHistoryAction,
+                         AlarmsHistoryFilterAction,)
         multi_select = False
 
 

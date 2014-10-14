@@ -14,13 +14,21 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-import horizon
-
-from openstack_dashboard.dashboards.admin import dashboard
+from horizon import tables
 
 
-class MessageAdminPanel(horizon.Panel):
-    name = _("Send Messages")
-    slug = 'messages'
+class SentTable(tables.DataTable):
+    id = tables.Column('id',
+                        verbose_name=_('ID'))
+    subject = tables.Column('subject',
+                        verbose_name=_('Subject'))
+    sent_to = tables.Column('sent_to',
+                        verbose_name=_('Sent To'))
+    read = tables.Column('read',
+                        verbose_name=_('Read/Total'))
 
-dashboard.Admin.register(MessageAdminPanel)
+    class Meta:
+        name = "sent_table"
+        verbose_name = _("Messages")
+#        row_actions = (ReadMessageAction,)
+#        table_actions = (MessagesFilterAction, DeleteMessagesAction)

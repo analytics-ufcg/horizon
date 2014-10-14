@@ -29,7 +29,7 @@ class Message(models.Model):
         if(status == 'T' or status == 'F'):
             self.read = status
 
-#For user.py file 
+#Function used in user.py using settings.py
 def user_messages(self):
     return Message.objects.filter(recipient=self.id, read="F")
 

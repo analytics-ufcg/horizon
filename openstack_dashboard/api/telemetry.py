@@ -1,6 +1,4 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
-# Copyright 2013 B1 Systems GmbH
+# Copyright 2014, UFCG/Analytics
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -46,10 +44,10 @@ class AlarmsList:
 
 class AlarmsHistory:
 
-    def __init__(self, timestamp, alarm_name, alarm_type, detail):
+    def __init__(self, timestamp, alarm_name, resource_id,  detail):
         self.timestamp = timestamp
         self.alarm_name = alarm_name
-        self.alarm_type = alarm_type
+        self.resource_id = resource_id
         self.detail = detail
 
 
@@ -145,3 +143,12 @@ class HostMessages:
     def __init__(self, id, zone):
         self.id = id
         self.zone = zone
+
+
+class SentMessages:
+
+    def __init__(self, id, subject, sent_to, read):
+        self.id = id
+        self.subject = subject
+        self.sent_to = sent_to
+        self.read = read

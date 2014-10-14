@@ -14,13 +14,19 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-import horizon
+from horizon import tables
 
-from openstack_dashboard.dashboards.admin import dashboard
+from openstack_dashboard.api.telemetry \
+    import SentMessages as sent_messages
+
+from openstack_dashboard.dashboards.admin.sent_messages \
+    import tables as sent_tables
 
 
-class MessageAdminPanel(horizon.Panel):
-    name = _("Send Messages")
-    slug = 'messages'
+class IndexView(tables.DataTableView):
+    table_class = sent_tables.SentTable
+    template_name = 'admin/sent_messages/index.html'
 
-dashboard.Admin.register(MessageAdminPanel)
+    def get_data(self):
+        sent_data = []
+        return sent_data
