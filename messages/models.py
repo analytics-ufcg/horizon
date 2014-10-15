@@ -36,6 +36,12 @@ class MessageRelation(models.Model):
     id_message = models.IntegerField()
     message = models.IntegerField()
 
+class TemplateMessage(models.Model):
+    id_message = models.IntegerField()
+    name = models.CharField(max_length=100)
+    subject = models.CharField(max_length=200)
+    message = models.TextField(max_length=50000)
+    actions = models.CharField(max_length=100)
 
 
 #For user.py file 
