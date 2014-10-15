@@ -60,7 +60,6 @@ class MessageManager:
         for user in users:
             m = self.send_message(subject, message, user)
             self.message_relation(ref.id, m.id)
-        print 'done'
 
     def send_message_host(self, subject, message, host_name, sender='admin'):
         ref = self.message_id('host')
@@ -82,6 +81,36 @@ class MessageManager:
         message = Message.objects.filter(id=id)[0]
         message.delete()
 
+    def return_all_messages(self):
+        
+        messages_list = []
+        messages = MessageId.objects.all()
+
+        for message in messages:
+            id = message.id
+            relation = MessageRelation.objects.filter(message = message.id)
+
+            if len(relation) != 0:
+                id_message = relation[0].id_message
+                message_table = Message.objects.filter(id=id_message) 
+                subject = message_table[0].subject 
+                message_type = message.type 
+                total = len(MessageRelation.objects.filter(message = message.id))    
+                nao = 0
+                lidas = 0
+
+                for id_message in relation:
+                    message_table = Message.objects.filter(id=id_message.id_message)
+
+                    if message_table[0].read == 'T':
+                        lidas += 1;
+                    else:
+                        nao += 1
+
+                message_details = {'id': id, 'subject' : subject, 'type' : message_type, 'total' : total , 'nao lidas':nao, 'lidas':lidas }
+                messages_list.append(message_details)
+
+        return messages_list
 
 
     def change_status(self, id, status):
