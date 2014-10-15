@@ -29,6 +29,15 @@ class Message(models.Model):
         if(status == 'T' or status == 'F'):
             self.read = status
 
+class MessageId(models.Model):
+    type = models.CharField(max_length=10)
+    
+class MessageRelation(models.Model):
+    id_message = models.IntegerField()
+    message = models.IntegerField()
+
+
+
 #For user.py file 
 def user_messages(self):
     return Message.objects.filter(recipient=self.id, read="F")
