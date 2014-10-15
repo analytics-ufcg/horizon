@@ -154,5 +154,5 @@ out <- recommendation(data)
 #print(out)
 
 #salvando em arquivo a saida #########################################################################
-write.csv(out, "flavors.csv", row.names=F)
+write.csv(out, "openstack_dashboard/api/telemetry_api/analytics/flavors.csv", row.names=F)
 ######################################################################################################

@@ -12,15 +12,12 @@ def create_csv(file_input, data_csv):
 def comunica_com_r(scriptR, dado):
     processo = subprocess.Popen(scriptR+" "+dado, shell=True, stdout=subprocess.PIPE)
     while True:
-        if (processo.poll() == 0):
-            break
-        elif (processo.poll() == 1):
-            print "Requisicao nao concluida"
+        if (processo.poll() != None):
             break
 
     
 def gera_retorno(dado):
-    dic = {}
+    dic = {} 
     input = open(dado)
     input.readline()
     for linha in input.readlines():
@@ -38,12 +35,16 @@ def data_to_dic(dadoJson, dadoCSV, scriptR, flavors):
 
 def recomenda_flavor(dado):
     
-    script="Rscript analytics/generate_recommendation.R"
-    data_csv = "dados.csv"
+    script= "Rscript openstack_dashboard/api/telemetry_api/analytics/generate_recommendation.R"
+    data_csv = "openstack_dashboard/api/telemetry_api/analytics/dados.csv"
     data_json = dado
-    flavors = "flavors.csv"
+    flavors = "openstack_dashboard/api/telemetry_api/analytics/flavors.csv"
     if(len(dado)>0):
-        return data_to_dic(data_json, data_csv, script, flavors)
+        ret = data_to_dic(data_json, data_csv, script, flavors)
+        if("NaN" in json.dumps(ret)):
+            return {}
+        else:
+            return ret
     else:
         return {}   
 
