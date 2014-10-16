@@ -96,18 +96,18 @@ class MessageManager:
                 subject = message_table[0].subject 
                 message_type = message.type 
                 total = len(MessageRelation.objects.filter(message = message.id))    
-                nao = 0
-                lidas = 0
+                unread = 0
+                read = 0
 
                 for id_message in relation:
                     message_table = Message.objects.filter(id=id_message.id_message)
 
                     if message_table[0].read == 'T':
-                        lidas += 1;
+                        read += 1;
                     else:
-                        nao += 1
+                        unread += 1
 
-                message_details = {'id': id, 'subject' : subject, 'type' : message_type, 'total' : total , 'nao lidas':nao, 'lidas':lidas }
+                message_details = {'id': id, 'subject' : subject, 'type' : message_type, 'total' : total , 'unread':unread, 'read':read }
                 messages_list.append(message_details)
 
         return messages_list
