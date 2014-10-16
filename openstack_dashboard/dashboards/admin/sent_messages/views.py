@@ -16,6 +16,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from horizon import tables
 
+from messages.message_selection import MessageManager
+
 from openstack_dashboard.api.telemetry \
     import SentMessages as sent_messages
 
@@ -29,4 +31,14 @@ class IndexView(tables.DataTableView):
 
     def get_data(self):
         sent_data = []
+        message_manager = MessageManager()
+
+        for message_data in message_manager.return_all_messages():
+            id =  message_data['id']
+            subject = message_data['subject']
+            sent_to = message_data['type']
+            read = str(message_data['lidas']) + '/' + str(message_data['total'])
+
+            sent_data.append(sent_messages(id, subject, sent_to, read))
+
         return sent_data
