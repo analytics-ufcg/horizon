@@ -87,3 +87,13 @@ class ProjectsView(TemplateView):
         json_graf = json.dumps(data_handler.points_reduction_vm(timestamp_begin=times_begin, timestamp_end=times_end,resource_id=r_id))
         return HttpResponse(json_graf)
 
+class CpuUtilFlavorsView(TemplateView):
+    template_name = 'admin/recommendations/flavors.html'
+
+    def get(self, request):
+        data_handler = DataHandler()
+        times_begin = request.GET.get('timestamp_begin')
+        times_end = request.GET.get('timestamp_end')
+        json_graf = data_handler.cpu_util_flavors(times_begin, times_end)
+
+        return HttpResponse(json_graf)

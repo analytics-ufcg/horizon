@@ -29,7 +29,24 @@ class Message(models.Model):
         if(status == 'T' or status == 'F'):
             self.read = status
 
-#Function used in user.py using settings.py
+
+class MessageId(models.Model):
+    type = models.CharField(max_length=10)
+    
+class MessageRelation(models.Model):
+    id_message = models.IntegerField()
+    message = models.IntegerField()
+
+class TemplateMessage(models.Model):
+    id_message = models.IntegerField()
+    name = models.CharField(max_length=100)
+    subject = models.CharField(max_length=200)
+    message = models.TextField(max_length=50000)
+    actions = models.CharField(max_length=100)
+
+
+
+#For user.py file 
 def user_messages(self):
     return Message.objects.filter(recipient=self.id, read="F")
 

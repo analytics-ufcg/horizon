@@ -23,4 +23,5 @@ urlpatterns = patterns('openstack_dashboard.dashboards.admin.graphs.views',
     url(r'^aggregates$',views.AggregatesView.as_view(),name='aggregates'),
     url(r'^vcpus_for_aggregate$',views.AggregatesVcpuView.as_view(),name='vcpus_for_aggregate'),
     url(r'^projects$',views.ProjectsView.as_view(),name='projects'),
+    url(r'^cpu_util_flavors$', views.CpuUtilFlavorsView.as_view(),name='cpu_util_flavors'),
 )
