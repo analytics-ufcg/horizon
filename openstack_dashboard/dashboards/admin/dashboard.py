@@ -33,10 +33,10 @@ class IdentityPanels(horizon.PanelGroup):
     panels = ('domains', 'projects', 'users', 'groups', 'roles')
 
 
-class NotificationBoardPanels(horizon.PanelGroup):
+class NotificationPanels(horizon.PanelGroup):
     slug = "notification"
-    name = _("Notification Panel")
-    panels = ('messages',)
+    name = _("Notification Board")
+    panels = ('messages', 'sent_messages',)
 
 
 class TelemetryPanels(horizon.PanelGroup):
@@ -50,7 +50,7 @@ class Admin(horizon.Dashboard):
     slug = "admin"
     panels = (SystemPanels, IdentityPanels,
               TelemetryPanels,
-              NotificationBoardPanels,)
+              NotificationPanels,)
     default_panel = 'overview'
     permissions = ('openstack.roles.admin',)
 

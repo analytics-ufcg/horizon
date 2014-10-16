@@ -14,8 +14,10 @@
 
 from django import template
 from django.utils.translation import ugettext_lazy as _
-from messages.message_selection import MessageManager
+
 from horizon import tables
+
+from messages.message_selection import MessageManager
 
 
 class MessagesFilterAction(tables.FilterAction):

@@ -31,7 +31,7 @@ class MessageUserForm(forms.SelfHandlingForm):
         user_id = data.pop('id')
 
         try:
-            messager.send_message(data['subject'], data['message'], user_id)
+            messager.send_message_user(data['subject'], data['message'], user_id)
             messages.success(request,
                              _('Message for User has been sent successfully.'))
         except Exception:

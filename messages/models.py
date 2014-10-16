@@ -29,6 +29,7 @@ class Message(models.Model):
         if(status == 'T' or status == 'F'):
             self.read = status
 
+
 class MessageId(models.Model):
     type = models.CharField(max_length=10)
     
@@ -42,6 +43,7 @@ class TemplateMessage(models.Model):
     subject = models.CharField(max_length=200)
     message = models.TextField(max_length=50000)
     actions = models.CharField(max_length=100)
+
 
 
 #For user.py file 

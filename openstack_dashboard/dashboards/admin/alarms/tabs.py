@@ -70,18 +70,26 @@ class AlarmsHistoryTab(tabs.TableTab):
         timestamp_end = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
         alarms_dict = data_handler.alarms_history(timestamp_begin, timestamp_end)
 
-        for data in alarms_dict:            
+        for data in alarms_dict:
             alarm_name = data['alarm_name']
 
             for data_history in data['history']:
-                timestamp = data_history['timestamp']
-                alarm_type = data_history['type']
+                timestamp = self.format_timestamp(data_history['timestamp'])
+
+                resource_id = data['resource_id']
+                if (resource_id is None): resource_id = 'All'
+
                 detail_str = json.loads(data_history['detail'])
                 alarm = alarms_hist(timestamp, alarm_name,
-                                    alarm_type, 'Current State: ' + detail_str['state'])
+                                    resource_id, 'Current State: ' + detail_str['state'])
                 alarms_obj.append(alarm)
 
         return alarms_obj
+
+    def format_timestamp(self, timestamp):
+        date = timestamp[0:10]
+        time = timestamp[11:19]
+        return date + ' ' + time
 
 
 class AlarmsOverviewTabs(tabs.TabGroup):
