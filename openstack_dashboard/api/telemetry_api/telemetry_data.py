@@ -544,7 +544,7 @@ class DataHandler:
                 dict_host['data'] = self.__reduction.points_reduction_disk(old_data[host]['data'])
                 data.append(dict_host)
                 result = data
-        print result
+
         return result
 
     def points_reduction_by_server_network(self, timestamp_begin, timestamp_end, hosts):
