@@ -14,7 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from messages.models import Message, MessageId, MessageRelation
+from messages.models import Message, MessageId, MessageRelation, TemplateMessage
 from openstack_dashboard.api.telemetry_api.telemetry_data import  DataHandler
 from openstack_dashboard.api.telemetry_api.openstack.nova_client import  NovaClient
 from openstack_dashboard.api.telemetry_api.openstack.keystone_client import KeystoneClient
@@ -144,3 +144,13 @@ class MessageManager:
         m = Message.objects.filter(id=id)[0]
         m.read = status
         m.save()
+
+    def get_templates(self):
+        message_templates = TemplateMessage.objects.all()
+        template_data = []
+        for template in message_templates:
+            template_details = {'name': template.name, 'subject': template.subject, 'message': template.message, 'actions': template.actions}
+            template_data.append(template_details)
+
+        return template_data 
+
