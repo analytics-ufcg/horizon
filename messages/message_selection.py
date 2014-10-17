@@ -112,6 +112,33 @@ class MessageManager:
 
         return messages_list
 
+    def get_message_info(self, message_id):
+        messages = MessageId.objects.filter(id=message_id)
+        relation = []
+
+        if len(messages) > 0:
+            message = messages[0]
+            relation = MessageRelation.objects.filter(message = message.id)
+
+        if len(relation)==0 or len(messages)==0:
+             return False
+
+        read= []
+        unread = []
+
+        for message in relation:
+            id_message = message.id_message
+            message_table = Message.objects.filter(id=id_message) 
+            text = message_table[0].message
+
+            for m in message_table:
+                if m.read == 'F':
+                    unread.append(m.recipient)
+                else:
+                    read.append(m.recipient)
+
+        return {'read':read, 'unread':unread, 'text':text}
+
 
     def change_status(self, id, status):
         m = Message.objects.filter(id=id)[0]
