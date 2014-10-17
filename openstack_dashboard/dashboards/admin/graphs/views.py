@@ -45,6 +45,8 @@ class HostView(TemplateView):
             json_graf = data_handler.points_reduction_by_server_disk(timestamp_begin=times_begin, timestamp_end=times_end,hosts=HOSTS)
         elif(meter == 'memory'):
             json_graf = data_handler.points_reduction_by_server_memory(timestamp_begin=times_begin, timestamp_end=times_end,hosts=HOSTS)
+        elif(meter == 'network'):
+            json_graf = data_handler.points_reduction_by_server_network(timestamp_begin=times_begin, timestamp_end=times_end,hosts=HOSTS)
 
         return HttpResponse(json.dumps(json_graf), content_type='application/json')
 
@@ -63,6 +65,8 @@ class AggregatesView(TemplateView):
             json_graf = data_handler.hosts_aggregation_memory(timestamp_begin=times_begin, timestamp_end=times_end)
         elif(meter == 'disk'):
             json_graf = data_handler.hosts_aggregation_disk(timestamp_begin=times_begin, timestamp_end=times_end)
+        elif(meter == 'network'):
+            json_graf = data_handler.hosts_aggregation_network(timestamp_begin=times_begin, timestamp_end=times_end)
 
         return HttpResponse(json_graf)
 

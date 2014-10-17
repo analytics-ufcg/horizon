@@ -12,6 +12,7 @@
           <option value="cpu" >CPU</option>
           <option value="memory">Memory</option>
           <option value="disk">Disk</option>
+          <option value="network">Network</option>
         </select>
       </div>
     </div>
@@ -104,6 +105,8 @@
 	  return getCPUAgg(json);
 	} else if (nome == "disk") {
 	  return getPartitionsAgg(json);
+        } else if(nome == "network"){
+          return getNetworkAgg(json);
 	} else {
 	  return null;
     }
@@ -155,6 +158,12 @@
         lista_particoes.push(array_disk);
 
 	return lista_particoes;
+  }
+
+  function getNetworkAgg(json){
+        alert("definir formato dos dados");
+        console.log(json[0]);
+        return null;
   }
 
   String.prototype.replaceAll = function(de, para) {

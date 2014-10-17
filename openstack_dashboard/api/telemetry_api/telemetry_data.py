@@ -495,8 +495,12 @@ class DataHandler:
 
                         break
             ret.append({"Aggregate":aggregate["name"], "data":result})
+        
         return json.dumps(ret)
 
+    def hosts_aggregation_network(self, timestamp_begin=None, timestamp_end=None):
+        #implementar como e o aggregate e dados a apresentar
+        return json.dumps([{"Aggregate":"AggTeste", "data":[{'timestamp': '2014-10-13T17:52:14', 'data': 0.0565}]}])
 
     def points_reduction_by_server_cpu(self, timestamp_begin, timestamp_end, hosts):
         data = []
@@ -540,8 +544,12 @@ class DataHandler:
                 dict_host['data'] = self.__reduction.points_reduction_disk(old_data[host]['data'])
                 data.append(dict_host)
                 result = data
+        print result
         return result
 
+    def points_reduction_by_server_network(self, timestamp_begin, timestamp_end, hosts):
+        #implementar a funcao de reducao dos pontos
+        return []
 
     def points_reduction_vm(self, timestamp_begin,timestamp_end,resource_id):
         old_data = json.loads(self.cpu_util_from(timestamp_begin,timestamp_end,resource_id))
