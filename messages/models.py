@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright 2014, UFCG/Analytics
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -32,10 +30,12 @@ class Message(models.Model):
 
 class MessageId(models.Model):
     type = models.CharField(max_length=10)
+
     
 class MessageRelation(models.Model):
     id_message = models.IntegerField()
     message = models.IntegerField()
+
 
 class TemplateMessage(models.Model):
     id_message = models.IntegerField()
@@ -44,9 +44,6 @@ class TemplateMessage(models.Model):
     message = models.TextField(max_length=50000)
     actions = models.CharField(max_length=100)
 
-
-
-#For user.py file 
+#user.py function applied and used on settings.py
 def user_messages(self):
     return Message.objects.filter(recipient=self.id, read="F")
-

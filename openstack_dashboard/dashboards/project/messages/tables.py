@@ -39,6 +39,7 @@ class DeleteMessagesAction(tables.DeleteAction):
         message = MessageManager()
         message.delete_message(obj_id)
 
+
 class ReadMessageAction(tables.LinkAction):
     name = "read_message"
     verbose_name = _("Read Message")

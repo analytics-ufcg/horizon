@@ -1,0 +1,22 @@
+{% load i18n sizeformat %}
+
+<h3>{% trans "Message Overview" %}</h3>
+
+<div class="message detail">
+  <dl>
+    <dt>{% trans "Text" %}</dt>
+    <dd>{{ message.text }}</dd>
+    <dt>{% trans "Read Users"%}</dt>
+    {% if message.read %}
+      {% for user in message.read %}
+        <dd>{{ user }}<dt>
+      {% endfor %}
+    {% endif %}
+    <dt>{% trans "Unread Users" %}</dt>
+    {% if message.unread %}
+      {% for user in message.unread %}
+        <dd>{{ user }}<dt>
+      {% endfor %}
+    {% endif %}
+  </dl>
+</div>

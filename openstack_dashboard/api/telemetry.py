@@ -147,8 +147,8 @@ class HostMessages:
 
 class SentMessages:
 
-    def __init__(self, id, subject, sent_to, read):
-        self.id = id
+    def __init__(self, message_id, subject, sent_to, read):
+        self.message_id = message_id
         self.subject = subject
         self.sent_to = sent_to
         self.read = read

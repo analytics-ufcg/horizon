@@ -12,17 +12,19 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.conf.urls import patterns  # noqa
-from django.conf.urls import url  # noqa
+from django.utils.translation import ugettext_lazy as _
 
-from openstack_dashboard.dashboards.admin.sent_messages import views
-
-
-MESSAGE = r'^(?P<message_id>[^/]+)/%s$'
+from horizon import tabs
 
 
-urlpatterns = patterns('openstack_dashboard.dashboards.admin.sent_messages.views',
-    url(r'^$', views.IndexView.as_view(), name='index'),
-    url(MESSAGE % 'detail', views.DetailView.as_view(), name='detail'),
-)
+class OverviewTab(tabs.Tab):
+    name = _("Overview")
+    slug = "overview"
+    template_name = ("admin/sent_messages/_detail.html")
 
+    def get_context_data(self, request):
+        return {"message": self.tab_group.kwargs['message']}
+
+class MessageDetailTabs(tabs.TabGroup):
+    slug = "message_details"
+    tabs = (OverviewTab,)

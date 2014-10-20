@@ -17,18 +17,27 @@ from django.utils.translation import ugettext_lazy as _
 from horizon import tables
 
 
+class DetailMessageAction(tables.LinkAction):
+    name = "detail_message"
+    verbose_name = _("Message Detail")
+    url = "horizon:admin:sent_messages:detail"
+    classes = ('btn-edit')
+
+
 class SentTable(tables.DataTable):
-    id = tables.Column('id',
-                        verbose_name=_('ID'))
-    subject = tables.Column('subject',
-                        verbose_name=_('Subject'))
-    sent_to = tables.Column('sent_to',
-                        verbose_name=_('Sent To'))
+    message_id = tables.Column("message_id",
+                        verbose_name=_("ID"))
+    subject = tables.Column("subject",
+                        verbose_name=_("Subject"))
+    sent_to = tables.Column("sent_to",
+                        verbose_name=_("Sent To"))
     read = tables.Column('read',
-                        verbose_name=_('Read/Total'))
+                        verbose_name=_("Read/Total"))
+
+    def get_object_id(self, obj):
+        return "%s" % (obj.message_id)
 
     class Meta:
         name = "sent_table"
         verbose_name = _("Messages")
-#        row_actions = (ReadMessageAction,)
-#        table_actions = (MessagesFilterAction, DeleteMessagesAction)
+        row_actions = (DetailMessageAction,)
