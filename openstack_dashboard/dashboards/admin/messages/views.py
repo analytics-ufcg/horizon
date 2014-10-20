@@ -30,6 +30,10 @@ from openstack_dashboard.dashboards.admin.messages import forms as \
 from openstack_dashboard.dashboards.admin.messages import tabs as \
     messages_tabs
 
+from horizon import messages
+import json
+from messages.message_selection import MessageManager
+
 
 class IndexView(tabs.TabbedTableView):
     tab_group_class = messages_tabs.MessagesOverviewTabs
@@ -49,12 +53,16 @@ class MessageUserView(forms.ModalFormView):
         except Exception:
             redirect = reverse("horizon:admin:users:index")
             exceptions.handle(self.request,
-                              _('Unable to send message for the user.'),
+                              _('Unable to send message to  user.'),
                               redirect=redirect)
 
     def get_context_data(self, **kwargs):
         context = super(MessageUserView, self).get_context_data(**kwargs)
         context['user'] = self.get_object()
+
+        messager = MessageManager()
+        template_data = messager.get_templates()
+        context['template'] = json.dumps(template_data)
         return context
 
     def get_initial(self):
@@ -91,12 +99,16 @@ class MessageProjectView(forms.ModalFormView):
         except Exception:
             redirect = reverse("horizon:admin:users:index")
             exceptions.handle(self.request,
-                              _('Unable to send message for the project.'),
+                              _('Unable to send message to project users.'),
                               redirect=redirect)
 
     def get_context_data(self, **kwargs):
         context = super(MessageProjectView, self).get_context_data(**kwargs)
         context['project'] = self.get_object()
+        
+        messager = MessageManager()
+        template_data = messager.get_templates()
+        context['template'] = json.dumps(template_data)
         return context
 
     def get_initial(self):
@@ -126,6 +138,10 @@ class MessageHostView(forms.ModalFormView):
     def get_context_data(self, **kwargs):
         context = super(MessageHostView, self).get_context_data(**kwargs)
         context["id"] = self.kwargs['id']
+
+        messager = MessageManager()
+        template_data = messager.get_templates()
+        context['template'] = json.dumps(template_data)
         return context
     
     def get_object(self):

@@ -147,10 +147,11 @@ class MessageManager:
 
     def get_templates(self):
         message_templates = TemplateMessage.objects.all()
-        template_data = []
+        template_data = {}
         for template in message_templates:
-            template_details = {'name': template.name, 'subject': template.subject, 'message': template.message, 'actions': template.actions}
-            template_data.append(template_details)
+            template_details = {template.id: {'name': template.name, 'subject': template.subject, 'message': template.message, 'actions': template.actions}}
+            template_data.update(template_details)
 
-        return template_data 
+        return template_data
+
 

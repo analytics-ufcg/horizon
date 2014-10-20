@@ -6,18 +6,48 @@
 {% block form_action %}{% url 'horizon:admin:messages:message_user' user.id %}{% endblock %}
 
 {% block modal_id %}send_user_message_modal{% endblock %}
-{% block modal-header %}{% trans "Send Message User" %}{% endblock %}
+{% block modal-header %}{% trans "Send Message to User" %}{% endblock %}
 
 {% block modal-body %}
+
 <div class="left">
   <fieldset>
   {% include "horizon/common/_form_fields.html" %}
   </fieldset>
 </div>
-<div class="right">
+
+<div id="div1" class="right">
   <h3>{% trans "Text" %}:</h3>
-  <p>{% trans "From here you can send a message for an user" %}</p>
+  <p>{% trans "From here you can send a message to an user" %}</p>
 </div>
+
+<script type="text/javascript">
+
+  if (typeof $ !== 'undefined') {
+    update_fields();
+  } else {
+    addHorizonLoadEvent(function() {
+      update_fields();
+    });
+  }
+
+  function update_fields() {
+    var template  = $.parseJSON("{{template | escapejs | safe }}")
+    $("#id_template").change(function (event) {
+      var current_template_id = $('#id_template').val()
+      if(current_template_id != 'none') {
+        $('#id_subject').val(template[current_template_id]['subject'])
+        $('#id_message').val(template[current_template_id]['message'])
+      }
+      else {
+        $('#id_subject').val('')
+        $('#id_message').val('')
+      }
+    });
+  }
+
+</script>
+
 {% endblock %}
 
 {% block modal-footer %}

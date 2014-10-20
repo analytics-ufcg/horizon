@@ -6,7 +6,7 @@
 {% block form_action %}{% url 'horizon:admin:messages:message_project' project.id %}{% endblock %}
 
 {% block modal_id %}send_project_message_modal{% endblock %}
-{% block modal-header %}{% trans "Send Message Project" %}{% endblock %}
+{% block modal-header %}{% trans "Send Message to Project Users" %}{% endblock %}
 
 {% block modal-body %}
 <div class="left">
@@ -16,8 +16,35 @@
 </div>
 <div class="right">
   <h3>{% trans "Text" %}:</h3>
-  <p>{% trans "From here you can send a message for users in the project" %}</p>
+  <p>{% trans "From here you can send a message to users in the project" %}</p>
 </div>
+
+<script type="text/javascript">
+  if (typeof $ !== 'undefined') {
+    update_fields();
+  } else {
+    addHorizonLoadEvent(function() {
+      update_fields();
+    });
+  }
+
+  function update_fields() {
+    var template  = $.parseJSON("{{template | escapejs | safe }}")
+    $("#id_template").change(function () {
+      var current_template_id = $('#id_template').val()
+      if(current_template_id != 'none') {
+        $('#id_subject').val(template[current_template_id]['subject'])
+        $('#id_message').val(template[current_template_id]['message'])
+      }
+      else {
+        $('#id_subject').val('')
+        $('#id_message').val('')
+      }
+    });
+  }
+
+</script>
+
 {% endblock %}
 
 {% block modal-footer %}

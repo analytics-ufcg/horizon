@@ -36,12 +36,9 @@ class UserFilterAction(tables.FilterAction):
 
 
 class UsersTable(tables.DataTable):
-    name = tables.Column("name",
-                         verbose_name=_('User'))
-    email = tables.Column('email',
-                          verbose_name=_('Email'))
-    id = tables.Column('id',
-                       verbose_name=_('ID'))
+    name = tables.Column("name", verbose_name=_('User'))
+    email = tables.Column('email', verbose_name=_('Email'))
+    id = tables.Column('id', verbose_name=_('ID'))
 
     class Meta:
         name = "users"

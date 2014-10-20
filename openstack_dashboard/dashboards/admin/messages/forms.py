@@ -25,6 +25,22 @@ class MessageUserForm(forms.SelfHandlingForm):
     subject = forms.CharField(label=_("Subject"))
     message = forms.CharField(widget=forms.widgets.Textarea(),
                                   label=_("Message"))
+    
+    template = forms.ChoiceField(label=_("Templates"),
+        help_text=_("Choose template"))
+
+    def __init__(self, request, *args, **kwargs):
+        super(MessageUserForm, self).__init__(request, *args, **kwargs)
+        
+        messager = MessageManager()
+        template_data = messager.get_templates()
+        template_choices = []
+        for key in template_data.keys():
+            choice = (key, template_data[key]['name'])
+            template_choices.append(choice)
+
+        choices = ([('none', _("--Select Template--"))] + template_choices)
+        self.fields['template'].choices = choices
 
     def handle(self, request, data):
         messager = MessageManager();
@@ -46,6 +62,23 @@ class MessageProjectForm(forms.SelfHandlingForm):
     message = forms.CharField(widget=forms.widgets.Textarea(),
                                   label=_("Message"))
 
+    template = forms.ChoiceField(label=_("Templates"),
+        help_text=_("Choose template"))
+
+    def __init__(self, request, *args, **kwargs):
+        super(MessageProjectForm, self).__init__(request, *args, **kwargs)
+
+        messager = MessageManager()
+        template_data = messager.get_templates()
+        template_choices = []
+        for key in template_data.keys():
+            choice = (key, template_data[key]['name'])
+            template_choices.append(choice)
+
+        choices = ([('none', _("--Select Template--"))] + template_choices)
+        self.fields['template'].choices = choices
+
+
     def handle(self, request, data):
         messager = MessageManager();
         project_id = data.pop('id')
@@ -66,6 +99,23 @@ class MessageHostForm(forms.SelfHandlingForm):
     subject = forms.CharField(label=_("Subject"))
     message = forms.CharField(widget=forms.widgets.Textarea(),
                                   label=_("Message"))
+
+    template = forms.ChoiceField(label=_("Templates"),
+        help_text=_("Choose template"))
+
+    def __init__(self, request, *args, **kwargs):
+        super(MessageHostForm, self).__init__(request, *args, **kwargs)
+
+        messager = MessageManager()
+        template_data = messager.get_templates()
+        template_choices = []
+        for key in template_data.keys():
+            choice = (key, template_data[key]['name'])
+            template_choices.append(choice)
+
+        choices = ([('none', _("--Select Template--"))] + template_choices)
+        self.fields['template'].choices = choices    
+
 
     def handle(self, request, data):
         messager = MessageManager();

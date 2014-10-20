@@ -24,6 +24,5 @@ urlpatterns = patterns('openstack_dashboard.dashboards.admin.messages.views',
         views.MessageUserView.as_view(), name='message_user'),
     url(r'^(?P<id>[^/]+)/message_project$',
         views.MessageProjectView.as_view(), name='message_project'),
-    url(r'^(?P<id>[^/]+)/message_host$',
-        views.MessageHostView.as_view(), name='message_host'),
+    url(r'^(?P<id>[^/]+)/message_host$', views.MessageHostView.as_view(), name='message_host'),
 )
