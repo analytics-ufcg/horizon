@@ -6,12 +6,14 @@
   <dl>
     <dt>{% trans "Text" %}</dt>
     <dd>{{ message.text }}</dd>
+    <p></p>
     <dt>{% trans "Read Users"%}</dt>
     {% if message.read %}
       {% for user in message.read %}
-        <dd>{{ user }}<dt>
+        <dd>{{ user }} <dt>
       {% endfor %}
     {% endif %}
+    <p></p>
     <dt>{% trans "Unread Users" %}</dt>
     {% if message.unread %}
       {% for user in message.unread %}
