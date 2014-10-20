@@ -133,9 +133,9 @@ class MessageManager:
 
             for m in message_table:
                 if m.read == 'F':
-                    unread.append(m.recipient)
+                    unread.append(self.__keystone_client.get_username(m.recipient).username)
                 else:
-                    read.append(m.recipient)
+                    read.append(self.__keystone_client.get_username(m.recipient).username)
 
         return {'read':read, 'unread':unread, 'text':text}
 
