@@ -23,9 +23,10 @@ def get_network_data():
     network_data = {}
     network_data['net_bytes_sent'] = net_io_counters[0]
     network_data['net_bytes_recv'] = net_io_counters[1]
+    
     network.append(network_data)
 
-    return network_data
+    return network
 
 def get_disk_usage():
     disks = []
