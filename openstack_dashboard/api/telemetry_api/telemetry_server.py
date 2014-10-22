@@ -18,7 +18,7 @@ config.read("environment.conf")
 
 HOSTS = ast.literal_eval(config.get('Openstack', 'computenodes'))
 
-data_handler = DataHandler(config)
+data_handler = DataHandler()
 
 @app.route('/projects')
 def projects():
