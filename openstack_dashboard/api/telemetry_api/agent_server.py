@@ -21,6 +21,7 @@ def store_host_data(hosts, config, interval=1, percpu=False):
             memory = data["memory"]
             disk = data["disk"]
 
+
             db.save_data_db(cpu, memory, disk, host)
 
         time.sleep(60)
