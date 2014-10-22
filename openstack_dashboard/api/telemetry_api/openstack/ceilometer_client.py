@@ -52,6 +52,38 @@ class CeilometerClient:
             ret.append({'VM': d.resource_id, 'Cores': d.resource_metadata['flavor.vcpus'], 'CPU_UTIL': d.counter_volume})
         return ret
 
+    def __get_network_incoming_bytes_rate_raw(self, timestamp_begin=None, timestamp_end=None, resource_id=None, project_id=None):
+        query = self.__build_query(timestamp_begin, timestamp_end, resource_id, project_id)
+
+        return self.ceilometer.samples.list('network.incoming.bytes.rate', query)
+
+    def __get_network_outgoing_bytes_rate_raw(self, timestamp_begin=None, timestamp_end=None, resource_id=None, project_id=None):
+        query = self.__build_query(timestamp_begin, timestamp_end, resource_id, project_id)
+
+        return self.ceilometer.samples.list('network.outgoing.bytes.rate', query)
+
+    def get_network_incoming_bytes_rate(self, timestamp_begin=None, timestamp_end=None, resource_id=None, project_id=None):
+        #TODO: resource_id is unique for each interface, currently can't query data for a single instance by resource_id.
+        data = self.__get_network_incoming_bytes_rate_raw(timestamp_begin, timestamp_end, None, project_id)
+        ret = []
+
+        for d in data:
+            if str(resource_id) in d.resource_metadata['instance_id']:
+                ret.append({'resource_id': d.resource_metadata['instance_id'], 'timestamp': d.timestamp, 'network_incoming_bytes_rate': d.counter_volume })
+
+        return ret
+
+    def get_network_outgoing_bytes_rate(self, timestamp_begin=None, timestamp_end=None, resource_id=None, project_id=None):
+        #TODO: resource_id is unique for each interface, currently can't query data for a single instance by resource_id.
+        data = self.__get_network_outgoing_bytes_rate_raw(timestamp_begin, timestamp_end, None, project_id)
+        ret = []
+
+        for d in data:
+            if str(resource_id) in d.resource_metadata['instance_id']:
+                ret.append({'resource_id': d.resource_metadata['instance_id'], 'timestamp': d.timestamp, 'network_outgoing_bytes_rate': d.counter_volume })
+
+        return ret
+
     def set_alarm(self, name, meter, threshold, operator, period, evaluation_period, send_mail, email_admin, instance=""):
         try:
             print email_admin
