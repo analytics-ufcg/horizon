@@ -18,10 +18,12 @@ def get_virtual_memory():
     return memory
 
 def get_network_data():
+    network = []
     net_io_counters = psutil.net_io_counters()
     network_data = {}
     network_data['net_bytes_sent'] = net_io_counters[0]
     network_data['net_bytes_recv'] = net_io_counters[1]
+    network.append(network_data)
 
     return network_data
 
