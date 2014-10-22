@@ -526,18 +526,10 @@ class DataHandler:
                         else:
                             if(len(result) > len(convert)):
                                 result = result[0:len(convert)]
-                            for i in range(len(result)):
-                                value = result[i]
-                                #value["data"] = value["data"] + (convert[i])["data"]
-                                result[i] = value
-
                         break
             ret.append({"Aggregate":aggregate["name"], "data":result})
 
         return json.dumps(ret)
-
-        #implementar como e o aggregate e dados a apresentar
-        #return json.dumps([{"Aggregate":"AggTeste", "data":[{'timestamp': '2014-10-13T17:52:14', 'data': 0.0565}]}])
 
     def points_reduction_by_server_cpu(self, timestamp_begin, timestamp_end, hosts):
         data = []
