@@ -14,21 +14,26 @@ class CeilometerClient:
         self.__alarm_url = config.get('Misc', 'alarmposturl')
         self.ceilometer = client.get_client(ceilometer_api_version, os_username=username, os_password=password, os_tenant_name=tenant_admin, os_auth_url=auth_url)
 
-    def __get_cpu_util_raw(self, timestamp_begin=None, timestamp_end=None, resource_id=None, project_id=None):
+    def __build_query(self, timestamp_begin=None, timestamp_end=None, resource_id=None, project_id=None):
         query = []
 
         if any([timestamp_begin, timestamp_end, resource_id, project_id]):
             if timestamp_begin:
                 query.append({'field':'timestamp', 'op':'gt', 'value':timestamp_begin})
-        
+
             if timestamp_end:
                 query.append({'field':'timestamp', 'op':'lt', 'value':timestamp_end})
 
             if resource_id:
-                query.append({'field':'resource_id', 'op':'eq', 'value':resource_id})
+                query.append({'field':'resource_id', 'op':'eq', 'value': resource_id})
 
             if project_id:
                 query.append({'field':'project_id', 'op':'eq', 'value':project_id})
+
+        return query
+
+    def __get_cpu_util_raw(self, timestamp_begin=None, timestamp_end=None, resource_id=None, project_id=None):
+        query = self.__build_query(timestamp_begin, timestamp_end, resource_id, project_id)
 
         return self.ceilometer.samples.list('cpu_util', query)
 
