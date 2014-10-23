@@ -20,8 +20,9 @@ def store_host_data(hosts, config, interval=1, percpu=False):
             cpu = data["cpu"]
             memory = data["memory"]
             disk = data["disk"]
+            network = data["network"]
 
-            db.save_data_db(cpu, memory, disk, host)
+            db.save_data_db(cpu, memory, disk, network, host)
 
         time.sleep(60)
 

@@ -276,6 +276,9 @@ class DataHandler:
     def hosts_disk(self, timestamp_begin, timestamp_end):
         return self.__hosts_db.get_data_db('Disk', timestamp_begin, timestamp_end)
 
+    def hosts_network(self, timestamp_begin, timestamp_end):
+        return self.__hosts_db.get_data_db('Network', timestamp_begin, timestamp_end)
+
     def host_metrics(self, project):
         return self.__nova.metrics(project)
 
@@ -499,8 +502,34 @@ class DataHandler:
         return json.dumps(ret)
 
     def hosts_aggregation_network(self, timestamp_begin=None, timestamp_end=None):
-        #implementar como e o aggregate e dados a apresentar
-        return json.dumps([{"Aggregate":"AggTeste", "data":[{'timestamp': '2014-10-13T17:52:14', 'data': 0.0565}]}])
+        ret = []
+
+        network_data = self.hosts_network(timestamp_begin, timestamp_end)
+        aggregates = self.__nova.host_aggregates('admin')
+
+        for aggregate in aggregates:
+            result = []
+            host_address = aggregate["host_address"]
+            for host in host_address:
+                for data in network_data:
+                    if(data["host_address"]==host):
+                        convert = []
+
+                        for network_io in data["data"]:
+                            network_io_all=json.loads(network_io['data'])[0]
+                            network_io['data'] = {'net_bytes_sent': network_io_all['net_bytes_sent'], 'net_bytes_recv': network_io_all['net_bytes_recv']}
+
+                            convert.append(network_io)
+
+                        if(len(result)==0):
+                            result = convert
+                        else:
+                            if(len(result) > len(convert)):
+                                result = result[0:len(convert)]
+                        break
+            ret.append({"Aggregate":aggregate["name"], "data":result})
+
+        return json.dumps(ret)
 
     def points_reduction_by_server_cpu(self, timestamp_begin, timestamp_end, hosts):
         data = []
