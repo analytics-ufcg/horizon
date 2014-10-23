@@ -35,6 +35,7 @@ class MessageId(models.Model):
 class MessageRelation(models.Model):
     id_message = models.IntegerField()
     message = models.IntegerField()
+    url = models.CharField(max_length=200)
 
 
 class TemplateMessage(models.Model):

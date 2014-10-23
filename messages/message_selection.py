@@ -39,10 +39,10 @@ class MessageManager:
         m.save()
         return m
 
-    def send_message_user(self, subject, message, user_id, sender='admin'):
+    def send_message_user(self, subject, message, user_id, url, sender='admin'):
         ref = self.message_id('user')
         m = self.send_message(subject, message, user_id)
-        self.message_relation(ref.id, m.id)
+        self.message_relation(ref.id, m.id, url)
         
 
     def message_id(self, type):
@@ -50,25 +50,25 @@ class MessageManager:
         m.save()
         return m
 
-    def message_relation(self, message, message_ref):
-        m = MessageRelation(id_message = message_ref, message = message)
+    def message_relation(self, message, message_ref, url):
+        m = MessageRelation(id_message = message_ref, message = message, url=url)
         m.save()
 
-    def send_message_project(self, subject, message, tenant_id, sender='admin'):
+    def send_message_project(self, subject, message, tenant_id, url, sender='admin'):
         ref = self.message_id('project')
         users = self.__keystone_client.list_project_users(tenant_id)
         for user in users:
             m = self.send_message(subject, message, user)
-            self.message_relation(ref.id, m.id)
+            self.message_relation(ref.id, m.id, url)
 
-    def send_message_host(self, subject, message, host_name, sender='admin'):
+    def send_message_host(self, subject, message, host_name, url, sender='admin'):
         ref = self.message_id('host')
         servers = self.__nova_client.get_servers_by_host(host_name)
         users_id = self.__nova_client.get_users_by_host(servers)
         users_list = list(set(users_id))
         for user in users_list:
             m = self.send_message(subject, message, user)
-            self.message_relation(ref.id, m.id)
+            self.message_relation(ref.id, m.id, url)
         return True
 
     def get_message_by_id(self, id):
