@@ -82,6 +82,12 @@ class MessageManager:
     def delete_message(self, id):
         message = Message.objects.filter(id=id)[0]
         message.delete()
+        message_relation = MessageRelation.objects.filter(id_message=id)[0]
+        message_relation.delete()
+
+    def delete_admin_message(self, id):
+        message = MessageId.objects.filter(id=id)[0]
+        message.delete()
 
     def return_all_messages(self):
         
