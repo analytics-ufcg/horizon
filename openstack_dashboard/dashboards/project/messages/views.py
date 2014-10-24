@@ -51,8 +51,12 @@ class DetailView(TemplateView):
     redirect_url = 'horizon:project:messages:index'
 
     def get_context_data(self, **kwargs):
+        m = MessageManager()
+        message_id = self.kwargs['message_id']
+        print message_id
         context = super(DetailView, self).get_context_data(**kwargs)
         context["message"] = self.get_data()
+        context["url1"] = m.get_url(message_id)
         return context
 
     def get_data(self):
