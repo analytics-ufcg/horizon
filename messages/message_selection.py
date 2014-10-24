@@ -16,8 +16,6 @@
 
 from messages.models import Message, MessageId, MessageRelation, TemplateMessage
 from openstack_dashboard.api.telemetry_api.telemetry_data import  DataHandler
-from openstack_dashboard.api.telemetry_api.openstack.nova_client import  NovaClient
-from openstack_dashboard.api.telemetry_api.openstack.keystone_client import KeystoneClient
 import datetime, ConfigParser
 
 
@@ -25,8 +23,9 @@ class MessageManager:
     def __init__(self):
         config = ConfigParser.ConfigParser()
         config.read('openstack_dashboard/api/telemetry_api/environment.conf')
-        self.__nova_client = NovaClient(config)
-        self.__keystone_client = KeystoneClient(config)
+        self.__data_handler = DataHandler()
+        self.__nova_client = self.__data_handler._DataHandler__nova
+        self.__keystone_client = self.__data_handler._DataHandler__keystone
         self.__projects = self.__keystone_client.get_tenants()
         
     def get_message_by_recipient(self, recipient):
@@ -65,7 +64,7 @@ class MessageManager:
         ref = self.message_id('host')
         servers = self.__nova_client.get_servers_by_host(host_name)
         users_id = self.__nova_client.get_users_by_host(servers)
-        users_list = list(set(users_id))
+        users_list = users_id
         for user in users_list:
             m = self.send_message(subject, message, user)
             self.message_relation(ref.id, m.id, url)

@@ -81,9 +81,13 @@ class NovaClient:
 
     def get_users_by_host(self, host_servers):
         users_id = []
+        instances = []
         for server in host_servers:
-            users_id.append(server['user_id'])
-        return list(set(users_id))
+            if server['id'] not in instances:
+                instances.append(server['id'])
+                users_id.append(server['user_id'])
+        return users_id
+
 
     def get_nova_urls(self, url):
         auth_tokens_url = self.__os_auth_url + '/tokens'
