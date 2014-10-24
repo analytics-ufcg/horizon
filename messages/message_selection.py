@@ -77,6 +77,9 @@ class MessageManager:
     def get_message_read_by_id(self, id):
         return Message.objects.filter(recipient=id, read="F")
 
+    def get_url(self, id):
+        return MessageRelation.objects.filter(id_message=id)[0].url
+
     def delete_message(self, id):
         message = Message.objects.filter(id=id)[0]
         message.delete()
