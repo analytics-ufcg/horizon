@@ -69,7 +69,7 @@ class CeilometerClient:
 
         for d in data:
             if str(resource_id) in d.resource_metadata['instance_id']:
-                ret.append({'resource_id': d.resource_metadata['instance_id'], 'timestamp': d.timestamp, 'network_incoming_bytes_rate': d.counter_volume })
+                ret.append({'resource_id': d.resource_metadata['instance_id'], 'interface_resource_id': d.resource_id, 'timestamp': d.timestamp, 'network_incoming_bytes_rate': d.counter_volume })
 
         return ret
 
@@ -80,7 +80,7 @@ class CeilometerClient:
 
         for d in data:
             if str(resource_id) in d.resource_metadata['instance_id']:
-                ret.append({'resource_id': d.resource_metadata['instance_id'], 'timestamp': d.timestamp, 'network_outgoing_bytes_rate': d.counter_volume })
+                ret.append({'resource_id': d.resource_metadata['instance_id'], 'interface_resource_id': d.resource_id, 'timestamp': d.timestamp, 'network_outgoing_bytes_rate': d.counter_volume })
 
         return ret
 

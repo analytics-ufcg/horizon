@@ -9,5 +9,9 @@
     <dd>{{ message.timestamp }}</dd>
     <dt>{% trans "Message" %}</dt>
     <dd>{{ message.message }}</dd>
+    {% if url1 != None %}
+        <dt>{% trans "Link action" %}</dt>
+        <a href={{ url1 }}>{{ url1 }}</a>
+    {% endif %}
   </dl>
 </div>
