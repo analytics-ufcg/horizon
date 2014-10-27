@@ -162,4 +162,8 @@ class MessageManager:
 
         return template_data
 
+    def execute_snapshot_action(self, instance_id):
+        self.__data_handler.create_snapshot(instance_id)
 
+    def execute_suspend_action(self, instance_id):
+        self.__data_handler.suspend_instance(instance_id)
