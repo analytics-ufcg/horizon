@@ -121,6 +121,20 @@ def points_reduction_vm(timestamp_begin,timestamp_end,resource_id):
     data  =  points_reduction(old_data,key2)
     return data
 
+def points_reduction_vm_network_incoming(timestamp_begin,timestamp_end,resource_id):
+    dh = DataHandler()
+    old_data = json.loads(dh.network_incoming_bytes_rate_from(timestamp_begin,timestamp_end,resource_id))
+    key2 = "network_incoming_bytes_rate"
+    data  =  points_reduction(old_data,key2)
+    return data
+
+def points_reduction_vm_network_outgoing(timestamp_begin,timestamp_end,resource_id):
+    dh = DataHandler()
+    old_data = json.loads(dh.network_outgoing_bytes_rate_from(timestamp_begin,timestamp_end,resource_id))
+    key2 = "network_outgoing_bytes_rate"
+    data  =  points_reduction(old_data,key2)
+    return data
+
 def points_reduction_disk(old_data):
     scale = len(old_data)/300 + 1
     if scale <= 4:
