@@ -74,10 +74,18 @@ class NovaClient:
         servers = self.list_all_instances()
         host_servers = []
         for server in servers:
-            for server in servers:
-                if server['OS-EXT-SRV-ATTR:host'] == host_name:
-                    host_servers.append(server)
+            if server['OS-EXT-SRV-ATTR:host'] == host_name:
+                host_servers.append(server)
         return host_servers
+
+    def get_servers_by_project(self, project_id):
+        servers = self.list_all_instances()
+        project_servers = []
+        for server in servers:
+            if server['tenant_id'] == project_id:
+                project_servers.append(server)
+        return project_servers
+
 
     def get_users_by_host(self, host_servers):
         users_id = []
@@ -88,6 +96,23 @@ class NovaClient:
                 users_id.append(server['user_id'])
         return users_id
 
+    def get_instance_users_by_host(self, host_servers):
+        users_id = {}
+        instances = []
+        for server in host_servers:
+            if server['id'] not in instances:
+                instances.append(server['id'])
+                users_id[server['id']] = server['user_id']
+        return users_id
+
+    def get_instance_users_by_project(self, host_projects):
+        users_id = {}
+        instances = []
+        for server in host_projects:
+            if server['id'] not in instances:
+                instances.append(server['id'])
+                users_id[server['id']] = server['user_id']
+        return users_id
 
     def get_nova_urls(self, url):
         auth_tokens_url = self.__os_auth_url + '/tokens'

@@ -53,21 +53,39 @@ class MessageManager:
         m = MessageRelation(id_message = message_ref, message = message, url=url)
         m.save()
 
-    def send_message_project(self, subject, message, tenant_id, url, sender='admin'):
+    def send_message_project(self, subject, message, tenant_id, template_id, sender='admin'):
         ref = self.message_id('project')
-        users = self.__keystone_client.list_project_users(tenant_id)
-        for user in users:
-            m = self.send_message(subject, message, user)
-            self.message_relation(ref.id, m.id, url)
+        servers = self.__nova_client.get_servers_by_project(tenant_id)
+        
+        users_id = self.__nova_client.get_instance_users_by_project(servers)
+        users_list = users_id
+        if template_id == 'none':
+            for user in list(set(users_id.values())):
+                m = self.send_message(subject, message, user)
+                self.message_relation(ref.id, m.id, None)
+        else:
+            template = TemplateMessage.objects.filter(id_message = template_id)[0]
+            action =  template.actions
+            for instance in list(set(users_id.keys())):
+                m = self.send_message(subject, message, users_id[instance])
+                self.message_relation(ref.id, m.id, instance+'/'+action)
 
-    def send_message_host(self, subject, message, host_name, url, sender='admin'):
+        return True
+    def send_message_host(self, subject, message, host_name, template_id, sender='admin'):
         ref = self.message_id('host')
         servers = self.__nova_client.get_servers_by_host(host_name)
-        users_id = self.__nova_client.get_users_by_host(servers)
+        users_id = self.__nova_client.get_instance_users_by_host(servers)
         users_list = users_id
-        for user in users_list:
-            m = self.send_message(subject, message, user)
-            self.message_relation(ref.id, m.id, url)
+        if template_id == 'none':
+            for user in list(set(users_id.values())):
+                m = self.send_message(subject, message, user)
+                self.message_relation(ref.id, m.id, None)
+        else:
+            template = TemplateMessage.objects.filter(id_message=template_id)[0]
+            action =  template.actions
+            for instance in list(set(users_id.keys())):
+                m = self.send_message(subject, message, users_id[instance])
+                self.message_relation(ref.id, m.id, instance+'/'+action)
         return True
 
     def get_message_by_id(self, id):
@@ -117,6 +135,7 @@ class MessageManager:
 
                 message_details = {'id': id, 'subject' : subject, 'type' : message_type, 'total' : total , 'unread':unread, 'read':read }
                 messages_list.append(message_details)
+
 
         return messages_list
 
