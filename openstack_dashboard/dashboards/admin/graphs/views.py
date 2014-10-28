@@ -87,8 +87,21 @@ class ProjectsView(TemplateView):
         times_begin = request.GET.get('timestamp_begin')
         times_end = request.GET.get('timestamp_end')
         r_id = request.GET.get('resource_id')
+        meter = request.GET.get('meter')
         data_handler = DataHandler()
-        json_graf = json.dumps(data_handler.points_reduction_vm(timestamp_begin=times_begin, timestamp_end=times_end,resource_id=r_id))
+
+        json_graf = None
+
+        if meter == "cpu":
+            json_graf = json.dumps(data_handler.points_reduction_vm(timestamp_begin=times_begin, timestamp_end=times_end,resource_id=r_id))
+
+        if meter == "network":
+            network_incoming_bytes_rate = data_handler.points_reduction_vm_network_incoming(timestamp_begin=times_begin, timestamp_end=times_end,resource_id=r_id);
+            network_outgoing_bytes_rate = data_handler.points_reduction_vm_network_outgoing(timestamp_begin=times_begin, timestamp_end=times_end,resource_id=r_id);
+            json_graf = json.dumps({'network_incoming': network_incoming_bytes_rate, 'network_outgoing': network_outgoing_bytes_rate})
+
+            print json_graf
+
         return HttpResponse(json_graf)
 
 class CpuUtilFlavorsView(TemplateView):

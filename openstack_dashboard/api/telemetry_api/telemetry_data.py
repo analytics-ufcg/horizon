@@ -193,6 +193,12 @@ class DataHandler:
         ret = analytics.recommendations.recomenda_flavor(data)
         return json.dumps(ret)
 
+    def network_incoming_bytes_rate_from(self, timestamp_begin=None, timestamp_end=None, resource_id=None):
+        return json.dumps(self.__ceilometer.get_network_incoming_bytes_rate(timestamp_begin, timestamp_end, resource_id))
+
+    def network_outgoing_bytes_rate_from(self, timestamp_begin=None, timestamp_end=None, resource_id=None):
+        return json.dumps(self.__ceilometer.get_network_outgoing_bytes_rate(timestamp_begin, timestamp_end, resource_id))
+
     def projects_with_instances_and_cpu_util(self):
         projects = self.__keystone.tenants
 
@@ -584,6 +590,18 @@ class DataHandler:
         old_data = json.loads(self.cpu_util_from(timestamp_begin,timestamp_end,resource_id))
         key2 = "cpu_util_percent"
         data = self.__reduction.points_reduction(old_data,key2)
+        return data
+
+    def points_reduction_vm_network_incoming(self, timestamp_begin,timestamp_end,resource_id):
+        old_data = json.loads(self.network_incoming_bytes_rate_from(timestamp_begin,timestamp_end,resource_id))
+        key2 = "network_incoming_bytes_rate"
+        data  = self.__reduction.points_reduction(old_data,key2)
+        return data
+
+    def points_reduction_vm_network_outgoing(self, timestamp_begin,timestamp_end,resource_id):
+        old_data = json.loads(self.network_outgoing_bytes_rate_from(timestamp_begin,timestamp_end,resource_id))
+        key2 = "network_outgoing_bytes_rate"
+        data  =  self.__reduction.points_reduction(old_data,key2)
         return data
 
     def vm_info(self):

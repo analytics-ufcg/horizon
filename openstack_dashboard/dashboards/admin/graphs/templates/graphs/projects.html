@@ -4,6 +4,17 @@
     <form class="form-horizontal"
           id="linechart_general_form">
 
+      <div class="control-group" id="meter_type">
+        <label for="meter_type_select" class="control-label">{% trans "Metric" %}:&nbsp;</label>
+        <div class="controls">
+          <select data-line-chart-command="select_box_change"
+                  id="meter_type_select" name="meter_type_options" class="span2">
+            <option value="cpu">{% trans "CPU" %}</option>
+            <option value="network">{% trans "Network" %}</option>
+         </select>
+        </div>
+      </div>
+
       <div class="control-group">
         <label for="project" class="control-label">{% trans "Projects" %}:&nbsp;</label>
         <div class="controls line_chart_time_picker">
@@ -56,7 +67,7 @@
                  type="text" id="date_to_input_inst" name="date_to" class="span2 example"/>
         </div>
       </div>
-        <button type="submit" class="btn btn-small" onclick="verifica_parametros();">{% trans 'Apply' %}</button>
+      <button type="submit" class="btn btn-small" onclick="verifica_parametros();">{% trans 'Apply' %}</button>
     </form>
   </div>
 <br><br><br><br><div id="chart" style="width: 400; height: 400"></div>
@@ -94,131 +105,231 @@
   }
 
   function verifica_parametros(){
-    var url_requisicao_vm = "/admin/graphs/projects";
-    var projeto = $("#project").find("option:selected").val();
-    var instancia = $("#instances").find("option:selected").val();
-    var tempo = $("#date_options_inst").find("option:selected").val();
-    var dh1 = $('#date_from_input_inst').val().replace("-", " ").replace("-", " ").split(" ");
-    var dt1 = new Date(dh1[0], dh1[1], dh1[2], 00, 00);
-    var dh2 = $('#date_to_input_inst').val().replace("-", " ").replace("-", " ").split(" ");
-    var dt2 = new Date(dh2[0], dh2[1], dh2[2], 00, 00);
+      var url_requisicao_vm = "/admin/graphs/projects";
+      var projeto = $("#project").find("option:selected").val();
+      var instancia = $("#instances").find("option:selected").val();
+      var tempo = $("#date_options_inst").find("option:selected").val();
+      var dh1 = $('#date_from_input_inst').val().replace("-", " ").replace("-", " ").split(" ");
+      var dt1 = new Date(dh1[0], dh1[1], dh1[2], 00, 00);
+      var dh2 = $('#date_to_input_inst').val().replace("-", " ").replace("-", " ").split(" ");
+      var dt2 = new Date(dh2[0], dh2[1], dh2[2], 00, 00);
 
-    var complemento = "";
-    var now = new Date();
-    now.setTime(now.getTime() + now.getTimezoneOffset());
+      var meter = $('#meter_type_select').find("option:selected").val();
 
-    if(tempo !== 'undefined'){
-       if (tempo == "hour") {
-		var ontem = new Date(now - (1000 * 60 * 60 * 1));
-		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
-		complemento += "?timestamp_begin=" + formattedDate(ontem, 0);
-		complemento += "&timestamp_end=" + formattedDate(now, 0);
-	} else if (tempo == "day") {
-		var ontem = new Date(now - (1000 * 60 * 60 * 24 * 1));
-		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
-		complemento += "?timestamp_begin=" + formattedDate(ontem, 0);
-		complemento += "&timestamp_end=" + formattedDate(now, 0);
-	} else if (tempo == "week") {
-		var ontem = new Date(now - (1000 * 60 * 60 * 24 * 7));
-		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
-		complemento += "?timestamp_begin=" + formattedDate(ontem, 0);
-		complemento += "&timestamp_end=" + formattedDate(now, 0);
-	} else if (tempo == "month") {
-		var ontem = new Date(now - (1000 * 60 * 60 * 24 * 30));
-		ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
-		complemento += "?timestamp_begin=" + formattedDate(ontem, 0);
-		complemento += "&timestamp_end=" + formattedDate(now, 0);
-	} else { 
+      var complemento = "";
+      var now = new Date();
+      now.setTime(now.getTime() + now.getTimezoneOffset());
 
-                complemento += "?timestamp_begin=" + formattedDate(dt1, 1);
-                complemento += "&timestamp_end=" + formattedDate(dt2, 1);
-        }
-    var resource_vm = $("input[name='defaultVM']:checked").val();
-    url_requisicao_vm += (complemento + "&resource_id=" + instancia);
-    $('#chart').empty();
-    $('<div id="load_rec" style="display:none"> <br><br><center><img src="../../../../../static/dashboard/img/spinner.gif"></img> <br> <h4>The request is being made... This may take a few minutes. Please wait.</h4></center></div>').appendTo("#chart");
-    $("#load_rec").show();
-		$.ajax({
-			url : url_requisicao_vm,
-			dataType : 'json'
-		}).fail(function(data) {
-			show_plot = false;
-                        var inst = $("#instances").find("option:selected").text();
-			$('#chart').empty().queue(function(exec) {
-				$('#chart').html('<p><h3>' + 'Could not generate the graph for the instance ' + inst + '</h3><p>');
-				exec();
-			});
-		}).done(function(data) {
-                        dados = data;
-			if (data.length === 0) {
-				if (resource_vm == undefined) {
-                                        var inst = $("#instances").find("option:selected").text();
-					$('#chart').empty().queue(function(exec) {
-						$('#chart').html('<p><h3>' + 'Could not generate the graph for the instance ' + inst + '</h3><p>');
-						exec();
-					});
-				} else {
-                                        var inst = $("#instances").find("option:selected").text();
-					$('#chart').empty().queue(function(exec) {
-						$('#chart').html('<p><h3>' + 'Could not generate the graph for the instance ' + inst + '</h3><p>');
-						exec();
-					});
-				}
-			} else {
-                        console.log("passou");
-			var dados = data;
-                        console.log(dados);
-			var t1 = [];
-			var cpu = [];
-			t1.push("x");
-			cpu.push("CPU usage");
-			$.each(dados, function(d) {
-				t1.push(dados[d].timestamp.replace("T", " "));
-				cpu.push((dados[d].cpu_util_percent).toFixed(2));
-			});
+      if(tempo !== 'undefined'){
+          if (tempo == "hour") {
+              var ontem = new Date(now - (1000 * 60 * 60 * 1));
+              ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+              complemento += "?timestamp_begin=" + formattedDate(ontem, 0);
+              complemento += "&timestamp_end=" + formattedDate(now, 0);
+          } else if (tempo == "day") {
+              var ontem = new Date(now - (1000 * 60 * 60 * 24 * 1));
+              ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+              complemento += "?timestamp_begin=" + formattedDate(ontem, 0);
+              complemento += "&timestamp_end=" + formattedDate(now, 0);
+          } else if (tempo == "week") {
+              var ontem = new Date(now - (1000 * 60 * 60 * 24 * 7));
+              ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+              complemento += "?timestamp_begin=" + formattedDate(ontem, 0);
+              complemento += "&timestamp_end=" + formattedDate(now, 0);
+          } else if (tempo == "month") {
+              var ontem = new Date(now - (1000 * 60 * 60 * 24 * 30));
+              ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+              complemento += "?timestamp_begin=" + formattedDate(ontem, 0);
+              complemento += "&timestamp_end=" + formattedDate(now, 0);
+          } else {
+              complemento += "?timestamp_begin=" + formattedDate(dt1, 1);
+              complemento += "&timestamp_end=" + formattedDate(dt2, 1);
+          }
+          var resource_vm = $("input[name='defaultVM']:checked").val();
+          url_requisicao_vm += (complemento + "&resource_id=" + instancia);
+          $('#chart').empty();
+          $('<div id="load_rec" style="display:none"> <br><br><center><img src="../../../../../static/dashboard/img/spinner.gif"></img> <br> <h4>The request is being made... This may take a few minutes. Please wait.</h4></center></div>').appendTo("#chart");
+          $("#load_rec").show();
 
-			var json = {
-				data : {
-					x : 'x',
-					x_format : '%Y-%m-%d %H:%M:%S',
-					columns : [t1, cpu]
-				},
-				subchart : {
-					show : true
-				},
-				axis : {
-					x : {
-						label : 'Time',
-						type : 'timeseries',
-                                                tick: {
-                                                      fit: true,
-                                                      count: 5,
-                                                      format: '%e %b %H:%M',					
-						}
-					},
-					y : {
-						label : '(%) '
-					}
-				},
-				tooltip : {
-					format : {
-						title : function(d) {
-							return formattedDate(new Date(d.getTime())).replace("T", " - ");
-						},
-                                                 value : d3.format(',')
-					}
-				}
-			};
+          if (meter == "cpu") {
+              $.ajax({
+                  url: url_requisicao_vm + "&meter=cpu",
+                  dataType: 'json'
+              }).fail(function (data) {
+                  show_plot = false;
+                  var inst = $("#instances").find("option:selected").text();
+                  $('#chart').empty().queue(function (exec) {
+                      $('#chart').html('<p><h3>' + 'Could not generate the graph for the instance ' + inst + '</h3><p>');
+                      exec();
+                  });
+              }).done(function (data) {
+                  dados = data;
+                  if (data.length === 0) {
+                      if (resource_vm == undefined) {
+                          var inst = $("#instances").find("option:selected").text();
+                          $('#chart').empty().queue(function (exec) {
+                              $('#chart').html('<p><h3>' + 'Could not generate the graph for the instance ' + inst + '</h3><p>');
+                              exec();
+                          });
+                      } else {
+                          var inst = $("#instances").find("option:selected").text();
+                          $('#chart').empty().queue(function (exec) {
+                              $('#chart').html('<p><h3>' + 'Could not generate the graph for the instance ' + inst + '</h3><p>');
+                              exec();
+                          });
+                      }
+                  } else {
+                      console.log("passou");
+                      var dados = data;
+                      console.log(dados);
+                      var t1 = [];
+                      var cpu = [];
+                      t1.push("x");
+                      cpu.push("CPU usage");
+                      $.each(dados, function (d) {
+                          t1.push(dados[d].timestamp.replace("T", " "));
+                          cpu.push((dados[d].cpu_util_percent).toFixed(2));
+                      });
 
-			$('#chart').empty().queue(function(exec) {
-				var chart = c3.generate(json);
-                                console.log(chart);
-				exec();
-			});
-		    }
-		});
-	
-     }
+                      var json = {
+                          bindto: '#chart',
+                          data: {
+                              x: 'x',
+                              x_format: '%Y-%m-%d %H:%M:%S',
+                              columns: [t1, cpu]
+                          },
+                          subchart: {
+                              show: true
+                          },
+                          axis: {
+                              x: {
+                                  label: 'Time',
+                                  type: 'timeseries',
+                                  tick: {
+                                      fit: true,
+                                      count: 5,
+                                      format: '%e %b %H:%M',
+                                  }
+                              },
+                              y: {
+                                  label: '(%)'
+                              }
+                          },
+                          tooltip: {
+                              format: {
+                                  title: function (d) {
+                                      return formattedDate(new Date(d.getTime())).replace("T", " - ");
+                                  },
+                                  value: d3.format(',')
+                              }
+                          }
+                      };
+
+                      $('#chart').empty().queue(function (exec) {
+                          var chart = c3.generate(json);
+                          console.log(chart);
+                          exec();
+                      });
+                  }
+              });
+          } else if (meter == "network") {
+              $.ajax({
+                  url: url_requisicao_vm + "&meter=network",
+                  dataType: 'json'
+              }).fail(function (data) {
+                  show_plot = false;
+                  var inst = $("#instances").find("option:selected").text();
+                  $('#chart').empty().queue(function (exec) {
+                      $('#chart').html('<p><h3>' + 'Could not generate the graph for the instance ' + inst + '</h3><p>');
+                      exec();
+                  });
+              }).done(function (data) {
+                  dados = data;
+                  if (data.length === 0) {
+                      if (resource_vm == undefined) {
+                          var inst = $("#instances").find("option:selected").text();
+                          $('#chart').empty().queue(function (exec) {
+                              $('#chart').html('<p><h3>' + 'Could not generate the graph for the instance ' + inst + '</h3><p>');
+                              exec();
+                          });
+                      } else {
+                          var inst = $("#instances").find("option:selected").text();
+                          $('#chart').empty().queue(function (exec) {
+                              $('#chart').html('<p><h3>' + 'Could not generate the graph for the instance ' + inst + '</h3><p>');
+                              exec();
+                          });
+                      }
+                  } else {
+                      console.log("passou");
+                      var dados = data;
+                      console.log(dados);
+                      var t1 = [];
+                      t1.push("x1");
+
+                      var t2 = [];
+                      t2.push("x2");
+
+                      var network_incoming = [];
+                      network_incoming.push("Network Incoming Bytes Rate");
+                      $.each(dados.network_incoming, function (d) {
+                          t1.push(dados.network_incoming[d].timestamp.replace("T", " "));
+                          network_incoming.push((dados.network_incoming[d].network_incoming_bytes_rate).toFixed(2));
+                      });
+
+                      var network_outgoing = [];
+                      network_outgoing.push("Network Outgoing Bytes Rate");
+                      $.each(dados.network_outgoing, function (d) {
+                          t2.push(dados.network_outgoing[d].timestamp.replace("T", " "));
+                          network_outgoing.push((dados.network_outgoing[d].network_outgoing_bytes_rate).toFixed(2));
+                      });
+
+                      var json = {
+                          bindto: '#chart',
+                          data: {
+                              xs: {
+                                  'Network Incoming Bytes Rate': t1[0],
+                                  'Network Outgoing Bytes Rate': t2[0]
+                              },
+                              x_format: '%Y-%m-%d %H:%M:%S',
+                              columns: [t1, t2, network_incoming, network_outgoing]
+                          },
+                          subchart: {
+                              show: true
+                          },
+                          axis: {
+                              x: {
+                                  label: 'Time',
+                                  type: 'timeseries',
+                                  tick: {
+                                      fit: true,
+                                      count: 5,
+                                      format: '%e %b %H:%M',
+                                  }
+                              },
+                              y: {
+                                  label: '(B/s)'
+                              }
+                          },
+                          tooltip: {
+                              format: {
+                                  title: function (d) {
+                                      return formattedDate(new Date(d.getTime())).replace("T", " - ");
+                                  },
+                                  value: d3.format(',')
+                              }
+                          }
+                      };
+
+                      $('#chart').empty().queue(function (exec) {
+                          var chart = c3.generate(json);
+                          console.log(chart);
+                          exec();
+                      });
+                  }
+              });
+          }
+
+      }
   }
 
   function formattedDate(date, verificador) {
