@@ -632,3 +632,9 @@ class DataHandler:
  
     def vcpus_for_aggregate(self, project):
         return json.dumps(self.__nova.vcpus_for_aggregate(project))
+
+    def create_snapshot(self, instance_id):
+        self.__nova.create_snapshot(instance_id)
+
+    def suspend_instance(self, instance_id):
+        self.__nova.suspend_instance(instance_id)

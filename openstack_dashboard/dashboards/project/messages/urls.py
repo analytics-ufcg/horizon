@@ -18,8 +18,11 @@ from django.conf.urls import url  # noqa
 from openstack_dashboard.dashboards.project.messages import views
 
 MESSAGE = r'^(?P<message_id>[^/]+)/%s$'
+MESSAGE_INSTANCE_PAIR = r'^(?P<message_id>[^/]+)/(?P<instance_id>[^/]+)/%s$'
 
 urlpatterns = patterns('openstack_dashboard.dashboards.project.messages.views',
     url(r'^$', views.IndexView.as_view(), name='index'),
     url(MESSAGE % 'detail', views.DetailView.as_view(), name='detail'),
+    url(MESSAGE_INSTANCE_PAIR % 'snapshot', views.SnapshotView.as_view(), name='snapshot'),
+    url(MESSAGE_INSTANCE_PAIR % 'suspend', views.SuspendView.as_view())
 )

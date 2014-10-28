@@ -76,3 +76,61 @@ class DetailView(TemplateView):
             # Need to raise here just in case.
             raise exceptions.Http302(redirect)
         return message
+
+class SnapshotView(TemplateView):
+    template_name = 'project/messages/snapshot.html'
+    redirect_url = 'horizon:project:messages:index'
+
+    def get_context_data(self, **kwargs):
+        context = super(SnapshotView, self).get_context_data(**kwargs)
+        context["message_id"] = self.get_data() 
+        return context
+
+    def get_data(self):
+        try:
+            message_id = self.kwargs['message_id']
+            instance_id = self.kwargs['instance_id']
+
+            message_manager = MessageManager()
+            message_manager.execute_snapshot_action(str(instance_id))
+            #delete message after action
+        except Exception:
+            redirect = reverse(self.redirect_url)
+            exceptions.handle(self.request,
+                              _('Unable to execute snapshot action for '
+                                'instance "%s".') % instance_id,
+                                redirect=redirect)
+            # Not all exception types handled above will result in a redirect.
+            # Need to raise here just in case.
+            raise exceptions.Http302(redirect)
+        return message_id
+
+class SuspendView(TemplateView):
+    template_name = 'project/messages/suspend.html'
+    redirect_url = 'horizon:project:messages:index'
+
+    def get_context_data(self, **kwargs):
+        context = super(SuspendView, self).get_context_data(**kwargs)
+        context["message_id"] = self.get_data()
+        return context
+
+    def get_data(self):
+        try:
+            message_id = self.kwargs['message_id']
+            instance_id = self.kwargs['instance_id']
+            
+            message_manager = MessageManager()
+            message_manager.execute_suspend_action(str(instance_id))
+            #delete message after action
+
+        except Exception:
+            redirect = reverse(self.redirect_url)
+            exceptions.handle(self.request,
+                              _('Unable to execute suspend action for '
+                                'instance "%s".') % instance_id,
+                                redirect=redirect)
+            # Not all exception types handled above will result in a redirect.
+            # Need to raise here just in case.
+            raise exceptions.Http302(redirect)
+        return message_id
+
