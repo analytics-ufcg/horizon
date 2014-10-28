@@ -116,10 +116,10 @@ class NovaClient:
 
     def get_user_instances(self, user_id):
         servers = self.list_all_instances()
-        instances = []
+        instances = {}
         for server in servers:
             if server['user_id'] == user_id:
-                instances.append(server['id'])
+                instances[server['id']] = server['name']
         return instances
 
     def get_nova_urls(self, url):
