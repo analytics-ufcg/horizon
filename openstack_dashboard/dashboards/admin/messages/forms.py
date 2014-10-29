@@ -26,28 +26,43 @@ class MessageUserForm(forms.SelfHandlingForm):
     message = forms.CharField(widget=forms.widgets.Textarea(),
                                   label=_("Message"))
     
-    template = forms.ChoiceField(label=_("Templates"),
-        help_text=_("Choose template"))
-
+    template = forms.ChoiceField(label=_("Templates"), help_text=_("Choose template"))
+    instances = forms.ChoiceField(label=_("Instances"), help_text=_("Choose instance"), required=False) 
+ 
     def __init__(self, request, *args, **kwargs):
         super(MessageUserForm, self).__init__(request, *args, **kwargs)
-        
-        messager = MessageManager()
-        template_data = messager.get_templates()
+
+        message_manager = MessageManager()
+
+        #init template choices
+        template_data = message_manager.get_templates()
         template_choices = []
         for key in template_data.keys():
             choice = (key, template_data[key]['name'])
             template_choices.append(choice)
 
-        choices = ([('none', _("--Select Template--"))] + template_choices)
-        self.fields['template'].choices = choices
+        all_choices = ([('none', _("--Select Template--"))] + template_choices)
+        self.fields['template'].choices = all_choices
+
+        #init instances choices
+        user_id = kwargs['initial'].get('id', None)
+        instances_dict = message_manager.get_instances_dict(user_id)
+        instances_choices = []
+        for key in instances_dict.keys():
+            choice = (key, instances_dict[key])
+            instances_choices.append(choice)
+        self.fields['instances'].choices = instances_choices
 
     def handle(self, request, data):
-        messager = MessageManager();
+        message_manager = MessageManager();
         user_id = data.pop('id')
 
         try:
-            messager.send_message_user(data['subject'], data['message'], user_id)
+            url = ''
+            if(str(data['template']) != 'none' and str(data['instances']) != ''):
+                template_url = message_manager.get_action_url(data['template'])
+                url = data['instances'] + '/' + template_url
+            message_manager.send_message_user(data['subject'], data['message'], user_id, url)
             messages.success(request,
                              _('Message for User has been sent successfully.'))
         except Exception:
@@ -68,8 +83,8 @@ class MessageProjectForm(forms.SelfHandlingForm):
     def __init__(self, request, *args, **kwargs):
         super(MessageProjectForm, self).__init__(request, *args, **kwargs)
 
-        messager = MessageManager()
-        template_data = messager.get_templates()
+        message_manager = MessageManager()
+        template_data = message_manager.get_templates()
         template_choices = []
         for key in template_data.keys():
             choice = (key, template_data[key]['name'])
@@ -80,12 +95,11 @@ class MessageProjectForm(forms.SelfHandlingForm):
 
 
     def handle(self, request, data):
-        messager = MessageManager();
+        message_manager = MessageManager();
         project_id = data.pop('id')
         
         try:
-            messager.send_message_project(data['subject'], data['message'], project_id)
-            print 'passou', project_id
+            message_manager.send_message_project(data['subject'], data['message'], project_id, data['template'])
             messages.success(request,
                              _('Message for Project has been sent successfully.'))
         except Exception:
@@ -106,8 +120,8 @@ class MessageHostForm(forms.SelfHandlingForm):
     def __init__(self, request, *args, **kwargs):
         super(MessageHostForm, self).__init__(request, *args, **kwargs)
 
-        messager = MessageManager()
-        template_data = messager.get_templates()
+        message_manager = MessageManager()
+        template_data = message_manager.get_templates()
         template_choices = []
         for key in template_data.keys():
             choice = (key, template_data[key]['name'])
@@ -118,11 +132,11 @@ class MessageHostForm(forms.SelfHandlingForm):
 
 
     def handle(self, request, data):
-        messager = MessageManager();
+        message_manager = MessageManager();
         host_id = data.pop('id')
         
         try:
-            messager.send_message_host(data['subject'], data['message'], host_id)
+            message_manager.send_message_host(data['subject'], data['message'], host_id, data['template'])
             messages.success(request,
                              _('Message for Host has been sent successfully.'))
         except Exception:

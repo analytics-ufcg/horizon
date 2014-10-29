@@ -33,15 +33,23 @@
 
   function update_fields() {
     var template  = $.parseJSON("{{template | escapejs | safe }}")
+
+    $('#id_instances').hide()
+    $("label[for='id_instances']").hide()
+
     $("#id_template").change(function (event) {
       var current_template_id = $('#id_template').val()
       if(current_template_id != 'none') {
         $('#id_subject').val(template[current_template_id]['subject'])
         $('#id_message').val(template[current_template_id]['message'])
+        $('#id_instances').show()
+        $("label[for='id_instances']").show()
       }
       else {
         $('#id_subject').val('')
         $('#id_message').val('')
+        $('#id_instances').hide()
+        $("label[for='id_instances']").hide()
       }
     });
   }

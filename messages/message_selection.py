@@ -41,6 +41,7 @@ class MessageManager:
     def send_message_user(self, subject, message, user_id, url, sender='admin'):
         ref = self.message_id('user')
         m = self.send_message(subject, message, user_id)
+        url = str(m.id) + '/' + url 
         self.message_relation(ref.id, m.id, url)
         
 
@@ -68,7 +69,7 @@ class MessageManager:
             action =  template.actions
             for instance in list(set(users_id.keys())):
                 m = self.send_message(subject, message, users_id[instance])
-                self.message_relation(ref.id, m.id, instance+'/'+action)
+                self.message_relation(ref.id, m.id, str(m.id)+'/'+instance+'/'+action)
 
         return True
     def send_message_host(self, subject, message, host_name, template_id, sender='admin'):
@@ -85,7 +86,7 @@ class MessageManager:
             action =  template.actions
             for instance in list(set(users_id.keys())):
                 m = self.send_message(subject, message, users_id[instance])
-                self.message_relation(ref.id, m.id, instance+'/'+action)
+                self.message_relation(ref.id, m.id, str(m.id)+'/'+instance+'/'+action)
         return True
 
     def get_message_by_id(self, id):
@@ -182,7 +183,14 @@ class MessageManager:
         return template_data
 
     def execute_snapshot_action(self, instance_id):
-        self.__data_handler.create_snapshot(instance_id)
+        self.__nova_client.create_snapshot(instance_id)
 
     def execute_suspend_action(self, instance_id):
-        self.__data_handler.suspend_instance(instance_id)
+        self.__nova_client.suspend_instance(instance_id)
+
+    def get_instances_dict(self, user_id):
+        return self.__nova_client.get_user_instances(user_id) 
+ 
+    def get_action_url(self, template_id):
+         template_obj = TemplateMessage.objects.get(id=template_id)
+         return template_obj.actions
