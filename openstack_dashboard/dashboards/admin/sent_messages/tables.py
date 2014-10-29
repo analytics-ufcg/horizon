@@ -24,8 +24,8 @@ class DetailMessageAction(tables.LinkAction):
     classes = ('btn-edit')
 
 class DeleteMessageAction(tables.DeleteAction):
-    data_type_singular = _("Alarm")
-    data_type_plural = _("Alarms")
+    data_type_singular = _("Message")
+    data_type_plural = _("Messages")
 
     def delete(self, request, obj_id):
         m = MessageManager()
