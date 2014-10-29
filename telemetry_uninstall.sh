@@ -1,8 +1,6 @@
 #!/bin/bash
 echo 'Deletando arquivos...'
 
-mkdir telemetry_uninstall
-
 rm ../openstack_dashboard/api/telemetry.py
 
 rm -r ../openstack_dashboard/api/telemetry_api
