@@ -30,7 +30,7 @@ def store_host_data(hosts, config, interval=1, percpu=False):
 def get_host_metric(host):
     url = "http://%s:6556/host_data" % host
     try:
-        r = requests.get(url)
+        r = requests.get(url, timeout=5)
         if r.status_code == 200:
             return r.json()
         else:
