@@ -4,6 +4,7 @@ from openstack.nova_client import NovaClient
 from host_data import HostDataHandler
 from benchmark_data import BenchmarkDataHandler
 from reduction import Reduction
+from datetime import datetime
 
 import json, ast, smtplib, math, requests, numpy, ast, ConfigParser
 
@@ -508,34 +509,7 @@ class DataHandler:
         return json.dumps(ret)
 
     def hosts_aggregation_network(self, timestamp_begin=None, timestamp_end=None):
-        ret = []
-
-        network_data = self.hosts_network(timestamp_begin, timestamp_end)
-        aggregates = self.__nova.host_aggregates('admin')
-
-        for aggregate in aggregates:
-            result = []
-            host_address = aggregate["host_address"]
-            for host in host_address:
-                for data in network_data:
-                    if(data["host_address"]==host):
-                        convert = []
-
-                        for network_io in data["data"]:
-                            network_io_all=json.loads(network_io['data'])[0]
-                            network_io['data'] = {'net_bytes_sent': network_io_all['net_bytes_sent'], 'net_bytes_recv': network_io_all['net_bytes_recv']}
-
-                            convert.append(network_io)
-
-                        if(len(result)==0):
-                            result = convert
-                        else:
-                            if(len(result) > len(convert)):
-                                result = result[0:len(convert)]
-                        break
-            ret.append({"Aggregate":aggregate["name"], "data":result})
-
-        return json.dumps(ret)
+        return None
 
     def points_reduction_by_server_cpu(self, timestamp_begin, timestamp_end, hosts):
         data = []
@@ -583,8 +557,54 @@ class DataHandler:
         return result
 
     def points_reduction_by_server_network(self, timestamp_begin, timestamp_end, hosts):
-        #implementar a funcao de reducao dos pontos
-        return []
+        data = []
+        old_data = self.hosts_network(timestamp_begin, timestamp_end)
+
+        for host in old_data:
+            single_host_data = {'host_address': host['host_address'], 'incoming_rate': [], 'outgoing_rate': []}
+
+            if len(host['data']) > 1:
+                sample = host['data'][0]
+                for sample_index in range(len(host['data']) - 1):
+                    sample_index += 1
+
+                    network_data = json.loads(sample['data'])[0]
+                    before_timestamp = datetime.strptime(sample['timestamp'], '%Y-%m-%dT%H:%M:%S')
+                    before_net_bytes_recv = network_data['net_bytes_recv']
+                    before_net_bytes_sent = network_data['net_bytes_sent']
+
+                    next_sample = host['data'][sample_index]
+                    network_data = json.loads(next_sample['data'])[0]
+                    after_timestamp = datetime.strptime(next_sample['timestamp'], '%Y-%m-%dT%H:%M:%S')
+                    after_net_bytes_recv = network_data['net_bytes_recv']
+                    after_net_bytes_sent = network_data['net_bytes_sent']
+
+                    timestamp_delta = (after_timestamp - before_timestamp).total_seconds()
+                    net_bytes_recv_delta = after_net_bytes_recv - before_net_bytes_recv
+                    net_bytes_sent_delta = after_net_bytes_sent - before_net_bytes_sent
+
+                    if (net_bytes_recv_delta < 0) or (net_bytes_sent_delta < 0) or (timestamp_delta < 3):
+                        continue
+                    else:
+                        sample = next_sample
+
+                    net_bytes_recv_delta = net_bytes_recv_delta / timestamp_delta
+                    net_bytes_sent_delta = net_bytes_sent_delta / timestamp_delta
+
+                    single_host_data['incoming_rate'].append({'timestamp': sample['timestamp'], 'net_bytes_recv': net_bytes_recv_delta})
+                    single_host_data['outgoing_rate'].append({'timestamp': sample['timestamp'], 'net_bytes_sent': net_bytes_sent_delta})
+
+                single_host_data['incoming_rate'] = self.__reduction.points_reduction(single_host_data['incoming_rate'], 'net_bytes_recv')
+                if math.isnan(single_host_data['incoming_rate'][-1]['net_bytes_recv']):
+                    single_host_data['incoming_rate'].pop()
+
+                single_host_data['outgoing_rate'] = self.__reduction.points_reduction(single_host_data['outgoing_rate'], 'net_bytes_sent')
+                if math.isnan(single_host_data['outgoing_rate'][-1]['net_bytes_sent']):
+                    single_host_data['outgoing_rate'].pop()
+
+            data.append(single_host_data)
+
+        return data
 
     def points_reduction_vm(self, timestamp_begin,timestamp_end,resource_id):
         old_data = json.loads(self.cpu_util_from(timestamp_begin,timestamp_end,resource_id))

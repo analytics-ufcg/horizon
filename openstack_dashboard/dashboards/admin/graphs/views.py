@@ -58,6 +58,7 @@ class AggregatesView(TemplateView):
         times_begin = request.GET.get('timestamp_begin')
         times_end = request.GET.get('timestamp_end')
         meter = request.GET.get('meter')
+
         json_graf = None
         if(meter == 'cpu'):
             json_graf = data_handler.hosts_aggregation_cpu(timestamp_begin=times_begin, timestamp_end=times_end)
@@ -65,6 +66,7 @@ class AggregatesView(TemplateView):
             json_graf = data_handler.hosts_aggregation_memory(timestamp_begin=times_begin, timestamp_end=times_end)
         elif(meter == 'disk'):
             json_graf = data_handler.hosts_aggregation_disk(timestamp_begin=times_begin, timestamp_end=times_end)
+            #data_handler.hosts_aggregation_network(timestamp_begin=times_begin, timestamp_end=times_end)
         elif(meter == 'network'):
             json_graf = data_handler.hosts_aggregation_network(timestamp_begin=times_begin, timestamp_end=times_end)
 
@@ -99,8 +101,6 @@ class ProjectsView(TemplateView):
             network_incoming_bytes_rate = data_handler.points_reduction_vm_network_incoming(timestamp_begin=times_begin, timestamp_end=times_end,resource_id=r_id);
             network_outgoing_bytes_rate = data_handler.points_reduction_vm_network_outgoing(timestamp_begin=times_begin, timestamp_end=times_end,resource_id=r_id);
             json_graf = json.dumps({'network_incoming': network_incoming_bytes_rate, 'network_outgoing': network_outgoing_bytes_rate})
-
-            print json_graf
 
         return HttpResponse(json_graf)
 
