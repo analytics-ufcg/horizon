@@ -13,7 +13,7 @@
 #    under the License.
 
 from django.utils.translation import ugettext_lazy as _
-
+from messages.message_selection import MessageManager
 from horizon import tables
 
 
@@ -22,6 +22,15 @@ class DetailMessageAction(tables.LinkAction):
     verbose_name = _("Message Detail")
     url = "horizon:admin:sent_messages:detail"
     classes = ('btn-edit')
+
+class DeleteMessageAction(tables.DeleteAction):
+    data_type_singular = _("Alarm")
+    data_type_plural = _("Alarms")
+
+    def delete(self, request, obj_id):
+        m = MessageManager()
+        m.delete_admin_message(obj_id)
+
 
 
 class SentTable(tables.DataTable):
@@ -41,3 +50,4 @@ class SentTable(tables.DataTable):
         name = "sent_table"
         verbose_name = _("Messages")
         row_actions = (DetailMessageAction,)
+        table_actions = (DeleteMessageAction,)
