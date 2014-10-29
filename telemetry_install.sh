@@ -44,8 +44,6 @@ cp openstack_dashboard/settings.py telemetry_uninstall
 
 cp telemetry_temp/openstack_dashboard/settings.py openstack_dashboard
 
-cp telemetry_temp/horizon/static/horizon/js/c3.min.js horizon/static/horizon/js
-
 cp telemetry_temp/horizon/static/horizon/js/d3.min.js horizon/static/horizon/js
 
 cp telemetry_temp/horizon/static/horizon/js/highcharts.js horizon/static/horizon/js
@@ -77,3 +75,7 @@ echo 'Instalando dependencias...'
 echo 'Dependencias instaladas.'
 
 python manage.py syncdb
+
+cp telemetry_temp/telemetry_uninstall.sh telemetry_uninstall
+
+rm -r telemetry_temp
