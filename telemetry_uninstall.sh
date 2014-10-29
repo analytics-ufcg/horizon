@@ -7,7 +7,7 @@ rm -r ../openstack_dashboard/api/telemetry_api
 
 rm -r ../messages
 
-cp ../telemetry_uninstall/_header.hmtl ../openstack_dashboard/templates
+cp ../telemetry_uninstall/_header.html ../openstack_dashboard/templates
 
 rm -r ../openstack_dashboard/dashboards/project/messages
 
@@ -25,7 +25,7 @@ rm -r ../openstack_dashboard/dashboards/admin/messages
 
 rm -r ../openstack_dashboard/dashboards/admin/sent_messages
 
-cp ../telemetry_uninstall/dashboards.py ../openstack_dashboard/dashboards/admin
+cp ../telemetry_uninstall/dashboard.py ../openstack_dashboard/dashboards/admin
 
 cp ../telemetry_uninstall/settings.py ../openstack_dashboard
 
