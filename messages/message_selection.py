@@ -41,17 +41,20 @@ class MessageManager:
     def send_message_user(self, subject, message, user_id, url, sender='admin'):
         ref = self.message_id('user')
         m = self.send_message(subject, message, user_id)
-        url = str(m.id) + '/' + url 
-        self.message_relation(ref.id, m.id, url)
-        
+        if url == "":
+            is_enable = None
+            url = None
+        else:
+            is_enable = 'T'
+        self.message_relation(ref.id, m.id, url, is_enable)
 
     def message_id(self, type):
         m = MessageId(type = type)
         m.save()
         return m
 
-    def message_relation(self, message, message_ref, url):
-        m = MessageRelation(id_message = message_ref, message = message, url=url)
+    def message_relation(self, message, message_ref, url, is_enable):
+        m = MessageRelation(id_message = message_ref, message = message, url=url, is_enable=is_enable)
         m.save()
 
     def send_message_project(self, subject, message, tenant_id, template_id, sender='admin'):
@@ -63,15 +66,16 @@ class MessageManager:
         if template_id == 'none':
             for user in list(set(users_id.values())):
                 m = self.send_message(subject, message, user)
-                self.message_relation(ref.id, m.id, None)
+                self.message_relation(ref.id, m.id, None, None)
         else:
             template = TemplateMessage.objects.filter(id_message = template_id)[0]
             action =  template.actions
             for instance in list(set(users_id.keys())):
                 m = self.send_message(subject, message, users_id[instance])
-                self.message_relation(ref.id, m.id, str(m.id)+'/'+instance+'/'+action)
+                self.message_relation(ref.id, m.id, instance+'/'+action, 'T')
 
         return True
+
     def send_message_host(self, subject, message, host_name, template_id, sender='admin'):
         ref = self.message_id('host')
         servers = self.__nova_client.get_servers_by_host(host_name)
@@ -80,13 +84,13 @@ class MessageManager:
         if template_id == 'none':
             for user in list(set(users_id.values())):
                 m = self.send_message(subject, message, user)
-                self.message_relation(ref.id, m.id, None)
+                self.message_relation(ref.id, m.id, None, None)
         else:
             template = TemplateMessage.objects.filter(id_message=template_id)[0]
             action =  template.actions
             for instance in list(set(users_id.keys())):
                 m = self.send_message(subject, message, users_id[instance])
-                self.message_relation(ref.id, m.id, str(m.id)+'/'+instance+'/'+action)
+                self.message_relation(ref.id, m.id, instance+'/'+action, 'T')
         return True
 
     def get_message_by_id(self, id):
@@ -192,5 +196,14 @@ class MessageManager:
         return self.__nova_client.get_user_instances(user_id) 
  
     def get_action_url(self, template_id):
-         template_obj = TemplateMessage.objects.get(id=template_id)
-         return template_obj.actions
+        template_obj = TemplateMessage.objects.get(id=template_id)
+        return template_obj.actions
+    
+    def is_action_enable(self, message_id):
+        message_relation_obj = MessageRelation.objects.get(id_message = message_id)
+        return message_relation_obj.is_enable
+
+    def disable_action(self, message_id):
+        message_relation_obj = MessageRelation.objects.get(id_message = message_id)
+        message_relation_obj.is_enable = 'F'
+        message_relation_obj.save()

@@ -1,5 +1,5 @@
 import subprocess
-import json, requests, ast
+import json, requests, ast, datetime
 from keystone_client import KeystoneClient
 from novaclient.v3 import client
 from novaclient.v3.servers import ServerManager
@@ -368,4 +368,20 @@ class NovaClient:
                         total_cpus += (instance['resource'])['cpu']
             ret.append('{"name":' + '"' + hosts["name"] + '"' + ', "vcpus":' + str(total_vcpus) + ', "cpus":' + str(total_cpus)  + '}')
         return ret
+
+    def create_snapshot(self, instance_id):
+        from novaclient.v1_1 import client # nova client v3 raises exception for this
+        nova = client.Client(self.__os_username,self.__os_password,self.__os_tenant_admin, self.__os_auth_url)
+
+        server_manager = ServerManager(nova)
+        instance_obj = server_manager.get(instance_id)
+        snapshot_name = 'snapshot--%s--%s' % (instance_obj.name, datetime.datetime.now())
+        print snapshot_name
+        nova.servers.create_image(instance_id, snapshot_name)
+
+    def suspend_instance(self, instance_id):
+        from novaclient.v1_1 import client # nova client v3 raises exception for this
+        nova = client.Client(self.__os_username,self.__os_password,self.__os_tenant_admin, self.__os_auth_url)
+        server_manager = ServerManager(nova)
+        server_manager.suspend(instance_id)
 

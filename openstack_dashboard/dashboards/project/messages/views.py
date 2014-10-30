@@ -53,7 +53,6 @@ class DetailView(TemplateView):
     def get_context_data(self, **kwargs):
         m = MessageManager()
         message_id = self.kwargs['message_id']
-        print message_id
         context = super(DetailView, self).get_context_data(**kwargs)
         context["message"] = self.get_data()
         context["url1"] = m.get_url(message_id)
@@ -83,7 +82,7 @@ class SnapshotView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SnapshotView, self).get_context_data(**kwargs)
-        context["message_id"] = self.get_data() 
+        context["is_action_enable"] = self.get_data() 
         return context
 
     def get_data(self):
@@ -92,8 +91,12 @@ class SnapshotView(TemplateView):
             instance_id = self.kwargs['instance_id']
 
             message_manager = MessageManager()
-            message_manager.execute_snapshot_action(str(instance_id))
-            #delete message after action
+            if (message_manager.is_action_enable(message_id) == 'T'):
+                message_manager.execute_snapshot_action(str(instance_id))
+                message_manager.disable_action(message_id)
+                return True
+            else:
+                return False
         except Exception:
             redirect = reverse(self.redirect_url)
             exceptions.handle(self.request,

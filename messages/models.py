@@ -36,7 +36,7 @@ class MessageRelation(models.Model):
     id_message = models.IntegerField()
     message = models.IntegerField()
     url = models.CharField(max_length=200)
-
+    is_enable = models.CharField(max_length=1)
 
 class TemplateMessage(models.Model):
     id_message = models.IntegerField()

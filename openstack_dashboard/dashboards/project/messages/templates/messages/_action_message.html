@@ -2,5 +2,9 @@
 {% load url from future %}
 
 <div class="status row-fluid detail">
-  <p>Sua ação foi concluída com suscesso</p>
+  {% if is_action_enable == True %}
+    <p>{% trans "Successfully Completed" %}</p>
+  {% elif is_action_enable == False %}    
+    <p>{% trans "Your action has already been executed" %}</p>
+  {% endif %}
 </div>
