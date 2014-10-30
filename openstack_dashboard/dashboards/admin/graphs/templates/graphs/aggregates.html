@@ -12,7 +12,7 @@
           <option value="cpu" >CPU</option>
           <option value="memory">Memory</option>
           <option value="disk">Disk</option>
-          <!-- <option value="network">Network</option> -->
+          <option value="network">Network</option>
         </select>
       </div>
     </div>
@@ -236,7 +236,7 @@
 						$('#chart3').html('<p><h3>' + 'Could not generate the graph for the aggregate ' + ht + '</h3><p>');
 						exec();
 					});
-                                
+
 			}).done(function(data) {
 				var dados = data;
                                 if (dados === null || dados.length === 0 ) {
@@ -245,9 +245,101 @@
 						$('#chart3').html('<p><h3>' + 'Could not generate the graph for the aggregate ' + ht + '</h3><p>');
 						exec();
 					});
-				} else {
+                } else if (metric == "network") {
+                  console.log("passou");
+                  console.log(dados);
+                  var t1 = [];
+                  t1.push("x1");
+
+                  var t2 = [];
+                  t2.push("x2");
+
+                  var index = 0;
+                    $.each(dados,function(k,v){
+                        if(dados[k]["Aggregate"]==host){
+                            console.log("achou");
+                            return false;
+                        } else {
+                            index+=1;
+                        }
+                    });
+                  console.log(dados[index]);
+                  var incoming_dt = dados[index].incoming_rate;
+                  var outgoing_dt = dados[index].outgoing_rate;
+
+                  if (incoming_dt == null || outgoing_dt == null) {
+                      var ht = $('#hosts').find("option:selected").val();
+                      $('#chart3').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
+                  } else {
+
+
+                      var network_incoming = [];
+                      network_incoming.push("Network Incoming Bytes Rate");
+                      $.each(incoming_dt, function (d) {
+                          t1.push(incoming_dt[d].timestamp.replace("T", " "));
+                          network_incoming.push((incoming_dt[d].net_bytes_recv).toFixed(2));
+                      });
+
+                      var network_outgoing = [];
+                      network_outgoing.push("Network Outgoing Bytes Rate");
+                      $.each(outgoing_dt, function (d) {
+                          t2.push(outgoing_dt[d].timestamp.replace("T", " "));
+                          network_outgoing.push((outgoing_dt[d].net_bytes_sent).toFixed(2));
+                      });
+
+                      var json = {
+                          bindto: '#chart3',
+                          data: {
+                              xs: {
+                                  'Network Incoming Bytes Rate': t1[0],
+                                  'Network Outgoing Bytes Rate': t2[0]
+                              },
+                              x_format: '%Y-%m-%d %H:%M:%S',
+                              columns: [t1, t2, network_incoming, network_outgoing]
+                          },
+                          subchart: {
+                              show: true
+                          },
+                          axis: {
+                              x: {
+                                  label: 'Time',
+                                  type: 'timeseries',
+                                  tick: {
+                                      fit: true,
+                                      count: 5,
+                                      format: '%e %b %H:%M',
+                                  }
+                              },
+                              y: {
+                                  label: '(B/s)'
+                              }
+                          },
+                          tooltip: {
+                              format: {
+                                  title: function (d) {
+                                      return formattedDate(new Date(d.getTime())).replace("T", " - ");
+                                  },
+                                  value: d3.format(',')
+                              }
+                          }
+                      };
+
+                      $('#chart3').empty().queue(function (exec) {
+                          var chart = c3.generate(json);
+                          console.log(chart);
+                          exec();
+                      });
+                  }
+              } else {
 	                                var index = 0;
-                        	        $.each(dados,function(k,v){ if(dados[k]["Aggregate"]==host){ console.log("achou");return false; }else{index+=1;}  });
+                        	        $.each(dados,function(k,v){
+                                        if(dados[k]["Aggregate"]==host){
+                                            console.log("achou");
+                                            return false;
+                                        } else {
+                                            index+=1;
+                                        }
+                                    });
 					var dt = dados[index].data;
                                         console.log("dados: "+ dt)
 					if (dt == null) {
@@ -289,7 +381,7 @@
 									}
 								}
 							};
-              
+
 							$('#chart3').empty().queue(function(exec) {
 								var chart = c3.generate(json);
 								exec();

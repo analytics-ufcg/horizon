@@ -66,7 +66,6 @@ class AggregatesView(TemplateView):
             json_graf = data_handler.hosts_aggregation_memory(timestamp_begin=times_begin, timestamp_end=times_end)
         elif(meter == 'disk'):
             json_graf = data_handler.hosts_aggregation_disk(timestamp_begin=times_begin, timestamp_end=times_end)
-            #data_handler.hosts_aggregation_network(timestamp_begin=times_begin, timestamp_end=times_end)
         elif(meter == 'network'):
             json_graf = data_handler.hosts_aggregation_network(timestamp_begin=times_begin, timestamp_end=times_end)
 
