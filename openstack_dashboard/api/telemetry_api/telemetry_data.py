@@ -509,7 +509,53 @@ class DataHandler:
         return json.dumps(ret)
 
     def hosts_aggregation_network(self, timestamp_begin=None, timestamp_end=None):
-        return None
+        ret = []
+        hosts = ast.literal_eval(self.get_config().get('Openstack', 'computenodes'))
+        network_data = self.points_reduction_by_server_network(timestamp_begin, timestamp_end, hosts)
+        aggregates = self.__nova.host_aggregates('admin')
+
+        for aggregate in aggregates:
+            result_incoming = []
+            result_outgoing = []
+            host_address = aggregate["host_address"]
+            for host in host_address:
+                for data in network_data:
+                    if(data["host_address"]==host):
+                        convert_incoming = []
+
+                        for network_incoming_rate in data["incoming_rate"]:
+                            convert_incoming.append(network_incoming_rate)
+
+                        if(len(result_incoming)==0):
+                            result_incoming = convert_incoming
+                        else:
+                            if(len(result_incoming) > len(convert_incoming)):
+                                result_incoming = result_incoming[0:len(convert_incoming)]
+                            for i in range(len(result_incoming)):
+                                value = result_incoming[i]
+                                value["net_bytes_recv"] = value["net_bytes_recv"] + (convert_incoming[i])["net_bytes_recv"]
+                                result_incoming[i] = value
+
+                        convert_outgoing = []
+
+                        for network_outgoing_rate in data["outgoing_rate"]:
+                            convert_outgoing.append(network_outgoing_rate)
+
+                        if(len(result_outgoing)==0):
+                            result_outgoing = convert_outgoing
+                        else:
+                            if(len(result_outgoing) > len(convert_outgoing)):
+                                result_outgoing = result_outgoing[0:len(convert_outgoing)]
+                            for i in range(len(result_outgoing)):
+                                value = result_outgoing[i]
+                                value["net_bytes_sent"] = value["net_bytes_sent"] + (convert_outgoing[i])["net_bytes_sent"]
+                                result_outgoing[i] = value
+
+                        break
+
+            ret.append({"Aggregate":aggregate["name"], "data":{'incoming_rate': result_incoming, 'outgoing_rate': result_outgoing}})
+
+        return json.dumps(ret)
 
     def points_reduction_by_server_cpu(self, timestamp_begin, timestamp_end, hosts):
         data = []
