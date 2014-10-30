@@ -553,7 +553,7 @@ class DataHandler:
 
                         break
 
-            ret.append({"Aggregate":aggregate["name"], "data":{'incoming_rate': result_incoming, 'outgoing_rate': result_outgoing}})
+            ret.append({"Aggregate":aggregate["name"], 'incoming_rate': result_incoming, 'outgoing_rate': result_outgoing})
 
         return json.dumps(ret)
 
