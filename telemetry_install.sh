@@ -74,6 +74,8 @@ echo 'Instalando dependencias...'
 
 echo 'Dependencias instaladas.'
 
+./create_bd.sh message_database telemetry_user 2910901b3537f1ecc45f
+
 python manage.py syncdb
 
 cp telemetry_temp/telemetry_uninstall.sh telemetry_uninstall
