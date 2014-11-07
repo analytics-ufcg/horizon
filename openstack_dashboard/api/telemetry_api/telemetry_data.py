@@ -37,9 +37,9 @@ class MigrateException(Exception):
         self.message = message
 class DataHandler:
 
-    def __init__(self):
+    def __init__(self, config_path='openstack_dashboard/api/telemetry_api/environment.conf'):
         self.__config = ConfigParser.ConfigParser()
-        self.__config.read('openstack_dashboard/api/telemetry_api/environment.conf')
+        self.__config.read(config_path)
         self.__ceilometer = CeilometerClient(self.__config)
         self.__keystone = KeystoneClient(self.__config)
         self.__nova = NovaClient(self.__config)
