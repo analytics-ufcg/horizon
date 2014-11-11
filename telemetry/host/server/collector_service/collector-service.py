@@ -1,14 +1,25 @@
-from host_data import HostDataHandler 
-import json, requests, time
+import sys
+import ConfigParser, ast
+import requests, time
 
-def store_host_data(hosts, config, interval=1, percpu=False):
+from host_dbwriter import HostDataDBWriter
+
+config = ConfigParser.ConfigParser()
+config.read("environment.conf")
+
+HOSTS = ast.literal_eval(config.get('Openstack', 'computenodes'))
+
+def main(argv):
+    store_host_data(hosts=HOSTS, config=config)
+
+def store_host_data(hosts, config):
     server = config.get('Misc', 'dbserver')
     user = config.get('Misc', 'dbuser')
     passwd = config.get('Misc', 'dbpass')
     database = config.get('Misc', 'hostsdbname')
     table = config.get('Misc', 'hostsdbtable')
 
-    db = HostDataHandler(server, user, passwd, database, table)
+    db = HostDataDBWriter(server, user, passwd, database, table)
 
     while True:
         for host in hosts:
@@ -38,3 +49,6 @@ def get_host_metric(host):
             return 'Unknown host'
     except:
         return 'Unknown host'
+
+if __name__ == "__main__":
+   main(sys.argv[1:])

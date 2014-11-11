@@ -4,21 +4,19 @@ from telemetry_data import DataHandler, MigrateException
 
 import json, requests, threading, ConfigParser, ast
 
-from agent_server import store_host_data
-
-from start_bench_thread import start_bench_ 
+from start_bench_thread import start_bench_
 
 
 LOGFILE = 'telemetry_server'
 
 app = Flask(__name__)
-
+config_path = "./environment.conf"
 config = ConfigParser.ConfigParser()
-config.read("environment.conf")
+config.read(config_path)
 
 HOSTS = ast.literal_eval(config.get('Openstack', 'computenodes'))
 
-data_handler = DataHandler()
+data_handler = DataHandler(config_path)
 
 @app.route('/projects')
 def projects():
@@ -319,10 +317,6 @@ def hosts_aggregates():
     return resp
 
 if __name__ == '__main__':
-    worker = threading.Thread(target=store_host_data, kwargs={'hosts' : HOSTS, 'config' : config})
-    worker.daemon = False
-    worker.start()
-    
     app.debug = True
     app.run(host='0.0.0.0', port=10090)
 
