@@ -6,5 +6,7 @@ CREATE TABLE hosts_data_table(
      Disk VARCHAR(200), 
      Network VARCHAR(200),
      Host VARCHAR(20), 
+     ServiceStatus VARCHAR(2000),
+     HostStatus CHAR(1) DEFAULT 'T',
      PRIMARY KEY (id)
 );

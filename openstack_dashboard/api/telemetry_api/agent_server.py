@@ -15,6 +15,7 @@ def store_host_data(hosts, config, interval=1, percpu=False):
             data = get_host_metric(host)
 
             if(data == 'Unknown host'):
+                db.save_data_db(host_status='F', host=host)
                 continue
 
             cpu = data["cpu"]
@@ -22,7 +23,7 @@ def store_host_data(hosts, config, interval=1, percpu=False):
             disk = data["disk"]
             network = data["network"]
 
-            db.save_data_db(cpu, memory, disk, network, host)
+            db.save_data_db(cpu=cpu, memory=memory, disk=disk, network=network, host=host)
 
         time.sleep(60)
 
