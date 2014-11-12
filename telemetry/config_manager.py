@@ -51,3 +51,10 @@ class ConfigManager():
 
     def get_alarm_url(self):
         return self._instance.config_parser.get('Misc', 'AlarmPostUrl')
+
+    def get_benchmark_db(self):
+        return self._instance.config_parser.get('Benchmark', 'DbBenchmark')
+
+    def get_benchmark_table(self):
+        return self._instance.config_parser.get('Benchmark', 'BenchmarkTable')
+

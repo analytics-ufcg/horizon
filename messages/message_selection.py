@@ -160,7 +160,7 @@ class MessageManager:
 
         for message in relation:
             id_message = message.id_message
-            message_table = Message.objects.filter(id=id_message) 
+            message_table = Message.objects.filter(id=id_message)
             text = message_table[0].message
 
             for m in message_table:

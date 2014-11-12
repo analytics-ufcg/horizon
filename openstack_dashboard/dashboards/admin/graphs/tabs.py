@@ -14,7 +14,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from horizon  import tabs
+from horizon import tabs
 from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 import json
 import requests
