@@ -1,0 +1,20 @@
+{% load i18n %}
+<div id="ceilometer-stats">
+  <form class="form-horizontal"
+        id="linechart_general_form">
+
+    <div class="control-group">
+      <label for="meter" class="control-label">{% trans "Metric" %}:&nbsp;</label>
+      <div class="controls line_chart_time_picker">
+        <select data-line-chart-command="select_box_change"
+                name="meter" id="meter" class="span2 example">
+          <option selected="selected">{% trans "--" %}</option>
+          <option value="cpu" >CPU</option>
+          <option value="memory">Memory</option>
+          <option value="disk">Disk</option>
+          <option value="network">Network</option>
+        </select>
+      </div>
+    </div>
+   </form>
+</div>

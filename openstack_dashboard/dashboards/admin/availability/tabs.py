@@ -12,27 +12,42 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _ # noqa
 
-from horizon  import tabs
-from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
-import json
-import requests
-import ast, ConfigParser
+from horizon import tabs
 
-data_handler = DataHandler()
 
-class HostsAvailabilityTab(tabs.Tab):
-    name = _("Hosts Availability")
-    slug = "hosts"
-    template_name = ("admin/availability/host_availability.html")
+class HostTab(tabs.Tab):
+    name = _("Host")
+    slug = "host"
+    template_name = ("admin/availability/host.html")
 
     def get_context_data(self, request, *args, **kwargs):
         context = {}
         return context
 
 
-class AvailabilityTabs(tabs.TabGroup):
+class StatisticsTab(tabs.Tab):
+    name = _("Statistics")
+    slug = "statistics"
+    template_name = ("admin/availability/statistics.html")
+
+    def get_context_data(self, request, *args, **kwargs):
+        context = {}
+        return context
+
+
+class ServiceTab(tabs.Tab):
+    name = _("Service")
+    slug = "service"
+    template_name = ("admin/availability/service.html")
+
+    def get_context_data(self, request, *args, **kwargs):
+        context = {}
+        return context
+
+
+class AvailabilityOverview(tabs.TabGroup):
     slug = "availability_overview"
-    tabs = (HostsAvailabilityTab, )
+    tabs = (HostTab, StatisticsTab, ServiceTab, )
     sticky = True
