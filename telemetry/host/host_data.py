@@ -1,9 +1,18 @@
 import MySQLdb as mdb
 import time, datetime, json
+from telemetry.config_manager import ConfigManager
 
 class HostDataHandler:
 
-    def __init__(self, server='localhost', user='root', password='pass', db='hosts_data', table='hosts_data_table'):
+    def __init__(self):
+        config = ConfigManager()
+
+        server = config.get_db_server()
+        user = config.get_db_user()
+        password = config.get_db_pass()
+        db = config.get_host_db_name()
+        table = config.get_host_db_table()
+
         try:
             self.con = mdb.connect(server, user, password, db)
             self.table = table;
@@ -11,12 +20,12 @@ class HostDataHandler:
             print "Error %d: %s" % (e.args[0],e.args[1])
             return None
 
-    def get_data_db(self, data, timestamp_begin=None, timestamp_end=None):
+    def get_data_db(self, metric, timestamp_begin=None, timestamp_end=None):
         cursor = self.con.cursor()
         try:
-            query = "SELECT Date, %s, Host FROM %s" % (data, self.table)
+            query = "SELECT Date, %s, Host FROM %s" % (metric, self.table)
 
-            where = '' 
+            where = ''
             if any([timestamp_begin, timestamp_end]):
                 where += ' WHERE '
                 if timestamp_begin:

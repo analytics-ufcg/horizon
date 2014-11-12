@@ -31,6 +31,12 @@ class ConfigManager():
     def get_db_pass(self):
         return self._instance.config_parser.get('Misc', 'dbpass')
 
+    def get_host_db_name(self):
+        return self._instance.config_parser.get('Misc', 'HostsDbName')
+
+    def get_host_db_table(self):
+        return self._instance.config_parser.get('Misc', 'HostsDbTable')
+
     def get_admin_user(self):
         return self._instance.config_parser.get('Openstack', 'OSUsername')
 

@@ -1,14 +1,20 @@
+from datetime import datetime
+import json
+import smtplib
+import math
+import ast
+import ConfigParser
+
+import requests
+
 from openstack.ceilometer_client import CeilometerClient
 from openstack.keystone_client import KeystoneClient
 from openstack.nova_client import NovaClient
-from host_data import HostDataHandler
+from telemetry.host.host_data import HostDataHandler
 from benchmark_data import BenchmarkDataHandler
 from reduction import Reduction
-from datetime import datetime
-
-import json, ast, smtplib, math, requests, numpy, ast, ConfigParser
-
 import analytics.recommendations
+
 
 def send_email(from_addr, to_addr_list, cc_addr_list,
               subject, message,
@@ -48,7 +54,7 @@ class DataHandler:
         passwd = self.__config.get('Misc', 'dbpass')
         database = self.__config.get('Misc', 'hostsdbname')
         table = self.__config.get('Misc', 'hostsdbtable')
-        self.__hosts_db = HostDataHandler(server, user, passwd, database, table)
+        self.__hosts_db = HostDataHandler()
         self.__benchmark_db = BenchmarkDataHandler(server, user, passwd)
         self.__reduction = Reduction()
 
