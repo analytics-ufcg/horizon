@@ -20,6 +20,6 @@ from openstack_dashboard.dashboards.admin.availability import tabs as \
     availability_tabs
 
 
-class IndexView(tabs.TabView):
+class IndexView(tabs.TabbedTableView):
     tab_group_class = availability_tabs.AvailabilityOverview
     template_name = 'admin/availability/index.html'

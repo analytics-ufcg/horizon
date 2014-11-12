@@ -28,8 +28,8 @@ class HostTab(tabs.Tab):
 
 
 class StatisticsTab(tabs.Tab):
-    name = _("Statistics")
-    slug = "statistics"
+    name = _("Host Statistics")
+    slug = "host_statistics"
     template_name = ("admin/availability/statistics.html")
 
     def get_context_data(self, request, *args, **kwargs):
