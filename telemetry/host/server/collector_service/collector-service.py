@@ -4,15 +4,19 @@ import requests, time
 
 from host_dbwriter import HostDataDBWriter
 
-config = ConfigParser.ConfigParser()
-config.read("environment.conf")
+__DEBUG = False
 
-HOSTS = ast.literal_eval(config.get('Openstack', 'computenodes'))
+def main():
+    print "Collector Service is up and running..."
+    config = ConfigParser.ConfigParser()
+    config.read("environment.conf")
 
-def main(argv):
-    store_host_data(hosts=HOSTS, config=config)
+    hosts = ast.literal_eval(config.get('Openstack', 'ComputeNodes'))
 
-def store_host_data(hosts, config):
+    store_host_data(hosts=hosts, config=config, debug=__DEBUG)
+
+
+def store_host_data(hosts, config, debug=False):
     server = config.get('Misc', 'dbserver')
     user = config.get('Misc', 'dbuser')
     passwd = config.get('Misc', 'dbpass')
@@ -23,26 +27,35 @@ def store_host_data(hosts, config):
 
     while True:
         for host in hosts:
-            data = get_host_metric(host)
+            data = get_host_metric(host['agent_url'])
 
-            if(data == 'Unknown host'):
-                db.save_data_db(host_status='F', host=host)
-                continue
+            if data == 'Unknown host':
+                print
+                result = db.save_data_db(host_status='F', host=host['ip'])
+            else:
+                cpu = data["cpu"]
+                memory = data["memory"]
+                disk = data["disk"]
+                network = data["network"]
 
-            cpu = data["cpu"]
-            memory = data["memory"]
-            disk = data["disk"]
-            network = data["network"]
+                result = db.save_data_db(cpu=cpu, memory=memory, disk=disk, network=network, host=host['ip'])
 
-            db.save_data_db(cpu=cpu, memory=memory, disk=disk, network=network, host=host)
+            if debug:
+                output =  "\nhostname: " + str(host['hostname'])
+                output += "\nip: " + str(host['ip'])
+                output += "\ntype: " + str(host['type'])
+                output += "\nagent_url: " + str(host['agent_url'])
+                output += "\nresponse: " + str(data)
+                output += "\ndb: " + str(result)
+                print output
 
         time.sleep(60)
 
 
-def get_host_metric(host):
-    url = "http://%s:6556/host_data" % host
+def get_host_metric(agent_url, timeout=5):
+    url = agent_url
     try:
-        r = requests.get(url, timeout=5)
+        r = requests.get(url, timeout=timeout)
         if r.status_code == 200:
             return r.json()
         else:
@@ -50,5 +63,18 @@ def get_host_metric(host):
     except:
         return 'Unknown host'
 
+def help(args):
+    return """Usage: python """ + args[0] + """ [OPTION...]
+      -d, --debug                toggles debug mode ON. If enabled, collector
+                                   service status details will available on stdout.
+      --help                     display this help and exit
+      """
+
 if __name__ == "__main__":
-   main(sys.argv[1:])
+    args = sys.argv
+    __DEBUG=('--debug' in args) or ('-d' in args) or __DEBUG
+
+    if '--help' in args:
+        print help(args)
+    else:
+        main()
