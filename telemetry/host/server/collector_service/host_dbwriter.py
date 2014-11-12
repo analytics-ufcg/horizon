@@ -17,7 +17,7 @@ class HostDataDBWriter:
             query = "INSERT INTO %s (Date, Cpu_Util, Memory, Disk, Network, ServiceStatus, HostStatus, Host) VALUES(CURRENT_TIMESTAMP(), %f, '%s', '%s', '%s', '%s', '%s', '%s')" % (self.table, cpu, json.dumps(memory), json.dumps(disk), json.dumps(network), json.dumps(service_status), host_status, host)
             cursor.execute(query)
             self.con.commit()
-            return "sucess"
+            return "success"
         except Exception, e:
             print e
             return None
