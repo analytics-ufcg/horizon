@@ -44,7 +44,10 @@ class ConfigManager():
         return self._instance.config_parser.get('Openstack', 'OSPassword')
 
     def get_admin_tenant_id(self):
-        return self._instance.config_parser.get('Misc', 'AlarmPostUrl')
+        return self._instance.config_parser.get('Openstack', 'AdminTenantId')
+
+    def get_computenodes_map(self):
+        return self._instance.config_parser.get('Openstack', 'ComputeNodesMap')
 
     def get_oauth_url(self):
         return self._instance.config_parser.get('Openstack', 'OSAuthUrl')

@@ -48,7 +48,11 @@ class DataHandler:
         self.__config.read(config_path)
         self.__ceilometer = CeilometerClient(self.__config)
         self.__keystone = KeystoneClient(self.__config)
-        self.__nova = NovaClient(self.__config)
+
+
+        #self.__nova = NovaClient(self.__config)
+        self.__nova = NovaClient()
+
         server = self.__config.get('Misc', 'dbserver')
         user = self.__config.get('Misc', 'dbuser')
         passwd = self.__config.get('Misc', 'dbpass')
@@ -728,3 +732,6 @@ class DataHandler:
 
     def suspend_instance(self, instance_id):
         self.__nova.suspend_instance(instance_id)
+
+    def get_computenodes_names(self):
+        return self.__nova.list_compute_nodes()

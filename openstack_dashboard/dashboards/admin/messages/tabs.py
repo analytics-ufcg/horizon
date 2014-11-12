@@ -22,12 +22,10 @@ from openstack_dashboard import api
 
 from openstack_dashboard.api.telemetry_api.openstack.keystone_client \
     import KeystoneClient
-from openstack_dashboard.api.telemetry_api.openstack.nova_client \
-    import NovaClient
+
+from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
 
 from horizon import tabs
-
-import ConfigParser
 
 
 class UsersTab(tabs.TableTab):
@@ -81,12 +79,9 @@ class HostsTab(tabs.TableTab):
 
     def get_hosts_data(self):
         hosts_data = []
-
-        config = ConfigParser.ConfigParser()
-        config.read('openstack_dashboard/api/telemetry_api/environment.conf')
-        nova_client = NovaClient(config)
-
-        for host in nova_client.list_compute_nodes():
+        
+        data_handler = DataHandler()  
+        for host in data_handler.get_computenodes_names():
             host_obj = api.telemetry.HostMessages(host.host_name, host.zone)
             hosts_data.append(host_obj)
             

@@ -5,14 +5,18 @@ from novaclient.v3 import client
 from novaclient.v3.servers import ServerManager
 import novaclient
 
+from telemetry.config_manager import ConfigManager
+
 class NovaClient:
 
-    def __init__(self, config):
-        self.__os_username = config.get('Openstack', 'osusername')
-        self.__os_password = config.get('Openstack', 'ospassword')
-        self.__os_auth_url = config.get('Openstack', 'osauthurl')
-        self.__os_tenant_admin = config.get('Openstack', 'ostenantadmin')
-        self.__os_compute_nodes = ast.literal_eval(config.get('Openstack', 'computenodesmap'))
+    def __init__(self):
+
+        configManager = ConfigManager()
+        self.__os_username = configManager.get_admin_user()
+        self.__os_password = configManager.get_admin_pass()
+        self.__os_auth_url = configManager.get_oauth_url()
+        self.__os_tenant_admin = configManager.get_admin_tenant_id()
+        self.__os_compute_nodes = ast.literal_eval(configManager.get_computenodes_map())
 
     def instances(self, project):
         from novaclient.v1_1 import client # nova client v3 raises exception for this
