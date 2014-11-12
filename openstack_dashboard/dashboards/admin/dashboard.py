@@ -42,7 +42,7 @@ class NotificationPanels(horizon.PanelGroup):
 class TelemetryPanels(horizon.PanelGroup):
     slug = "telemetry"
     name = _("Telemetry Panel")
-    panels = ('graphs', 'recommendations', 'alarms', 'benchmark',)
+    panels = ('graphs', 'recommendations', 'alarms', 'benchmark', 'availability', )
 
 
 class Admin(horizon.Dashboard):
