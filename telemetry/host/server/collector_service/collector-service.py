@@ -9,14 +9,18 @@ __DEBUG = False
 def main():
     print "Collector Service is up and running..."
     config = ConfigParser.ConfigParser()
-    config.read("environment.conf")
+    #config.read("/etc/telemetry/collector-service.conf")
+    config.read("collector-service.conf")
 
     hosts = ast.literal_eval(config.get('Openstack', 'ComputeNodes'))
+    timeout = ast.literal_eval(config.get('Openstack', 'HostTimeout'))
+    timebetweenrequests = ast.literal_eval(config.get('Openstack', 'TimeBetweenRequests'))
 
-    store_host_data(hosts=hosts, config=config, debug=__DEBUG)
+
+    store_host_data(hosts=hosts, config=config, timebetweenrequests=timebetweenrequests, timeout=timeout, debug=__DEBUG)
 
 
-def store_host_data(hosts, config, debug=False):
+def store_host_data(hosts, config, timeout, timebetweenrequests, debug=False):
     server = config.get('Misc', 'dbserver')
     user = config.get('Misc', 'dbuser')
     passwd = config.get('Misc', 'dbpass')
@@ -27,7 +31,7 @@ def store_host_data(hosts, config, debug=False):
 
     while True:
         for host in hosts:
-            data = get_host_metric(host['agent_url'])
+            data = get_host_metric(host['agent_url'], timeout)
 
             if data == 'Unknown host':
                 print
@@ -49,10 +53,10 @@ def store_host_data(hosts, config, debug=False):
                 output += "\ndb: " + str(result)
                 print output
 
-        time.sleep(60)
+        time.sleep(timebetweenrequests)
 
 
-def get_host_metric(agent_url, timeout=5):
+def get_host_metric(agent_url, timeout):
     url = agent_url
     try:
         r = requests.get(url, timeout=timeout)
