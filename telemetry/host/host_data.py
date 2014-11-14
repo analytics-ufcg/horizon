@@ -69,3 +69,25 @@ class HostDataHandler:
             self.con.close()
         except:
             print 'Cant close connection'
+    
+    
+    
+    def service_live_status(self, host):
+        cursor = self.con.cursor()
+
+        try:
+            query = "SELECT max(Date), HostStatus from %s where Host = '%s';" % (self.table, host)
+            print query
+            cursor.execute(query)
+
+            rows = cursor.fetchall()
+            return rows[0][1]
+
+
+        except Exception, e:
+            print e
+            return None
+        finally:
+           cursor.close()
+
+
