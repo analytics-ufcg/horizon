@@ -12,7 +12,7 @@ class HostMetricsCalculator:
         hour = 3600.0
         host_handler = HostDataHandler()
 
-        db_lines = host_handler.get_data_db('Status', timestamp_begin, timestamp_end)
+        db_lines = host_handler.get_data_db('HostStatus', timestamp_begin, timestamp_end)
         host_data = db_lines[0]['data']
         time_begin = datetime.datetime.strptime(timestamp_begin, '%Y-%m-%dT%H:%M:%S')
         time_end = datetime.datetime.strptime(timestamp_end, '%Y-%m-%dT%H:%M:%S')
