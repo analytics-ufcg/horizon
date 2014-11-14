@@ -12,9 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from django import template
 from django.utils.translation import ugettext_lazy as _ # noqa
 
 from horizon import tabs
+from openstack_dashboard.dashboards.admin.availability import tables
 
 
 class HostTab(tabs.Tab):
@@ -30,12 +32,11 @@ class HostTab(tabs.Tab):
 class StatisticsTab(tabs.Tab):
     name = _("Host Statistics")
     slug = "host_statistics"
-    template_name = ("admin/availability/statistics.html")
-
+    template_name = ("admin/availability/host_statistics.html")
+   
     def get_context_data(self, request, *args, **kwargs):
-        context = {}
+        context = template.RequestContext(request)
         return context
-
 
 class ServiceTab(tabs.Tab):
     name = _("Service")
