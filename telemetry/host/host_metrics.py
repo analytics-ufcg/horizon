@@ -48,10 +48,10 @@ class HostMetricsCalculator:
             else:
                 continue
 
-        mtbf = ((sum(list_ups_time) / len(downs))) / hour
+        mtbf = ((sum(list_ups_time) / len(list_downs_time))) / hour
 
         result['MTBF'] = "%.3f hours" % mtbf
-        result['MTTF'] = "%.3f hours" % (period_total - (sum(list_ups_time) / hour))
+        result['MTTF'] = "%.3f hours" % (((period_total - (sum(list_ups_time))) / len(list_downs_time)) / hour)
         result['Max time up'] = "%.3f hours" %  (max(list_ups_time) / hour)
         result['Max time down'] = "%.3f hours" %   (max(list_downs_time) / hour)
 
@@ -66,7 +66,9 @@ class HostMetricsCalculator:
         return result
 
 
-
+        
+ 
+    
 
 
 
