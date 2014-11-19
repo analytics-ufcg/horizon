@@ -5,7 +5,7 @@ import time, datetime
 
 class HostMetricsCalculator:
 
-    def MTBF(self, timestamp_begin, timestamp_end):
+    def get_host_availability_metrics(self, timestamp_begin, timestamp_end):
         import numpy
 
 
