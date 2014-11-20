@@ -1,12 +1,14 @@
-import time, datetime, psutil
+import time, datetime, psutil, service_utils
 
-def host_data(interval=1, percpu=False):
+def host_data(interval=1, percpu=False, services=None):
     memory = []
     network_data = get_network_data()
     cpu = get_cpu_percent(interval, percpu)
     memory.append(get_virtual_memory())
     disk = get_disk_usage()
-    return {"cpu":cpu, "memory":memory, "disk":disk, "network":network_data}
+    services = get_services_status(services)
+
+    return {"cpu":cpu, "memory":memory, "disk":disk, "network":network_data, "services":services}
 
 def get_cpu_percent(interval, percpu):
     return psutil.cpu_percent(interval, percpu)
@@ -42,3 +44,21 @@ def get_disk_usage():
         
     return disks
 
+def get_services_status(services):
+    services_status = {}
+
+    service_list = []
+    process_list = []
+
+    for service in services:
+        if service['type'] == 'service':
+            service_list.append(service)
+
+        if service['type'] == 'process':
+            process_list.append(service)
+
+
+    services_status.update(service_utils.get_service_status(service_list))
+    services_status.update(service_utils.get_process_status(process_list))
+
+    return services_status

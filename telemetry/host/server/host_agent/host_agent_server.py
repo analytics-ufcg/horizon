@@ -5,9 +5,10 @@ import host_agent
 
 app = Flask(__name__)
 
-@app.route('/host_data')
+@app.route('/host_data', methods=['POST'])
 def host_data():
-    resp = make_response(json.dumps(host_agent.host_data()))
+    services = json.loads(request.data)
+    resp = make_response(json.dumps(host_agent.host_data(services=services)))
     resp.headers['Access-Control-Allow-Origin'] = "*"
 
     return resp
