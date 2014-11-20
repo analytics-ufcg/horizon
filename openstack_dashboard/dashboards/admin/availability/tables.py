@@ -12,6 +12,7 @@ class HostAvailabilityTable(tables.DataTable):
     max_time_up = tables.Column('max_time_up', verbose_name=_('Max Time Up'))
     avg_time_up = tables.Column('avg_time_up', verbose_name=_('Average Time Up'))
     std_time_up = tables.Column('std_time_up', verbose_name=_('Standart Deviation Time Up'))
+    availability_percent = tables.Column('availability_percent', verbose_name=_('Availability rate'))
     #second_quantile = tables.Column('second', verbose_name=_('Second Quartile'))
     #third_quantile = tables.Column('third', verbose_name=_('First Quartile'))
     #fourth_quantile = tables.Column('fourth', verbose_name=_('Fourth Quartile'))
