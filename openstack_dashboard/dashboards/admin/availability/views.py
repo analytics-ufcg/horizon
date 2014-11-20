@@ -18,6 +18,7 @@ from django.utils.datastructures import SortedDict
 from datetime import datetime  # noqa
 from datetime import timedelta  # noqa
 
+import pytz
 from horizon import tabs
 from horizon import tables
 
@@ -102,6 +103,14 @@ def _calc_date_args(date_from, date_to, date_options):
         except Exception:
             raise ValueError("The dates haven't been "
                              "recognized")
+    elif (int(date_options) == 0):
+        print '---' + date_options
+        try:
+            date_from = datetime.now() + timedelta(days=0, hours=-1)
+            date_to = datetime.now()
+        except Exception:
+            raise ValueError("The time delta must be an "
+                             "integer representing days.")
     else:
         try:
             date_from = datetime.now() - timedelta(days=int(date_options))
@@ -109,5 +118,9 @@ def _calc_date_args(date_from, date_to, date_options):
         except Exception:
             raise ValueError("The time delta must be an "
                              "integer representing days.")
+
+    # fixme 
+    date_from = date_from + timedelta(days=0, hours=-3)
+    date_to = date_to + timedelta(days=0, hours=-3)
 
     return date_from.strftime("%Y-%m-%dT%H:%M:%S"), date_to.strftime("%Y-%m-%dT%H:%M:%S")
