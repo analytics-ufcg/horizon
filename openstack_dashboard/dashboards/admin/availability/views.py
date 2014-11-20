@@ -15,6 +15,9 @@
 from django.views.generic import TemplateView # noqa
 from django.utils.datastructures import SortedDict
 
+import json
+from django.http import HttpResponse
+
 from datetime import datetime  # noqa
 from datetime import timedelta  # noqa
 
@@ -34,6 +37,37 @@ from openstack_dashboard.api.telemetry_api.telemetry_data \
 class IndexView(tabs.TabbedTableView):
     tab_group_class = availability_tabs.AvailabilityOverview
     template_name = 'admin/availability/index.html'
+
+class HostGraphView(TemplateView):
+    template_name = 'admin/availability/host.html'
+
+    def get(self, request, *args, **kwargs):
+        # get url parameters
+        times_begin = request.GET.get('timestamp_begin')
+        times_end = request.GET.get('timestamp_end')
+        host = request.GET.get('host')
+
+        # get db data
+        data_handler = DataHandler()
+        json_graf = data_handler.get_host_status(host, times_begin, times_end)
+        print json_graf
+        return HttpResponse(json.dumps(json_graf), content_type='application/json')
+
+
+class ServiceGraphView(TemplateView):
+    template_name = 'admin/availability/service.html'
+
+    def get(self, request, *args, **kwargs):
+        # get url parameters
+        times_begin = request.GET.get('timestamp_begin')
+        times_end = request.GET.get('timestamp_end')
+        host = request.GET.get('host')
+
+        # get db data
+        data_handler = DataHandler()
+        json_graf = data_handler.get_services_status(host, times_begin, times_end)
+        print json_graf
+        return HttpResponse(json.dumps(json_graf), content_type='application/json')
 
 class HostStatisticsView(tables.MultiTableView):
     template_name = 'admin/availability/host_statistics_table.html'

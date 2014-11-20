@@ -15,9 +15,14 @@
 from django import template
 from django.utils.translation import ugettext_lazy as _ # noqa
 
+from openstack_dashboard.api.telemetry_api.telemetry_data import DataHandler
+import ast
+
 from horizon import tabs
 from openstack_dashboard.dashboards.admin.availability import tables
 
+data_handler = DataHandler()
+HOSTS = ast.literal_eval(data_handler.get_config().get('Openstack', 'computenodes'))
 
 class HostTab(tabs.Tab):
     name = _("Host")
@@ -25,7 +30,12 @@ class HostTab(tabs.Tab):
     template_name = ("admin/availability/host.html")
 
     def get_context_data(self, request, *args, **kwargs):
-        context = {}
+        context_temp = {'name':'hosts','children':[]}
+        for h in HOSTS:
+            host = {'ip':h}
+            context_temp['children'].append(host)
+        host_list = context_temp['children']
+        context = {'hosts_list': host_list}
         return context
 
 

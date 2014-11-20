@@ -309,7 +309,7 @@
                                   'Network Incoming Bytes Rate': t1[0],
                                   'Network Outgoing Bytes Rate': t2[0]
                               },
-                              x_format: '%Y-%m-%d %H:%M:%S',
+                              xFormat: '%Y-%m-%d %H:%M:%S',
                               columns: [t1, t2, network_incoming, network_outgoing]
                           },
                           subchart: {
@@ -366,7 +366,7 @@
                       var json = { bindto: '#chart2',
                           data : {
                               x : 'x',
-                              x_format : '%Y-%m-%d %H:%M:%S',
+                              xFormat : '%Y-%m-%d %H:%M:%S',
                               columns : valores
 
                           },
@@ -378,7 +378,7 @@
                                   label : 'Time',
                                   type : 'timeseries',
                                   tick : {
-                                      format: '%e %b %H:%M:%S',
+                                      format: '%e %b %H:%M:%S'
                                   }
                               },
                               y : {
