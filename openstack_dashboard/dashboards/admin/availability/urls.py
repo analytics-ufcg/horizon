@@ -19,5 +19,7 @@ from openstack_dashboard.dashboards.admin.availability import views
 
 urlpatterns = patterns('openstack_dashboard.dashboards.admin.availability.views',
     url(r'^$', views.IndexView.as_view(), name='index'),
-    url(r'^host_statistics$', views.HostStatisticsView.as_view(), name='host_statistics')
+    url(r'^host_graph_data$', views.HostGraphView.as_view(), name='host_graph_data'),
+    url(r'^host_statistics$', views.HostStatisticsView.as_view(), name='host_statistics'),
+    url(r'^service_graph_data$', views.ServiceGraphView.as_view(), name='service_graph_data')
 )
