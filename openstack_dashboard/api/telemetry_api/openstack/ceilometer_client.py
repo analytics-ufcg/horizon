@@ -1,18 +1,31 @@
 import ast
-from keystone_client import KeystoneClient
 
+from keystone_client import KeystoneClient
 from ceilometerclient import client
+
+from telemetry.config_manager import ConfigManager
 
 class CeilometerClient:
 
-    def __init__(self, config):
-        ceilometer_api_version = config.get('Openstack', 'ceilometerapiversion')
-        username = config.get('Openstack', 'osusername')
-        password = config.get('Openstack', 'ospassword')
-        tenant_admin = config.get('Openstack', 'ostenantadmin')
-        auth_url = config.get('Openstack', 'osauthurl')
-        self.__alarm_url = config.get('Misc', 'alarmposturl')
-        self.ceilometer = client.get_client(ceilometer_api_version, os_username=username, os_password=password, os_tenant_name=tenant_admin, os_auth_url=auth_url)
+    def __init__(self):
+        configManager = ConfigManager()
+
+        self.__ceilometer_api_version = configManager.get_ceilometer_api_version()
+        self.__os_username = configManager.get_admin_user()
+        self.__os_password = configManager.get_admin_pass()
+        self.__os_auth_url = configManager.get_oauth_url()
+        self.__admin_tenant = configManager.get_admin_tenant()
+        self.__alarm_url = configManager.get_alarm_url()
+
+        print self.__ceilometer_api_version
+        print self.__os_username
+        print self.__os_password
+        print self.__os_auth_url
+        print self.__admin_tenant
+        print self.__alarm_url
+
+
+        self.ceilometer = client.get_client(self.__ceilometer_api_version, os_username=self.__os_username, os_password=self.__os_password, os_tenant_name=self.__admin_tenant, os_auth_url=self.__os_auth_url)
 
     def __build_query(self, timestamp_begin=None, timestamp_end=None, resource_id=None, project_id=None):
         query = []

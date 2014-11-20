@@ -10,7 +10,11 @@ import requests
 from openstack.ceilometer_client import CeilometerClient
 from openstack.keystone_client import KeystoneClient
 from openstack.nova_client import NovaClient
+
+
 from telemetry.host.host_data import HostDataHandler
+from telemetry.host.host_metrics import HostMetricsCalculator
+
 from benchmark_data import BenchmarkDataHandler
 from reduction import Reduction
 import analytics.recommendations
@@ -46,7 +50,8 @@ class DataHandler:
     def __init__(self, config_path='openstack_dashboard/api/telemetry_api/environment.conf'):
         self.__config = ConfigParser.ConfigParser()
         self.__config.read(config_path)
-        self.__ceilometer = CeilometerClient(self.__config)
+        #self.__ceilometer = CeilometerClient(self.__config)
+        self.__ceilometer = CeilometerClient()
         self.__keystone = KeystoneClient(self.__config)
 
 
@@ -735,3 +740,8 @@ class DataHandler:
 
     def get_computenodes_names(self):
         return self.__nova.list_compute_nodes()
+  
+    def get_host_availability_metrics(self, timestamp_begin, timestamp_end):
+        calculator = HostMetricsCalculator()
+
+        return calculator.get_host_availability_metrics(timestamp_begin, timestamp_end)

@@ -37,11 +37,17 @@ class ConfigManager():
     def get_host_db_table(self):
         return self._instance.config_parser.get('Misc', 'HostsDbTable')
 
+    def get_ceilometer_api_version(self):
+        return self._instance.config_parser.get('Openstack', 'CeilometerApiVersion')
+
     def get_admin_user(self):
         return self._instance.config_parser.get('Openstack', 'OSUsername')
 
     def get_admin_pass(self):
         return self._instance.config_parser.get('Openstack', 'OSPassword')
+
+    def get_admin_tenant(self):
+        return self._instance.config_parser.get('Openstack', 'OSTenantAdmin')
 
     def get_admin_tenant_id(self):
         return self._instance.config_parser.get('Openstack', 'AdminTenantId')

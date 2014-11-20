@@ -1,15 +1,20 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load url from future %}
-{% block title %}{% trans 'Usage Report' %}{% endblock %}
+{% block title %}{% trans 'Host Availability Statistics' %}{% endblock %}
 
 {% block page_header %}
-  {% include "horizon/common/_page_header.html" with title=_("Daily Usage Report Per Project")%}
+  {% include "horizon/common/_page_header.html" with title=_("Host Availability Statistics")%}
 {% endblock page_header %}
 
 {% block main %}
-      <a href="{% url 'horizon:admin:metering:index' %}"><button class="btn btn-small">{% trans 'Back' %}</button></a>
-{% for table in tables %}
+   <a href="{% url 'horizon:admin:availability:index' %}"><button class="btn btn-small">{% trans 'Back' %}</button></a>
+   <p>&nbsp;</p>
+   <p>&nbsp;</p>
+
+  {% for table in tables %}
     {{ table.render }}
-{% endfor %}
+  {% endfor %}
+
+
 {% endblock %}

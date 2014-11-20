@@ -15,6 +15,9 @@
 from django.views.generic import TemplateView # noqa
 from django.utils.datastructures import SortedDict
 
+from datetime import datetime  # noqa
+from datetime import timedelta  # noqa
+
 from horizon import tabs
 from horizon import tables
 
@@ -24,18 +27,12 @@ from openstack_dashboard.dashboards.admin.availability import tabs as \
 from openstack_dashboard.dashboards.admin.availability import tables as \
     availability_tables
 
+from openstack_dashboard.api.telemetry_api.telemetry_data \
+    import DataHandler
+
 class IndexView(tabs.TabbedTableView):
     tab_group_class = availability_tabs.AvailabilityOverview
     template_name = 'admin/availability/index.html'
-
-
-class HostView(tables.DataTableView):
-    table_class = availability_tables.HostAvailabilityTable
-    template_name = ""
-
-    def __init__(self, *args, **kwargs):
-        super(HostView, self).__init__(*args, **kwargs)
-
 
 class HostStatisticsView(tables.MultiTableView):
     template_name = 'admin/availability/host_statistics_table.html'
@@ -50,7 +47,7 @@ class HostStatisticsView(tables.MultiTableView):
         table.title = 'table 1'
         t = (table.name, table)
         table_instances.append(t)
-        
+
         self._tables = SortedDict(table_instances)
         self.host_statistics = host_statistics
         return self._tables
@@ -61,15 +58,17 @@ class HostStatisticsView(tables.MultiTableView):
         return handled
 
     def load_data(self, request):
+        data_handler = DataHandler()
+
         date_options = request.POST.get('date_options', None)
         date_from = request.POST.get('date_from', None)
         date_to = request.POST.get('date_to', None)
+        
+        date_from, date_to = _calc_date_args(date_from, date_to, date_options)
 
-        host_rows = {}
-        row = {"host": 'KKKKKK'}
-
-        host_rows['1'] = row
-        return host_rows
+        host_availability_metrics = data_handler.get_host_availability_metrics(date_from, date_to)
+        print host_availability_metrics
+        return host_availability_metrics
 
     def get_context_data(self, **kwargs):
         context = {}
@@ -77,5 +76,38 @@ class HostStatisticsView(tables.MultiTableView):
         return context
 
 
+def _calc_date_args(date_from, date_to, date_options):
+    # TODO(lsmola) all timestamps should probably work with
+    # current timezone. And also show the current timezone in chart.
+    if (date_options == "other"):
+        try:
+            if date_from:
+                date_from = datetime.strptime(date_from,
+                                              "%Y-%m-%d")
+            else:
+                # TODO(lsmola) there should be probably the date
+                # of the first sample as default, so it correctly
+                # counts the time window. Though I need ordering
+                # and limit of samples to obtain that.
+                pass
+            if date_to:
+                date_to = datetime.strptime(date_to,
+                                            "%Y-%m-%d")
+                # It return beginning of the day, I want the and of
+                # the day, so i will add one day without a second.
+                date_to = (date_to + timedelta(days=1) -
+                           timedelta(seconds=1))
+            else:
+                date_to = datetime.now()
+        except Exception:
+            raise ValueError("The dates haven't been "
+                             "recognized")
+    else:
+        try:
+            date_from = datetime.now() - timedelta(days=int(date_options))
+            date_to = datetime.now()
+        except Exception:
+            raise ValueError("The time delta must be an "
+                             "integer representing days.")
 
-
+    return date_from.strftime("%Y-%m-%dT%H:%M:%S"), date_to.strftime("%Y-%m-%dT%H:%M:%S")
