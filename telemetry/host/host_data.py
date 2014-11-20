@@ -90,4 +90,78 @@ class HostDataHandler:
         finally:
            cursor.close()
 
+    def get_service_status_db(self, host, timestamp_begin=None, timestamp_end=None):
+       
+        cursor = self.con.cursor()
+        rows = []
+        try:
+            query = "SELECT Date, ServiceStatus, Host FROM %s" % (self.table)
+            where = " WHERE Host = \'%s\'" % (host)
+            if any([timestamp_begin, timestamp_end]):
+                where += ' AND '
+                if timestamp_begin:
+                    where += "Date > \'%s\'" % datetime.datetime.strptime(timestamp_begin, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
 
+                    if timestamp_end:
+                        where += " AND Date < \'%s\'" % datetime.datetime.strptime(timestamp_end, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
+
+            query += where
+            print query
+
+            cursor.execute(query)
+            self.con.commit()
+
+            rows = cursor.fetchall()
+
+            services_dict = {}
+        
+        except:
+            pass
+       # print rows[-1] 
+        for row in rows:
+            if row[1] == 'null':
+                pass
+            else:
+                services = json.loads(row[1])
+                timestamp = row[0].strftime('%Y-%m-%dT%H:%M:%S')
+                for service in services.keys():
+                    if service not in services_dict.keys():
+                        services_dict[service] = [{timestamp:services[service]}]
+                    else:
+                        services_dict[service].append({timestamp:services[service]} )
+                    
+        return services_dict
+
+    def get_host_status_db(self, host, timestamp_begin=None, timestamp_end=None):
+        
+        cursor = self.con.cursor()
+        rows = []
+        try:
+            query = "SELECT Date, HostStatus, Host FROM %s" % (self.table)
+            where = " WHERE Host = \'%s\'" % (host)
+            if any([timestamp_begin, timestamp_end]):
+                where += ' AND '
+                if timestamp_begin:
+                    where += "Date > \'%s\'" % datetime.datetime.strptime(timestamp_begin, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
+
+                    if timestamp_end:
+                        where += " AND Date < \'%s\'" % datetime.datetime.strptime(timestamp_end, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
+
+            query += where
+            print query
+
+            cursor.execute(query)
+            self.con.commit()
+
+            rows = cursor.fetchall()
+
+            host_availability_dict = {}
+
+        except:
+            pass
+
+        for row in rows:
+            timestamp = row[0].strftime('%Y-%m-%dT%H:%M:%S')
+            host_availability_dict[timestamp] = row[1]
+
+        return host_availability_dict

@@ -745,3 +745,10 @@ class DataHandler:
         calculator = HostMetricsCalculator()
 
         return calculator.get_host_availability_metrics(timestamp_begin, timestamp_end)
+
+    def get_services_status(self, host, timestamp_begin, timestamp_end):
+        return self.__hosts_db.get_service_status_db(host, timestamp_begin, timestamp_end)
+
+    def get_host_status(self, host, timestamp_begin, timestamp_end):
+        return self.__hosts_db.get_host_status_db(host, timestamp_begin, timestamp_end)
+
