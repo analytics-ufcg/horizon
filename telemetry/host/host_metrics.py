@@ -19,6 +19,7 @@ class HostMetricsCalculator:
 
     def _get_availability_metrics_per_host(self, host_data, total_period):
         # init variables
+        hour = 3600.0
         result = {}
         list_ups_time = []
         list_downs_time = []
@@ -71,10 +72,14 @@ class HostMetricsCalculator:
            std_time_up = 0
            availability_percent = 1
         else:
-           total_up_time = sum(list_up_time)
+           total_up_time = sum(list_ups_time)
            failures_count = len(list_downs_time)
            mtbf = (total_up_time / failures_count) / hour
-           mttf = ((total_period - toital_up_time) / failures_count) / hour
+           mttf = ((total_period - total_up_time) / failures_count) / hour
+
+           list_ups_time = numpy.array(list_ups_time)
+           list_downs_time = numpy.array(list_downs_time)
+           
            max_time_up = (max(list_ups_time) / hour)
            avg_time_up = (list_ups_time.mean() / hour)
            std_time_up = (list_ups_time.std() / hour)
