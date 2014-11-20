@@ -1,6 +1,6 @@
 import sys
 import ConfigParser, ast
-import requests, time
+import requests, time, json
 
 from host_dbwriter import HostDataDBWriter
 
@@ -31,18 +31,18 @@ def store_host_data(hosts, config, timeout, timebetweenrequests, debug=False):
 
     while True:
         for host in hosts:
-            data = get_host_metric(host['agent_url'], timeout)
+            data = get_host_metric(host['agent_url'], timeout, host['services'])
 
             if data == 'Unknown host':
-                print
                 result = db.save_data_db(host_status='F', host=host['ip'])
             else:
                 cpu = data["cpu"]
                 memory = data["memory"]
                 disk = data["disk"]
                 network = data["network"]
+                services = data["services"]
 
-                result = db.save_data_db(cpu=cpu, memory=memory, disk=disk, network=network, host=host['ip'])
+                result = db.save_data_db(cpu=cpu, memory=memory, disk=disk, network=network, service_status=services, host=host['ip'])
 
             if debug:
                 output =  "\nhostname: " + str(host['hostname'])
@@ -56,12 +56,13 @@ def store_host_data(hosts, config, timeout, timebetweenrequests, debug=False):
         time.sleep(timebetweenrequests)
 
 
-def get_host_metric(agent_url, timeout):
+def get_host_metric(agent_url, timeout, services=None):
     url = agent_url
     try:
-        r = requests.get(url, timeout=timeout)
-        if r.status_code == 200:
-            return r.json()
+        payload=json.dumps(services)
+        response = requests.post(url, timeout=timeout, data=payload)
+        if response.status_code == 200:
+            return response.json()
         else:
             return 'Unknown host'
     except:
