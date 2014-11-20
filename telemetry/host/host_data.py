@@ -117,7 +117,6 @@ class HostDataHandler:
         
         except:
             pass
-       # print rows[-1] 
         for row in rows:
             if row[1] == 'null':
                 pass
@@ -126,9 +125,9 @@ class HostDataHandler:
                 timestamp = row[0].strftime('%Y-%m-%dT%H:%M:%S')
                 for service in services.keys():
                     if service not in services_dict.keys():
-                        services_dict[service] = [{timestamp:services[service]}]
+                        services_dict[service] = [{'timestamp':timestamp, 'status':services[service]}]
                     else:
-                        services_dict[service].append({timestamp:services[service]} )
+                        services_dict[service].append({'timestamp':timestamp, 'status':services[service]} )
                     
         return services_dict
 
@@ -155,13 +154,16 @@ class HostDataHandler:
 
             rows = cursor.fetchall()
 
-            host_availability_dict = {}
+            host_availability_dict = {'data':[]}
 
         except:
             pass
 
         for row in rows:
+            sample = {}
             timestamp = row[0].strftime('%Y-%m-%dT%H:%M:%S')
-            host_availability_dict[timestamp] = row[1]
+            sample['timestamp'] = timestamp
+            sample['status'] = row[1]
+            host_availability_dict['data'].append(sample)
 
         return host_availability_dict
