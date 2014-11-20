@@ -5,13 +5,14 @@ import numpy
 
 class HostMetricResult:
 
-    def __init__(self, host, mtbf, mttf, max_time_up, avg_time_up, std_time_up):
+    def __init__(self, host, mtbf, mttf, max_time_up, avg_time_up, std_time_up, availability_percent):
         self.host = host
         self.mtbf = mtbf
         self.mttf = mttf
         self.max_time_up = max_time_up
         self.avg_time_up = avg_time_up
         self.std_time_up = std_time_up
+        self.availability_percent = availability_percent
 
 
 class HostMetricsCalculator:
@@ -68,20 +69,22 @@ class HostMetricsCalculator:
            max_time_up = total_period
            avg_time_up = total_period
            std_time_up = 0
+           availability_percent = 1
         else:
-           total_up_time = sum(list_up_tim)
+           total_up_time = sum(list_up_time)
            failures_count = len(list_downs_time)
            mtbf = (total_up_time / failures_count) / hour
            mttf = ((total_period - toital_up_time) / failures_count) / hour
            max_time_up = (max(list_ups_time) / hour)
            avg_time_up = (list_ups_time.mean() / hour)
            std_time_up = (list_ups_time.std() / hour)
+           availability_percent = total_up_time / (total_period * hour)
 
 
         # create result obj 
         metric_result_obj = HostMetricResult(host_data['host_address'],
             mtbf, mttf,
-            max_time_up, avg_time_up, std_time_up)
+            max_time_up, avg_time_up, std_time_up, availability_percent)
 
         return metric_result_obj
 
