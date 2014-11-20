@@ -639,7 +639,7 @@ class DataHandler:
                     net_bytes_recv_delta = after_net_bytes_recv - before_net_bytes_recv
                     net_bytes_sent_delta = after_net_bytes_sent - before_net_bytes_sent
 
-                    if (net_bytes_recv_delta < 0) or (net_bytes_sent_delta < 0) or (timestamp_delta < 3):
+                    if (net_bytes_recv_delta < 0) or (net_bytes_sent_delta < 0):
                         continue
                     else:
                         sample = next_sample
