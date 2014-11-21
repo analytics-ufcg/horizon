@@ -4,17 +4,333 @@
         id="linechart_general_form">
 
     <div class="control-group">
-      <label for="meter" class="control-label">{% trans "Metric" %}:&nbsp;</label>
-      <div class="controls line_chart_time_picker">
+      <label for="hosts_service" class="control-label">{% trans "Hosts" %}:&nbsp;</label>
+      <div class="controls">
         <select data-line-chart-command="select_box_change"
-                name="meter" id="meter" class="span2 example">
+                name="hosts_service" id="hosts_service" class="span2">
           <option selected="selected">{% trans "--" %}</option>
-          <option value="cpu" >CPU</option>
-          <option value="memory">Memory</option>
-          <option value="disk">Disk</option>
-          <option value="network">Network</option>
+          {% for host in hosts_list %}
+            <option value="{{host.ip}}">{{host.ip}}</option>
+          {% endfor %}
         </select>
       </div>
     </div>
-   </form>
+
+     <div class="control-group">
+      <label for="date_service" class="control-label">{% trans "Period" %}:&nbsp;</label>
+      <div class="controls">
+        <select data-line-chart-command="select_box_change"
+                id="date_service" name="date_service" class="span2">
+          <option value="hour">{% trans "Last Hour" %}</option>
+          <option value="day">{% trans "Last Day" %}</option>
+          <option value="week">{% trans "Last Week" %}</option>
+          <option value="month">{% trans "Last Month" %}</option>
+          <option value="other">{% trans "Other" %}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="control-group" id="date_from_service">
+      <label for="date_from_service" class="control-label">{% trans "From" %}:&nbsp;</label>
+      <div class="controls">
+        <input data-line-chart-command="date_picker_change"
+               type="text" id="date_from_service" name="date_from_service" class="span2 example"/>
+      </div>
+    </div>
+
+    <div class="control-group" id="date_to_service">
+      <label for="date_to_service" class="control-label">{% trans "To" %}:&nbsp;</label>
+      <div class="controls">
+        <input data-line-chart-command="date_picker_change"
+               type="text" id="date_to_service" name="date_to_service" class="span2 example"/>
+      </div>
+    </div>
+      <button type="submit" class="btn btn-small" onclick="verifica_parametros();">{% trans 'Apply' %}</button>
+    </form>
+
 </div>
+<br><br><br><br><div id="chart" style="width: 400; height: 400"></div>
+<script type="text/javascript">
+
+  if (typeof $ !== 'undefined') {
+    show_hide_datepickers();
+  } else {
+    addHorizonLoadEvent(function() {
+      show_hide_datepickers();
+      verifica_parametros();
+    });
+  }
+
+  function show_hide_datepickers() {
+    $("#date_service").change(function(evt) {
+        // Enhancing behaviour of selectbox, on 'other' value selected, I don't
+        // want to refresh, but show hide the date fields
+        if ($(this).find("option:selected").val() == "other"){
+          evt.stopPropagation();
+          $("#date_from_service .controls input, #date_to_service .controls input").val('');
+          $("#date_from_service, #date_to_service").show();
+        } else {
+          $("#date_from_service, #date_to_service").hide();
+        }
+    });
+    if ($("#date_service").find("option:selected").val() == "other"){
+      $("#date_from_service, #date_to_service").show();
+    } else {
+      $("#date_from_service, #date_to_service").hide();
+    }
+  }
+
+  function selectMetric(nome, json) {
+      if (nome == "memory") {
+          return getMemory(json);
+      } else if (nome == "cpu") {
+          return getCPU(json);
+      } else if (nome == "disk") {
+          return getPartitions(json);
+      } else {
+          return null;
+      }
+  }
+
+  function getCPU(json) {
+        array_tempo = [];
+        array_tempo.push("x");
+        var lista_particoes = [];
+        array_cpu = [];
+        array_cpu.push("CPU usage");
+        $.each(json, function(d) {
+                array_tempo.push(json[d].timestamp.replace("T", " "));
+                array_cpu.push((json[d].data).toFixed(2));
+        });
+        lista_particoes.push(array_tempo);
+        lista_particoes.push(array_cpu);
+
+        return lista_particoes;
+  }
+
+  function getMemory(json) {
+        array_tempo = [];
+        array_tempo.push("x");
+        var lista_particoes = [];
+        array_memoria = [];
+        array_memoria.push("Memory usage");
+        $.each(json, function(d) {
+                array_tempo.push(json[d].timestamp.replace("T", " "));
+                var json_memory = JSON.parse(json[d].data);
+                array_memoria.push(json_memory[0].percent);
+        });
+        lista_particoes.push(array_tempo);
+        lista_particoes.push(array_memoria);
+        console.log(lista_particoes);
+        return lista_particoes;
+  }
+
+  function getPartitions(json) {
+        array_tempo = [];
+        array_tempo.push("x");
+        var map_particoes = {};
+        var lista_particoes = [];
+        $.each(json, function(d) {
+                array_tempo.push(json[d].timestamp.replace("T", " "));
+                var json_disco = JSON.parse(json[d].data);
+                $.each(json_disco, function(k, v) {
+                        var particao = json_disco[k];
+                        var chave = particao.device.replaceAll("/", "\\ ");
+                        if (!map_particoes.hasOwnProperty(chave)) {
+                                map_particoes[chave] = [];
+                                map_particoes[chave].push(chave);
+                                map_particoes[chave].push(particao.percent);
+                        } else {
+                                map_particoes[chave].push(particao.percent);
+                        }
+                });
+
+        });
+        lista_particoes.push(array_tempo);
+        $.each(map_particoes, function(k, v) {
+                lista_particoes.push(map_particoes[k]);
+        });
+
+        return lista_particoes;
+  }
+
+  String.prototype.replaceAll = function(de, para) {
+        var str = this;
+        var pos = str.indexOf(de);
+        while (pos > -1) {
+                str = str.replace(de, para);
+                pos = str.indexOf(de);
+        }
+        return (str);
+  };
+
+  function verifica_parametros(){
+      var tempo = $("#date_service").find("option:selected").val();
+      var dh1 = $('#date_from_service').val().replace("-", " ").replace("-", " ").split(" ");
+      var dt1 = new Date(dh1[0], dh1[1], dh1[2], 00, 00);
+      var dh2 = $('#date_to_service').val().replace("-", " ").replace("-", " ").split(" ");
+      var dt2 = new Date(dh2[0], dh2[1], dh2[2], 00, 00);
+      var complemento = "";
+      var now = new Date();
+      now.setTime(now.getTime() + now.getTimezoneOffset());
+
+      if(tempo !== 'undefined'){
+          if (tempo == "hour") {
+              var ontem = new Date(now - (1000 * 60 * 60 * 1));
+              ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+              complemento += "timestamp_begin=" + formattedDate(ontem, 0);
+              complemento += "&timestamp_end=" + formattedDate(now, 0);
+          } else if (tempo == "day") {
+              var ontem = new Date(now - (1000 * 60 * 60 * 24 * 1));
+              ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+              complemento += "timestamp_begin=" + formattedDate(ontem, 0);
+              complemento += "&timestamp_end=" + formattedDate(now, 0);
+          } else if (tempo == "week") {
+              var ontem = new Date(now - (1000 * 60 * 60 * 24 * 7));
+              ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+              complemento += "timestamp_begin=" + formattedDate(ontem, 0);
+              complemento += "&timestamp_end=" + formattedDate(now, 0);
+          } else if (tempo == "month") {
+              var ontem = new Date(now - (1000 * 60 * 60 * 24 * 30));
+              ontem.setTime(ontem.getTime() + ontem.getTimezoneOffset());
+              complemento += "timestamp_begin=" + formattedDate(ontem, 0);
+              complemento += "&timestamp_end=" + formattedDate(now, 0);
+          } else{ //other
+
+              complemento += "timestamp_begin=" + formattedDate(dt1, 1);
+              complemento += "&timestamp_end=" + formattedDate(dt2, 1);
+
+          }
+
+      }
+
+      var url_requisicao_host = "/admin/availability/service_graph_data?";
+      var host = $("#hosts_service").find("option:selected").val();
+      complemento += "&host=" + host;
+
+      if(host != "--"){
+          url_requisicao_host += complemento;
+          console.log(url_requisicao_host);
+          $('<div id="load_rec" style="display:none"> <br><br><center><img src="../../../../../static/dashboard/img/spinner.gif"></img> <br> <h4>The request is being made... This may take a few minutes. Please wait.</h4></center></div>').appendTo("#chart");
+          $("#load_rec").show();
+
+          $.ajax({
+              url : url_requisicao_host,
+              dataType : 'json'
+          }).fail(function( xhr, textStatus, errorThrown) {
+              console.log("fail");
+              console.log(textStatus);
+              console.log(errorThrown);
+              console.log(xhr.responseText);
+              $('#chart').empty().queue(function(exec) {
+                  var ht = $('#hosts_service').find("option:selected").val();
+                  $('#chart').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
+                  exec();
+              });
+
+          }).done(function(data) {
+              var dados = data;
+              if (dados === null || dados.length === 0 ) {
+                  var ht = $('#hosts_service').find("option:selected").val();
+                  $('#chart').empty().queue(function(exec) {
+                      $('#chart').html('<p><h3>' + 'Could not generate the graph for the host ' + ht + '</h3><p>');
+                      exec();
+                  });
+              } else {
+                  var keys = Object.keys(dados);
+                  var service_graph_types = {};
+                  var the_columns = [];
+                  var time = ['x'];
+                  var time_flag = true;
+
+                  $.each(keys, function(i, data) {
+                      var service = dados[data];
+                      var service_column = [];
+
+                      service_graph_types[data] = 'step';
+                      service_column.push(data);
+
+                      $.each(service, function(k, v) {
+                          var result;
+                          if (service[k].status === true) {
+                              result = 1;
+                          } else {
+                              result = 0;
+                          }
+
+                          if(time_flag) {
+                              time.push(service[k].timestamp);
+                          }
+
+                          service_column.push(result);
+                      });
+                      
+                      if(time_flag) {
+                          the_columns.push(time);
+                      }
+                      the_columns.push(service_column);
+                      time_flag = false;
+                  });
+                  console.log(the_columns);
+
+                  var json = { bindto: '#chart',
+                      data : {
+                          x : 'x',
+                          xFormat : '%Y-%m-%dT%H:%M:%S',
+                          columns : the_columns,
+                          types: service_graph_types
+                      },
+                      subchart : {
+                          show : true
+                      },
+                      axis : {
+                          x : {
+                              label : 'Time',
+                              type : 'timeseries',
+                              tick : {
+                                  format: '%e %b %H:%M:%S',
+                              }
+                          },
+                          y : {
+                              label : '(%) '
+                          }
+                      },
+                      tooltip : {
+                          format : {
+                              title : function(d) {
+                                  return formattedDate(new Date(d.getTime())).replace("T", " - ");
+                              },
+                              value : d3.format(',')
+                          }
+                      }
+                  };
+
+                  $('#chart').empty().queue(function(exec) {
+                      var chart = c3.generate(json);
+                      exec();
+                  });
+              }
+          });
+      } else {
+          console.log("nenhum host selecionado");
+      }
+  }
+
+  function formattedDate(date, verificador) {
+        var d = new Date(date || Date.now()), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = '' + d.getFullYear(), hour = '' + (d.getHours()), minuto = '' + (d.getMinutes());
+        if (verificador == 1) {
+                month = '' + d.getMonth();
+        }
+        if (month.length < 2)
+                month = '0' + month;
+        if (day.length < 2)
+                day = '0' + day;
+        if (hour.length < 2)
+                hour = '0' + hour;
+        if (minuto.length < 2)
+                minuto = '0' + minuto;
+
+        return [year, month, day].join('-') + "T" + hour + ":" + minuto + ":00";
+
+  }
+</script>

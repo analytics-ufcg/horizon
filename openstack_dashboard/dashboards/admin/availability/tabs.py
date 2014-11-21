@@ -54,7 +54,12 @@ class ServiceTab(tabs.Tab):
     template_name = ("admin/availability/service.html")
 
     def get_context_data(self, request, *args, **kwargs):
-        context = {}
+        context_temp = {'name':'hosts', 'children':[]}
+        for h in HOSTS:
+            host = {'ip':h}
+            context_temp['children'].append(host)
+        host_list = context_temp['children']
+        context = {'hosts_list': host_list}
         return context
 
 
