@@ -67,19 +67,25 @@ class HostMetricsCalculator:
         if not list_downs_time:
            mtbf = float("inf")
            mttf = float("inf")
+           mttr = float("inf")
            max_time_up = total_period
            avg_time_up = total_period
            std_time_up = 0
            availability_percent = 1
+           availability_metrics = ("NaN")
         else:
            total_up_time = sum(list_ups_time)
+           total_down_time = sum(list_downs_time)
            failures_count = len(list_downs_time)
            mtbf = (total_up_time / failures_count) / hour
-           mttf = ((total_period - total_up_time) / failures_count) / hour
-
+           mttf = (total_period / failures_count) / hour
            list_ups_time = numpy.array(list_ups_time)
            list_downs_time = numpy.array(list_downs_time)
-           
+            
+           mttr = (total_down_time / failures_count) / hour          
+           availability_metrics = (mtbf / (mtbf + mttr) * 100)
+
+
            max_time_up = (max(list_ups_time) / hour)
            avg_time_up = (list_ups_time.mean() / hour)
            std_time_up = (list_ups_time.std() / hour)
