@@ -750,7 +750,10 @@ class DataHandler:
         return self.__hosts_db.get_service_status_db(host, timestamp_begin, timestamp_end)
 
     def get_host_status(self, host, timestamp_begin, timestamp_end):
-        data = self.__hosts_db.get_host_status_db(host, timestamp_begin, timestamp_end)
+        return self.__hosts_db.get_host_status_db(host, timestamp_begin, timestamp_end)
+
+    def points_reduction_host_status(self, host, timestamp_begin, timestamp_end):
+        data = self.get_host_status(host, timestamp_begin, timestamp_end)
         data = data['data']
         output = []
 
