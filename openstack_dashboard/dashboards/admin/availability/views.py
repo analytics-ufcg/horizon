@@ -50,7 +50,7 @@ class HostGraphView(TemplateView):
         # get db data
         data_handler = DataHandler()
         json_graf = data_handler.get_host_status(host, times_begin, times_end)
-        print json_graf
+
         return HttpResponse(json.dumps(json_graf), content_type='application/json')
 
 
