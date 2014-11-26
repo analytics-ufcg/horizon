@@ -292,7 +292,20 @@
                               }
                           },
                           y : {
-                              label : '(%) '
+                              min: 0,
+                              max: 1,
+                              label : 'Status',
+                              tick: {
+                                  format: function (d) {
+                                      if (d == 1) {
+                                          return "up";
+                                      } else if (d == 0) {
+                                          return "down";
+                                      } else {
+                                          return "";
+                                      }
+                                  }
+                              }
                           }
                       },
                       tooltip : {
