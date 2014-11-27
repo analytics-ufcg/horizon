@@ -5,10 +5,10 @@ import numpy
 
 class HostMetricResult:
 
-    def __init__(self, host, mtbf, mttf, max_time_up, avg_time_up, std_time_up, availability_percent):
+    def __init__(self, host, mtbf, mttr, max_time_up, avg_time_up, std_time_up, availability_percent):
         self.host = host
         self.mtbf = mtbf
-        self.mttf = mttf
+        self.mttr = mttr
         self.max_time_up = max_time_up
         self.avg_time_up = avg_time_up
         self.std_time_up = std_time_up
@@ -68,11 +68,11 @@ class HostMetricsCalculator:
            mtbf = float("inf")
            mttf = float("inf")
            mttr = float("inf")
-           max_time_up = total_period
-           avg_time_up = total_period
+           max_time_up = total_period / hour
+           avg_time_up = total_period / hour
            std_time_up = 0
-           availability_percent = 1
-           availability_metrics = ("NaN")
+           availability_percent = 100
+           availability_metrics = float("NaN")
         else:
            total_up_time = sum(list_ups_time)
            total_up_time_without_first = sum(list_ups_time[1:]) 
@@ -85,19 +85,17 @@ class HostMetricsCalculator:
            list_downs_time = numpy.array(list_downs_time)
             
            mttr = (total_down_time / failures_count) / hour          
-           availability_metrics = (mtbf / (mtbf + mttr) * 100)
-
+           availability_metrics = (mtbf / (mtbf + mttr)) * 100
 
            max_time_up = (max(list_ups_time) / hour)
            avg_time_up = (list_ups_time.mean() / hour)
            std_time_up = (list_ups_time.std() / hour)
-           availability_percent = total_up_time / (total_period * hour)
-
+           availability_percent = ((total_up_time / total_period)) * 100
 
         # create result obj 
         metric_result_obj = HostMetricResult(host_data['host_address'],
-            mtbf, mttf,
-            max_time_up, avg_time_up, std_time_up, availability_percent)
+            round(mtbf, 2), round(mttr,2),
+            round(max_time_up, 2), round(avg_time_up, 2), round(std_time_up, 2), round(availability_percent, 2))
 
         return metric_result_obj
 
@@ -114,7 +112,7 @@ class HostMetricsCalculator:
         # format timestamps
         time_begin = datetime.datetime.strptime(timestamp_begin, '%Y-%m-%dT%H:%M:%S')
         time_end = datetime.datetime.strptime(timestamp_end, '%Y-%m-%dT%H:%M:%S')
-        total_period = ((time_end - time_begin).total_seconds()) / hour
+        total_period = (time_end - time_begin).total_seconds() 
 
         # calculte
         results = []
@@ -130,5 +128,3 @@ class HostMetricsCalculator:
             results.append(metric_result_obj)
 
         return results
-
-

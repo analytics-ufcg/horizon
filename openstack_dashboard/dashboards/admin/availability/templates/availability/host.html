@@ -80,80 +80,6 @@
     }
   }
 
-  function selectMetric(nome, json) {
-      if (nome == "memory") {
-          return getMemory(json);
-      } else if (nome == "cpu") {
-          return getCPU(json);
-      } else if (nome == "disk") {
-          return getPartitions(json);
-      } else {
-          return null;
-      }
-  }
-
-  function getCPU(json) {
-	array_tempo = [];
-	array_tempo.push("x");
-	var lista_particoes = [];
-	array_cpu = [];
-	array_cpu.push("CPU usage");
-	$.each(json, function(d) {
-		array_tempo.push(json[d].timestamp.replace("T", " "));
-		array_cpu.push((json[d].data).toFixed(2));
-	});
-	lista_particoes.push(array_tempo);
-	lista_particoes.push(array_cpu);
-
-	return lista_particoes;
-  }
-
-  function getMemory(json) {
-	array_tempo = [];
-	array_tempo.push("x");
-	var lista_particoes = [];
-	array_memoria = [];
-	array_memoria.push("Memory usage");
-	$.each(json, function(d) {
-		array_tempo.push(json[d].timestamp.replace("T", " "));
-		var json_memory = JSON.parse(json[d].data);
-		array_memoria.push(json_memory[0].percent);
-	});
-	lista_particoes.push(array_tempo);
-	lista_particoes.push(array_memoria);
-        console.log(lista_particoes);
-	return lista_particoes;
-  }
-
-  function getPartitions(json) {
-	array_tempo = [];
-	array_tempo.push("x");
-	var map_particoes = {};
-	var lista_particoes = [];
-	$.each(json, function(d) {
-		array_tempo.push(json[d].timestamp.replace("T", " "));
-		var json_disco = JSON.parse(json[d].data);
-		$.each(json_disco, function(k, v) {
-			var particao = json_disco[k];
-			var chave = particao.device.replaceAll("/", "\\ ");
-			if (!map_particoes.hasOwnProperty(chave)) {
-				map_particoes[chave] = [];
-				map_particoes[chave].push(chave);
-				map_particoes[chave].push(particao.percent);
-			} else {
-				map_particoes[chave].push(particao.percent);
-			}
-		});
-
-	});
-	lista_particoes.push(array_tempo);
-	$.each(map_particoes, function(k, v) {
-		lista_particoes.push(map_particoes[k]);
-	});
-
-	return lista_particoes;
-  }
-
   String.prototype.replaceAll = function(de, para) {
 	var str = this;
 	var pos = str.indexOf(de);
@@ -282,11 +208,24 @@
                               label : 'Time',
                               type : 'timeseries',
                               tick : {
-                                  format: '%e %b %H:%M:%S',
+                                  format: '%e %b %H:%M:%S'
                               }
                           },
                           y : {
-                              label : '(%) '
+                              min: 0,
+                              max: 1,
+                              label : 'Status',
+                              tick: {
+                                  format: function (d) {
+                                      if (d == 1) {
+                                          return "up";
+                                      } else if (d == 0) {
+                                          return "down";
+                                      } else {
+                                          return "";
+                                      }
+                                  }
+                              }
                           }
                       },
                       tooltip : {

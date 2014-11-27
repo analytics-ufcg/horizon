@@ -10,6 +10,7 @@
 {% block main %}
    <a href="{% url 'horizon:admin:availability:index' %}"><button class="btn btn-small">{% trans 'Back' %}</button></a>
    <p>&nbsp;</p>
+   <p><b> {% trans 'Selected period: ' %} {{ date_option }} </b></p>
    <p>&nbsp;</p>
 
   {% for table in tables %}
