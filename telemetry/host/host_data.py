@@ -167,3 +167,25 @@ class HostDataHandler:
             host_availability_dict['data'].append(sample)
 
         return host_availability_dict
+
+
+    def get_last_failure(self, timestamp_end, host_id='10.1.0.65'):
+        cursor = self.con.cursor()
+
+        try:
+            query = "SELECT max(Date) from %s where Date < '%s' and Host = '%s' and HostStatus = 'F';" % (self.table, timestamp_end, host_id)
+            print query
+            cursor.execute(query)
+
+            rows = cursor.fetchall()
+            timestamp = rows[0][0].strftime('%Y-%m-%dT%H:%M:%S')
+
+            return timestamp
+
+
+        except Exception, e:
+            print e
+            return None
+        finally:
+           cursor.close()
+
