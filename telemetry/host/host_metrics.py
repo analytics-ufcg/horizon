@@ -75,9 +75,11 @@ class HostMetricsCalculator:
            availability_metrics = ("NaN")
         else:
            total_up_time = sum(list_ups_time)
+           total_up_time_without_first = sum(list_ups_time[1:]) 
            total_down_time = sum(list_downs_time)
            failures_count = len(list_downs_time)
            mtbf = (total_up_time / failures_count) / hour
+           mtbf_without_first =  (total_up_time_without_first / failures_count) / hour
            mttf = (total_period / failures_count) / hour
            list_ups_time = numpy.array(list_ups_time)
            list_downs_time = numpy.array(list_downs_time)
@@ -118,6 +120,12 @@ class HostMetricsCalculator:
         results = []
 
         for host_data in db_lines:
+            timestamp = host_handler.get_last_failure(timestamp_begin, host_data['host_address'])
+            if timestamp is not None:
+                time_begin = datetime.datetime.strptime(timestamp_begin, '%Y-%m-%dT%H:%M:%S')
+                time_end = datetime.datetime.strptime(timestamp_end, '%Y-%m-%dT%H:%M:%S')
+                total_period = ((time_end - time_begin).total_seconds()) / hour
+                        
             metric_result_obj = self._get_availability_metrics_per_host(host_data, total_period)
             results.append(metric_result_obj)
 
