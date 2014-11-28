@@ -88,3 +88,20 @@ class Reduction:
                 local += scale
         return newpoints
 
+    def points_reduction_for_step(self, data, data_key='status'):
+        output = []
+
+        if len(data) > 2:
+            output.append(data[0])
+            current_status = output[0][data_key]
+
+            for i in range(1, len(data) - 1):
+                if data[i][data_key] != current_status:
+                    if i > 0:
+                        output.append(data[i-1])
+                    output.append(data[i])
+                    current_status = data[i][data_key]
+
+            output.append(data[-1])
+
+        return output
