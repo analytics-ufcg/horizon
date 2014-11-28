@@ -749,26 +749,18 @@ class DataHandler:
     def get_services_status(self, host, timestamp_begin, timestamp_end):
         return self.__hosts_db.get_service_status_db(host, timestamp_begin, timestamp_end)
 
+    def points_reduction_services_status(self, host, timestamp_begin, timestamp_end):
+        data = self.__hosts_db.get_service_status_db(host, timestamp_begin, timestamp_end)
+        output = {}
+        for key in data.keys():
+            output[key] = self.__reduction.points_reduction_for_step(data[key], 'status')
+
+        return output
+
     def get_host_status(self, host, timestamp_begin, timestamp_end):
         return self.__hosts_db.get_host_status_db(host, timestamp_begin, timestamp_end)
 
     def points_reduction_host_status(self, host, timestamp_begin, timestamp_end):
         data = self.get_host_status(host, timestamp_begin, timestamp_end)
-        data = data['data']
-        output = []
 
-        if len(data) > 2:
-            output.append(data.pop(0))
-            current_status = output[0]['status']
-
-            for i in range(len(data) - 1):
-                if data[i]['status'] != current_status:
-                    output.append(data[i])
-                    if i > 0:
-                        output.append(data[i-1])
-                    current_status = data[i]['status']
-
-            output.append(data.pop())
-            data = {'data': output}
-
-        return data
+        return {'data': self.__reduction.points_reduction_for_step(data['data'], 'status')}
