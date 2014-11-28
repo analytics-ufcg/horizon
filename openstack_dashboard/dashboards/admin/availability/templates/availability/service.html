@@ -80,80 +80,6 @@
     }
   }
 
-  function selectMetric(nome, json) {
-      if (nome == "memory") {
-          return getMemory(json);
-      } else if (nome == "cpu") {
-          return getCPU(json);
-      } else if (nome == "disk") {
-          return getPartitions(json);
-      } else {
-          return null;
-      }
-  }
-
-  function getCPU(json) {
-        array_tempo = [];
-        array_tempo.push("x");
-        var lista_particoes = [];
-        array_cpu = [];
-        array_cpu.push("CPU usage");
-        $.each(json, function(d) {
-                array_tempo.push(json[d].timestamp.replace("T", " "));
-                array_cpu.push((json[d].data).toFixed(2));
-        });
-        lista_particoes.push(array_tempo);
-        lista_particoes.push(array_cpu);
-
-        return lista_particoes;
-  }
-
-  function getMemory(json) {
-        array_tempo = [];
-        array_tempo.push("x");
-        var lista_particoes = [];
-        array_memoria = [];
-        array_memoria.push("Memory usage");
-        $.each(json, function(d) {
-                array_tempo.push(json[d].timestamp.replace("T", " "));
-                var json_memory = JSON.parse(json[d].data);
-                array_memoria.push(json_memory[0].percent);
-        });
-        lista_particoes.push(array_tempo);
-        lista_particoes.push(array_memoria);
-        console.log(lista_particoes);
-        return lista_particoes;
-  }
-
-  function getPartitions(json) {
-        array_tempo = [];
-        array_tempo.push("x");
-        var map_particoes = {};
-        var lista_particoes = [];
-        $.each(json, function(d) {
-                array_tempo.push(json[d].timestamp.replace("T", " "));
-                var json_disco = JSON.parse(json[d].data);
-                $.each(json_disco, function(k, v) {
-                        var particao = json_disco[k];
-                        var chave = particao.device.replaceAll("/", "\\ ");
-                        if (!map_particoes.hasOwnProperty(chave)) {
-                                map_particoes[chave] = [];
-                                map_particoes[chave].push(chave);
-                                map_particoes[chave].push(particao.percent);
-                        } else {
-                                map_particoes[chave].push(particao.percent);
-                        }
-                });
-
-        });
-        lista_particoes.push(array_tempo);
-        $.each(map_particoes, function(k, v) {
-                lista_particoes.push(map_particoes[k]);
-        });
-
-        return lista_particoes;
-  }
-
   String.prototype.replaceAll = function(de, para) {
         var str = this;
         var pos = str.indexOf(de);
@@ -237,61 +163,63 @@
                       exec();
                   });
               } else {
-                  var keys = Object.keys(dados);
-                  var service_graph_types = {};
-                  var the_columns = [];
-                  var time = ['x'];
-                  var time_flag = true;
+                  console.log("passou");
+                  var service_ids = Object.keys(dados);
+                  var xs = {}
+                  var types = {}
+                  var timestamp = []
+                  var data = []
 
-                  $.each(keys, function(i, data) {
-                      var service = dados[data];
-                      var service_column = [];
+                  $.each(service_ids, function(index, key) {
+                      var timestamps = [];
+                      timestamps.push("x" + (index + 1));
 
-                      service_graph_types[data] = 'step';
-                      service_column.push(data);
+                      var status = [];
+                      status.push(key);
 
-                      $.each(service, function(k, v) {
-                          var result;
-                          if (service[k].status === true) {
-                              result = 1;
-                          } else {
-                              result = 0;
-                          }
+                      $.each(dados[key], function (d) {
+                          data_sample = dados[key][d];
 
-                          if(time_flag) {
-                              time.push(service[k].timestamp);
-                          }
-
-                          service_column.push(result);
+                          timestamps.push(data_sample.timestamp);
+                          status.push(data_sample.status ? 1 : 0);
                       });
-                      
-                      if(time_flag) {
-                          the_columns.push(time);
-                      }
-                      the_columns.push(service_column);
-                      time_flag = false;
-                  });
-                  console.log(the_columns);
 
-                  var json = { bindto: '#chart',
-                      data : {
-                          x : 'x',
-                          xFormat : '%Y-%m-%dT%H:%M:%S',
-                          columns : the_columns,
-                          types: service_graph_types
+                      xs[key] = timestamps[0];
+                      types[key] = 'step';
+                      timestamp.push(timestamps);
+                      data.push(status);
+                  });
+
+                  columns_data = [];
+                  $.each(timestamp, function(index) {
+                      columns_data.push(timestamp[index]);
+                  });
+                  $.each(data, function(index) {
+                      columns_data.push(data[index]);
+                  });
+
+                  var json = {
+                      bindto: '#chart',
+                      data: {
+                          xs: xs,
+                          xFormat: '%Y-%m-%dT%H:%M:%S',
+                          columns: columns_data,
+                          types: types
                       },
-                      subchart : {
-                          show : true
+                      subchart: {
+                          show: true
                       },
-                      axis : {
-                          x : {
-                              label : 'Time',
-                              type : 'timeseries',
-                              tick : {
-                                  format: '%e %b %H:%M:%S',
+                      axis: {
+                          x: {
+                              label: 'Time',
+                              type: 'timeseries',
+                              tick: {
+                                  fit: true,
+                                  count: 5,
+                                  format: '%e %b %H:%M',
                               }
                           },
-                          y : {
+                          y: {
                               min: 0,
                               max: 1,
                               label : 'Status',
@@ -308,18 +236,19 @@
                               }
                           }
                       },
-                      tooltip : {
-                          format : {
-                              title : function(d) {
+                      tooltip: {
+                          format: {
+                              title: function (d) {
                                   return formattedDate(new Date(d.getTime())).replace("T", " - ");
                               },
-                              value : d3.format(',')
+                              value: d3.format(',')
                           }
                       }
                   };
 
-                  $('#chart').empty().queue(function(exec) {
+                  $('#chart').empty().queue(function (exec) {
                       var chart = c3.generate(json);
+                      console.log(chart);
                       exec();
                   });
               }
