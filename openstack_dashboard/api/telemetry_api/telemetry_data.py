@@ -740,7 +740,10 @@ class DataHandler:
 
     def get_computenodes_names(self):
         return self.__nova.list_compute_nodes()
-  
+
+    def get_compute_nodes_ips(self):
+        return ast.literal_eval(self.get_config().get('Openstack', 'computenodes'))
+
     def get_host_availability_metrics(self, timestamp_begin, timestamp_end):
         calculator = HostMetricsCalculator()
 
