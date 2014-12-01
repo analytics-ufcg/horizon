@@ -15,6 +15,8 @@ from openstack.nova_client import NovaClient
 from telemetry.host.host_data import HostDataHandler
 from telemetry.host.host_metrics import HostMetricsCalculator
 
+from openstack_dashboard.api.telemetry_api.host import Host, HostService, host_from_dict
+
 from benchmark_data import BenchmarkDataHandler
 from reduction import Reduction
 import analytics.recommendations
@@ -63,6 +65,7 @@ class DataHandler:
         passwd = self.__config.get('Misc', 'dbpass')
         database = self.__config.get('Misc', 'hostsdbname')
         table = self.__config.get('Misc', 'hostsdbtable')
+        self.__hosts = ast.literal_eval(self.get_config().get('Openstack', 'Hosts'))
         self.__hosts_db = HostDataHandler()
         self.__benchmark_db = BenchmarkDataHandler(server, user, passwd)
         self.__reduction = Reduction()
@@ -753,7 +756,7 @@ class DataHandler:
         return self.__hosts_db.get_service_status_db(host, timestamp_begin, timestamp_end)
 
     def points_reduction_services_status(self, host, timestamp_begin, timestamp_end):
-        data = self.__hosts_db.get_service_status_db(host, timestamp_begin, timestamp_end)
+        data = self.get_services_status(host, timestamp_begin, timestamp_end)
         output = {}
         for key in data.keys():
             output[key] = self.__reduction.points_reduction_for_step(data[key], 'status')
@@ -767,3 +770,10 @@ class DataHandler:
         data = self.get_host_status(host, timestamp_begin, timestamp_end)
 
         return {'data': self.__reduction.points_reduction_for_step(data['data'], 'status')}
+
+    def get_hosts(self):
+        hosts = []
+        for host in self.__hosts:
+            hosts.append(host_from_dict(host))
+
+        return hosts
