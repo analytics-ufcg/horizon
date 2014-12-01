@@ -84,7 +84,6 @@ class HostStatisticsView(tables.MultiTableView):
         table_instances.append(t)
 
         self._tables = SortedDict(table_instances)
-        self.host_statistics = host_statistics
         return self._tables
 
     def handle_table(self, table):
@@ -93,20 +92,29 @@ class HostStatisticsView(tables.MultiTableView):
         return handled
 
     def load_data(self, request):
+        #get data handler instance
         data_handler = DataHandler()
 
+        #get date options
         self.date_options = request.POST.get('date_options', None)
         date_from = request.POST.get('date_from', None)
         date_to = request.POST.get('date_to', None)
         
         date_from, date_to = _calc_date_args(date_from, date_to, self.date_options)
 
+        #get metrics
         host_availability_metrics = data_handler.get_host_availability_metrics(date_from, date_to)
+
+        self.hosts_metrics_list = []
+        for host_result_obj in host_availability_metrics:
+            self.hosts_metrics_list.append(host_result_obj.to_dict())
+
         return host_availability_metrics
 
     def get_context_data(self, **kwargs):
         context = {}
         context['tables'] = self.get_tables().values()
+        context['hosts_metrics_list'] = self.hosts_metrics_list
 
         # map the inputs to the function blocks
         options = {'0' : 'Last Hour',

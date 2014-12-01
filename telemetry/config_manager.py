@@ -1,5 +1,8 @@
 import ConfigParser
 
+import ast
+
+
 #Singleton Class
 class ConfigManager():
 
@@ -51,6 +54,9 @@ class ConfigManager():
 
     def get_admin_tenant_id(self):
         return self._instance.config_parser.get('Openstack', 'AdminTenantId')
+
+    def get_hosts(self):
+        return ast.literal_eval(self._instance.config_parser.get('Openstack', 'Hosts'))
 
     def get_computenodes_map(self):
         return self._instance.config_parser.get('Openstack', 'ComputeNodesMap')

@@ -8,19 +8,14 @@ class HostAvailabilityTable(tables.DataTable):
     host = tables.Column('host', verbose_name=_('Host'))
     mtbf = tables.Column('mtbf', verbose_name=_('MTBF'))
     mttr = tables.Column('mttr', verbose_name=_('MTTR'))
-    max_time_up = tables.Column('max_time_up', verbose_name=_('Max Time Up'))
-    avg_time_up = tables.Column('avg_time_up', verbose_name=_('Average Time Up'))
-    std_time_up = tables.Column('std_time_up', verbose_name=_('Standart Deviation Time Up'))
+    total_up_time = tables.Column('total_up_time', verbose_name=_('Total Up Time'))
+    total_down_time = tables.Column('total_down_time', verbose_name=_('Total Down Time'))
+    failures_count = tables.Column('failures_count', verbose_name=_('Failures Count'))
     availability_percent = tables.Column('availability_percent', verbose_name=_('Availability rate'))
-    #second_quantile = tables.Column('second', verbose_name=_('Second Quartile'))
-    #third_quantile = tables.Column('third', verbose_name=_('First Quartile'))
-    #fourth_quantile = tables.Column('fourth', verbose_name=_('Fourth Quartile'))
+    begin_time = tables.Column('begin_time', verbose_name = _('Begin timestamp'))
 
     def get_object_id(self, obj):
         return '%s' % (obj.host) 
-
-    #def __unicode__(self):
-        #return self.title
 
     class Meta:
         name = "host_availability"

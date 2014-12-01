@@ -1,6 +1,7 @@
 import MySQLdb as mdb
 import time, datetime, json
 from telemetry.config_manager import ConfigManager
+from openstack_dashboard.api.telemetry_api.host import Host, HostService, host_from_dict
 
 class HostDataHandler:
 
@@ -19,7 +20,17 @@ class HostDataHandler:
         except mdb.Error, e:
             print "Error %d: %s" % (e.args[0],e.args[1])
             return None
+    
+    def get_hosts(self):
+        config = ConfigManager()
+        hosts = config.get_hosts()
+        host_obj_list = []
 
+        for host in hosts:
+            host_obj_list.append(host_from_dict(host))
+        
+        return host_obj_list
+          
     def get_data_db(self, metric, timestamp_begin=None, timestamp_end=None):
         cursor = self.con.cursor()
         try:
@@ -35,7 +46,6 @@ class HostDataHandler:
                         where += " AND Date < \'%s\'" % datetime.datetime.strptime(timestamp_end, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
 
             query += where
-            print query
             
             cursor.execute(query)
             self.con.commit()
@@ -77,7 +87,6 @@ class HostDataHandler:
 
         try:
             query = "SELECT max(Date), HostStatus from %s where Host = '%s';" % (self.table, host)
-            print query
             cursor.execute(query)
 
             rows = cursor.fetchall()
@@ -106,7 +115,6 @@ class HostDataHandler:
                         where += " AND Date < \'%s\'" % datetime.datetime.strptime(timestamp_end, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
 
             query += where
-            print query
 
             cursor.execute(query)
             self.con.commit()
@@ -147,7 +155,6 @@ class HostDataHandler:
                         where += " AND Date < \'%s\'" % datetime.datetime.strptime(timestamp_end, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
 
             query += where
-            print query
 
             cursor.execute(query)
             self.con.commit()
@@ -174,7 +181,6 @@ class HostDataHandler:
 
         try:
             query = "SELECT max(Date) from %s where Date < '%s' and Host = '%s' and HostStatus = 'F';" % (self.table, timestamp_end, host_id)
-            print query
             cursor.execute(query)
 
             rows = cursor.fetchall()
