@@ -34,9 +34,11 @@ from openstack_dashboard.dashboards.admin.availability import tables as \
 from openstack_dashboard.api.telemetry_api.telemetry_data \
     import DataHandler
 
+
 class IndexView(tabs.TabbedTableView):
     tab_group_class = availability_tabs.AvailabilityOverview
     template_name = 'admin/availability/index.html'
+
 
 class HostGraphView(TemplateView):
     template_name = 'admin/availability/host.html'
@@ -69,6 +71,7 @@ class ServiceGraphView(TemplateView):
         print json_graf
         return HttpResponse(json.dumps(json_graf), content_type='application/json')
 
+
 class HostStatisticsView(tables.MultiTableView):
     template_name = 'admin/availability/host_statistics_table.html'
 
@@ -78,7 +81,9 @@ class HostStatisticsView(tables.MultiTableView):
 
         host_statistics = self.load_data(self.request)
         table_instances = []
-        table = availability_tables.HostAvailabilityTable(self.request, data=host_statistics, kwargs=self.kwargs.copy())
+        table = availability_tables.HostAvailabilityTable(self.request,
+                                                  data=host_statistics,
+                                                  kwargs=self.kwargs.copy())
         table.title = 'table 1'
         t = (table.name, table)
         table_instances.append(t)
@@ -117,13 +122,14 @@ class HostStatisticsView(tables.MultiTableView):
         context['hosts_metrics_list'] = self.hosts_metrics_list
 
         # map the inputs to the function blocks
-        options = {'0' : 'Last Hour',
-           '1' : 'Last Day',
-           '7' : 'Last Week',
-           '30' : 'Last Month',
-           '365': 'Last Year',
-           'other' : 'other',
-        }
+        options = {
+                   '0' : 'Last Hour',
+                   '1' : 'Last Day',
+                   '7' : 'Last Week',
+                   '30' : 'Last Month',
+                   '365': 'Last Year',
+                   'other' : 'other',
+                  }
         context['date_option'] = options[self.date_options]
         return context
 

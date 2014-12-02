@@ -21,8 +21,10 @@ import ast
 from horizon import tabs
 from openstack_dashboard.dashboards.admin.availability import tables
 
+
 data_handler = DataHandler()
 HOSTS = ast.literal_eval(data_handler.get_config().get('Openstack', 'computenodes'))
+
 
 class HostTab(tabs.Tab):
     name = _("Host")
@@ -47,6 +49,7 @@ class StatisticsTab(tabs.Tab):
     def get_context_data(self, request, *args, **kwargs):
         context = template.RequestContext(request)
         return context
+
 
 class ServiceTab(tabs.Tab):
     name = _("Service")

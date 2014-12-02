@@ -1,6 +1,7 @@
 from host_data import HostDataHandler
+from collections import OrderedDict
 
-import time, datetime
+import time, datetime, json
 import numpy
 
 class HostMetricResult:
@@ -16,8 +17,11 @@ class HostMetricResult:
         self.begin_time = begin_time
 
     def to_dict(self):
-        obj_to_dict = {'$row': self.host, 'MTBF': self.mtbf , 'MTTR': self.mttr, 'Failure': self.failures_count }
-        return obj_to_dict 
+#        obj_to_dict = {'$row': self.host, 'MTBF': self.mtbf , 'MTTR': self.mttr, 'Failure': self.failures_count }
+        obj_to_dict = OrderedDict([('$row', self.host), ('MTBF', self.mtbf),
+                                   ('MTTR', self.mttr), ('Failure', self.failures_count)])
+        return obj_to_dict
+
 
 class HostMetricsCalculator:
 
