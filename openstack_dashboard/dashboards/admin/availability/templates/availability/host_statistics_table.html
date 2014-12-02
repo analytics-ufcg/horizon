@@ -17,5 +17,92 @@
     {{ table.render }}
   {% endfor %}
 
+<html>
+  <head>
+  <meta charset="utf-8"/>
+  <script src="http://d3js.org/d3.v3.js"></script>
+  <link href="http://syntagmatic.github.com/parallel-coordinates/d3.parcoords.css" rel="stylesheet" />
+  <script src="http://syntagmatic.github.com/parallel-coordinates/d3.parcoords.js"></script>
+ 
+  </head>
 
+  <body>
+  <div id="par_container" class="parcoords" style="height:400px;width:100%;"></div>
+
+<script type="text/javascript"> 
+
+    if (typeof $ !== 'undefined') {
+        create_graph();
+    } else {
+        addHorizonLoadEvent(function() {
+            create_graph();
+        });
+    }
+
+function create_graph() {
+
+    var data = {{ hosts_metrics_list|safe }};
+
+    data = data.sort(function(a,b){
+        return d3.ascending(a["MTBF"],b["MTBF"])
+    });
+ 
+    var colorgen = d3.scale.category10();
+    var colors = {};
+
+    data.map(function(d,i){
+        colors[d["MTBF"]] = colorgen(d["MTBF"])
+    });
+
+    var color = function(d) { return colors[d["MTBF"]]; };
+
+    var parcoords = d3.parcoords()("#par_container")
+    .color(color)
+    .alpha(0.4)
+    .data(data)
+
+    //.bundlingStrength(0.8) // set bundling strength
+    //.smoothness(0.15)
+    //.bundleDimension("rtn_rank")
+    .showControlPoints(false)
+    .margin({ top: 100, left: 150, bottom: 12, right: 20 })
+    .render()
+    .brushMode("1D-axes") // enable brushing
+    .reorderable()
+    .interactive() // command line mode
+    //remove rownames (first) label for axis
+    d3.select(".dimension .axis > text").remove();
+
+    //highlight paths on hover of rownames / label
+    d3.selectAll("#par_container > svg > g > g:nth-child(1) > g.axis > g > text")
+    .on("mouseover", highlight )
+    .on("mouseout", unhighlight )
+    .style("fill",function(d){
+        return colors[d];
+    })
+
+    function highlight(e){
+        var that = this;
+        var tohighlight = data.filter(function(row){
+            return row["$row"] == d3.select(that).datum();
+        });
+
+        parcoords.highlight(
+        tohighlight
+        );
+    }
+
+    function unhighlight(e){
+        var that = this;
+        parcoords.unhighlight(
+        data.filter(function(row){
+            return row["$row"] == d3.select(that).datum();
+        })
+        );
+    }
+}
+</script>
+  </body>
+  </html>
+</div>
 {% endblock %}

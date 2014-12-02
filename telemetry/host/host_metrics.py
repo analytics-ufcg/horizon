@@ -1,7 +1,9 @@
 from host_data import HostDataHandler
+from collections import OrderedDict
 
 from collections import OrderedDict
 import time, datetime
+import time, datetime, json
 import numpy
 
 class HostMetricResult:
@@ -18,9 +20,9 @@ class HostMetricResult:
 
     def to_dict(self):
         #obj_to_dict = {'$row': self.host, 'MTBF': self.mtbf , 'MTTR': self.mttr, 'Failure': self.failures_count }
-        obj_to_dict = OrderedDict([('$row', self.host), ('MTBF', self.mtbf) , ('MTTR', self.mttr), ('Failure', self.failures_count)])
-        print dict(obj_to_dict)
-        return obj_to_dict 
+        obj_to_dict = OrderedDict([('$row', self.host), ('MTBF', self.mtbf),
+                                   ('MTTR', self.mttr), ('Failure', self.failures_count)])
+        return obj_to_dict
 
 class HostMetricsCalculator:
 
@@ -123,15 +125,9 @@ class HostMetricsCalculator:
         # get host data from db
         host_handler = HostDataHandler()
 
-        # format timestamps
-        time_begin = datetime.datetime.strptime(timestamp_begin, '%Y-%m-%dT%H:%M:%S')
-        time_end = datetime.datetime.strptime(timestamp_end, '%Y-%m-%dT%H:%M:%S')
-        total_period = (time_end - time_begin).total_seconds() 
-
         # calculte
         results = []
         host_obj_list = host_handler.get_hosts()
-        timestamp_begin_host = time
 
         print '====='
         for i in range(len(host_obj_list)):
