@@ -1,5 +1,6 @@
 from host_data import HostDataHandler
 
+from collections import OrderedDict
 import time, datetime
 import numpy
 
@@ -16,7 +17,9 @@ class HostMetricResult:
         self.begin_time = begin_time
 
     def to_dict(self):
-        obj_to_dict = {'$row': self.host, 'MTBF': self.mtbf , 'MTTR': self.mttr, 'Failure': self.failures_count }
+        #obj_to_dict = {'$row': self.host, 'MTBF': self.mtbf , 'MTTR': self.mttr, 'Failure': self.failures_count }
+        obj_to_dict = OrderedDict([('$row', self.host), ('MTBF', self.mtbf) , ('MTTR', self.mttr), ('Failure', self.failures_count)])
+        print dict(obj_to_dict)
         return obj_to_dict 
 
 class HostMetricsCalculator:
@@ -128,18 +131,36 @@ class HostMetricsCalculator:
         # calculte
         results = []
         host_obj_list = host_handler.get_hosts()
-        for i in range(len(host_obj_list)):
-            host_ip = host_obj_list[i].get_ip()
-            last_failure_timestamp = host_handler.get_last_failure(timestamp_begin, host_ip)
+        timestamp_begin_host = time
 
-            #update begin_time and total_period to include
+        print '====='
+        for i in range(len(host_obj_list)):
+            #get host last failure
+            host_ip = host_obj_list[i].get_ip()
+            print host_ip
+            last_failure_timestamp = host_handler.get_last_failure(timestamp_begin, host_ip)
+            print last_failure_timestamp
+
+            #reset to initial parameters
+            time_begin = datetime.datetime.strptime(timestamp_begin, '%Y-%m-%dT%H:%M:%S')
+            time_end = datetime.datetime.strptime(timestamp_end, '%Y-%m-%dT%H:%M:%S')
+            total_period = (time_end - time_begin).total_seconds()
+            timestamp_begin_host = timestamp_begin
+            
+            #update begin_time and total_period to include failure
             if last_failure_timestamp is not None:
                 time_begin = datetime.datetime.strptime(last_failure_timestamp, '%Y-%m-%dT%H:%M:%S')
                 total_period = (time_end - time_begin).total_seconds()
-                timestamp_begin = last_failure_timestamp
-            
-            host_data = host_handler.get_host_status_db(host_ip, timestamp_begin, timestamp_end)
+                timestamp_begin_host = last_failure_timestamp
+           
+            #print '======='
+            print 'ini: ' + timestamp_begin_host + ' end: ' + timestamp_end
+            print time_begin 
+            print time_end
+            #print '======='
+            print ''
+            host_data = host_handler.get_host_status_db(host_ip, timestamp_begin_host, timestamp_end)
             metric_result_obj = self._get_availability_metrics_per_host(host_ip, host_data, time_begin, total_period)
             results.append(metric_result_obj)
-
+            
         return results
