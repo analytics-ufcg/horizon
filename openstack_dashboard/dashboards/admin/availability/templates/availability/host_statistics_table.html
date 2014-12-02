@@ -43,6 +43,18 @@ function create_graph() {
 
     var data = {{ hosts_metrics_list|safe }};
 
+    data2 = [];
+
+    for (var i = 0, emp; i < data.length; i++) {
+       dic = {};
+       row = data[i].$row;
+       mtbf = data[i].MTBF;
+       mttr = data[i].MTTR;
+       fail = data[i].Failure;
+       dic = {"$row": row, "MTBF": mtbf , "MTTR":mttr, "Failure": fail};
+       data2.push(dic);
+    }
+
     data = data.sort(function(a,b){
         return d3.ascending(a["MTBF"],b["MTBF"])
     });
@@ -59,7 +71,7 @@ function create_graph() {
     var parcoords = d3.parcoords()("#par_container")
     .color(color)
     .alpha(0.4)
-    .data(data)
+    .data(data2)
 
     //.bundlingStrength(0.8) // set bundling strength
     //.smoothness(0.15)
