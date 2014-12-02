@@ -131,9 +131,7 @@ class HostMetricsCalculator:
         for i in range(len(host_obj_list)):
             #get host last failure
             host_ip = host_obj_list[i].get_ip()
-            print host_ip
             last_failure_timestamp = host_handler.get_last_failure(timestamp_begin, host_ip)
-            print last_failure_timestamp
 
             #reset to initial parameters
             time_begin = datetime.datetime.strptime(timestamp_begin, '%Y-%m-%dT%H:%M:%S')
@@ -147,12 +145,6 @@ class HostMetricsCalculator:
                 total_period = (time_end - time_begin).total_seconds()
                 timestamp_begin_host = last_failure_timestamp
            
-            #print '======='
-            print 'ini: ' + timestamp_begin_host + ' end: ' + timestamp_end
-            print time_begin 
-            print time_end
-            #print '======='
-            print ''
             host_data = host_handler.get_host_status_db(host_ip, timestamp_begin_host, timestamp_end)
             metric_result_obj = self._get_availability_metrics_per_host(host_ip, host_data, time_begin, total_period)
             results.append(metric_result_obj)
