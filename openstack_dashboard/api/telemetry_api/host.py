@@ -25,7 +25,7 @@ def host_from_dict(host_dict):
     hostname = host_dict['hostname']
     ip = host_dict['ip']
     agent_url = host_dict['agent_url']
-    type = host_dict['type']
+    node_type = host_dict['type']
     services = []
 
     for service in host_dict['services']:
@@ -36,7 +36,14 @@ def host_from_dict(host_dict):
 
         services.append(HostService(name, type, id, label))
 
-    return Host(hostname, ip, agent_url, type, services)
+    return Host(hostname, ip, agent_url, node_type, services)
+
+def hosts_from_dict_list(host_dict_list):
+    hosts = []
+    for host in host_dict_list:
+        hosts.append(host_from_dict(host))
+
+    return hosts
 
 class HostService:
     def __init__(self, name, type, id, label):
