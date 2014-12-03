@@ -3,19 +3,18 @@ import json, requests, ast, datetime
 from keystone_client import KeystoneClient
 from novaclient.v3 import client
 from novaclient.v3.servers import ServerManager
-import novaclient
+import novaclient, ConfigParser
 
 from telemetry.config_manager import ConfigManager
 
 class NovaClient:
 
     def __init__(self):
-
         configManager = ConfigManager()
         self.__os_username = configManager.get_admin_user()
         self.__os_password = configManager.get_admin_pass()
         self.__os_auth_url = configManager.get_oauth_url()
-        self.__os_tenant_admin = configManager.get_admin_tenant_id()
+        self.__os_tenant_admin = configManager.get_admin_tenant()
         self.__os_compute_nodes = ast.literal_eval(configManager.get_computenodes_map())
 
     def instances(self, project):
