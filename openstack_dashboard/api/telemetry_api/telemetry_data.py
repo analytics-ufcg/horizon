@@ -528,7 +528,7 @@ class DataHandler:
 
     def hosts_aggregation_network(self, timestamp_begin=None, timestamp_end=None):
         ret = []
-        hosts = ast.literal_eval(self.get_config().get('Openstack', 'computenodes'))
+        hosts = self.get_compute_nodes_ips()
         network_data = self.points_reduction_by_server_network(timestamp_begin, timestamp_end, hosts)
         aggregates = self.__nova.host_aggregates('admin')
 
@@ -745,7 +745,13 @@ class DataHandler:
         return self.__nova.list_compute_nodes()
 
     def get_compute_nodes_ips(self):
-        return ast.literal_eval(self.get_config().get('Openstack', 'computenodes'))
+        ips = []
+        all_hosts = self.get_hosts()
+        for host in all_hosts:
+            if host.get_type() == 'compute_node':
+                ips.append(host.get_ip())
+
+        return ips
 
     def get_host_availability_metrics(self, timestamp_begin, timestamp_end):
         calculator = HostMetricsCalculator()
