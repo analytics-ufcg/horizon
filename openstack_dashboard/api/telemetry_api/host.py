@@ -38,6 +38,13 @@ def host_from_dict(host_dict):
 
     return Host(hostname, ip, agent_url, node_type, services)
 
+def hosts_from_dict_list(host_dict_list):
+    hosts = []
+    for host in host_dict_list:
+        hosts.append(host_from_dict(host))
+
+    return hosts
+
 class HostService:
     def __init__(self, name, type, id, label):
         self.__name = name
