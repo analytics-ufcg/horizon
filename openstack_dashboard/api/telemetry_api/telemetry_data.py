@@ -15,7 +15,7 @@ from openstack.nova_client import NovaClient
 from telemetry.host.host_data import HostDataHandler
 from telemetry.host.host_metrics import HostMetricsCalculator
 
-from openstack_dashboard.api.telemetry_api.host import Host, HostService, host_from_dict
+from openstack_dashboard.api.telemetry_api.host import hosts_from_dict_list
 
 from benchmark_data import BenchmarkDataHandler
 from reduction import Reduction
@@ -778,8 +778,4 @@ class DataHandler:
         return {'data': self.__reduction.points_reduction_for_step(data['data'], 'status')}
 
     def get_hosts(self):
-        hosts = []
-        for host in self.__hosts:
-            hosts.append(host_from_dict(host))
-
-        return hosts
+        return hosts_from_dict_list(self.__hosts)
