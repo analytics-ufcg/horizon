@@ -38,10 +38,15 @@ def host_from_dict(host_dict):
 
     return Host(hostname, ip, agent_url, node_type, services)
 
-def hosts_from_dict_list(host_dict_list):
+def hosts_from_dict_list(host_dict_list, type=None):
     hosts = []
     for host in host_dict_list:
-        hosts.append(host_from_dict(host))
+        if type is not None:
+            if host['type'] == type:
+                hosts.append(host_from_dict(host))
+
+        else:
+            hosts.append(host_from_dict(host))
 
     return hosts
 
