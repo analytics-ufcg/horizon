@@ -746,10 +746,9 @@ class DataHandler:
 
     def get_compute_nodes_ips(self):
         ips = []
-        all_hosts = self.get_hosts()
+        all_hosts = self.get_hosts('compute_node')
         for host in all_hosts:
-            if host.get_type() == 'compute_node':
-                ips.append(host.get_ip())
+            ips.append(host.get_ip())
 
         return ips
 
@@ -777,5 +776,5 @@ class DataHandler:
 
         return {'data': self.__reduction.points_reduction_for_step(data['data'], 'status')}
 
-    def get_hosts(self):
-        return hosts_from_dict_list(self.__hosts)
+    def get_hosts(self, type=None):
+        return hosts_from_dict_list(self.__hosts, type)
