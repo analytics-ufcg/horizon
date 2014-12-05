@@ -58,3 +58,11 @@ class KeystoneClient:
         project_id = self.__admin_tenant_id
         keystone = client.Client(tenant_id=project_id, username=self.__os_username, password=self.__os_password, auth_url=self.__os_auth_url)
         return keystone.tenants.list()
+
+    def get_tenant_name(self, tenant_id):
+        tenants = self.tenants
+        for tenant in tenants:
+            if tenant.id == tenant_id:
+                return tenant.name
+        return False
+        

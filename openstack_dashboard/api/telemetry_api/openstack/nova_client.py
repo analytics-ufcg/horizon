@@ -197,6 +197,25 @@ class NovaClient:
             dic_flavors[flavor.id] = lista_valores
         return dic_flavors
 
+    def unique_instances(self):
+        all_instances = self.list_all_instances()
+        unique_instances = []
+        instances = []
+        for server in all_instances:
+            if server['id'] not in instances:
+                instances.append(server['id'])
+                unique_instances.append(server)
+        return unique_instances
+
+    def project_instance(self, project_id):
+        instances = self.unique_instances()
+        project_instances = []
+        for server in instances:
+            if server['tenant_id'] == project_id:
+                project_instances.append(server)
+        return project_instances
+        
+
     def vm_info(self,projects):
         dic_hosts = {}
         attr_host = 'OS-EXT-SRV-ATTR:host'
