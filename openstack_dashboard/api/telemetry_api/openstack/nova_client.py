@@ -218,6 +218,7 @@ class NovaClient:
 
     def vm_info(self,projects):
         dic_hosts = {}
+        keystone = KeystoneClient()
         attr_host = 'OS-EXT-SRV-ATTR:host'
         host_statistics = self.metrics(projects[0])
         keys = host_statistics.keys()
@@ -227,16 +228,17 @@ class NovaClient:
             from novaclient.v1_1 import client # nova client v3 raises exception for this
             nova = client.Client(self.__os_username, self.__os_password, p, self.__os_auth_url)
             flavors = self.flavor_information(p)
-            vm_list = nova.servers.list()
+            project_id = keystone.get_tenant_id(p)
+            vm_list =  self.project_instance(project_id)
             list_instances =[]
             for vm in vm_list:
-                dic_hosts[vm._info[attr_host]]['vms'][vm.id] = flavors[vm.flavor['id']]
-                dic_hosts[vm._info[attr_host]]['nomes'][vm.id] = vm._info['name']
-                list_instances.append(vm.id)
-                if(str(p) not in dic_hosts[vm._info[attr_host]]['Info_project'].keys()):
-                    dic_hosts[vm._info[attr_host]]['Info_project'][str(p)] = [vm.id]
+                dic_hosts[vm['OS-EXT-SRV-ATTR:hypervisor_hostname']]['vms'][vm['id']] = flavors[vm['flavor']['id']]
+                dic_hosts[vm['OS-EXT-SRV-ATTR:hypervisor_hostname']]['nomes'][vm['id']] = vm['name']
+                list_instances.append(vm['id'])
+                if(str(p) not in dic_hosts[vm['OS-EXT-SRV-ATTR:hypervisor_hostname']]['Info_project'].keys()):
+                    dic_hosts[vm['OS-EXT-SRV-ATTR:hypervisor_hostname']]['Info_project'][str(p)] = [vm['id']]
                 else:
-                    dic_hosts[vm._info[attr_host]]['Info_project'][str(p)].append(vm.id)
+                    dic_hosts[vm['OS-EXT-SRV-ATTR:hypervisor_hostname']]['Info_project'][str(p)].append(vm['id'])
         lista_ordenada = []
         dic_ord = sorted( dic_hosts.items(), key=lambda x: (  len( x[1]['vms'].keys() )==0, -x[1]['Livre'][0] ))
         for e in dic_ord:
