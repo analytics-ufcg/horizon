@@ -2,7 +2,7 @@ Documentação do Telemetry
 =========================
 * * *
 
-*   [Sumário]()
+*   [Sumário](#)
     *   [OpenStack](#openstack)
     *   [Horizon](#horizon)
     *   [Analytics](#analytics)
